@@ -9,6 +9,7 @@
 package ai.mnemosyne_systems.web;
 
 import ai.mnemosyne_systems.model.Category;
+import ai.mnemosyne_systems.model.Attachment;
 import ai.mnemosyne_systems.model.Company;
 import ai.mnemosyne_systems.model.CompanyEntitlement;
 import ai.mnemosyne_systems.model.Message;
@@ -459,8 +460,10 @@ public class SupportResource {
         message.date = LocalDateTime.now();
         message.ticket = ticket;
         message.author = user;
-        AttachmentHelper.attachToMessage(message, AttachmentHelper.readAttachments(input, "attachments"));
-        message.persist();
+        List<Attachment> attachments = AttachmentHelper.readAttachments(input, "attachments");
+        AttachmentHelper.attachToMessage(message, attachments);
+        message.persistAndFlush();
+        AttachmentHelper.resolveInlineAttachmentUrls(message, attachments);
         if (ticket.supportUsers.stream().noneMatch(existing -> existing.id != null && existing.id.equals(user.id))) {
             ticket.supportUsers.add(user);
         }
@@ -523,8 +526,10 @@ public class SupportResource {
         message.date = LocalDateTime.now();
         message.ticket = ticket;
         message.author = user;
-        AttachmentHelper.attachToMessage(message, AttachmentHelper.readAttachments(input, "attachments"));
-        message.persist();
+        List<Attachment> attachments = AttachmentHelper.readAttachments(input, "attachments");
+        AttachmentHelper.attachToMessage(message, attachments);
+        message.persistAndFlush();
+        AttachmentHelper.resolveInlineAttachmentUrls(message, attachments);
         ticketEmailService.notifyMessageChange(ticket, message, user);
         return Response.seeOther(URI.create("/support")).build();
     }

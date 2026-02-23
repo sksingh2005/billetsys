@@ -9,6 +9,7 @@
 package ai.mnemosyne_systems.web;
 
 import ai.mnemosyne_systems.model.Category;
+import ai.mnemosyne_systems.model.Attachment;
 import ai.mnemosyne_systems.model.Company;
 import ai.mnemosyne_systems.model.CompanyEntitlement;
 import ai.mnemosyne_systems.model.Message;
@@ -344,8 +345,10 @@ public class UserResource {
         message.date = java.time.LocalDateTime.now();
         message.ticket = ticket;
         message.author = user;
-        AttachmentHelper.attachToMessage(message, AttachmentHelper.readAttachments(input, "attachments"));
-        message.persist();
+        List<Attachment> attachments = AttachmentHelper.readAttachments(input, "attachments");
+        AttachmentHelper.attachToMessage(message, attachments);
+        message.persistAndFlush();
+        AttachmentHelper.resolveInlineAttachmentUrls(message, attachments);
         ticketEmailService.notifyMessageChange(ticket, message, user);
         return Response.seeOther(URI.create("/user/tickets")).build();
     }
@@ -544,8 +547,10 @@ public class UserResource {
         message.date = java.time.LocalDateTime.now();
         message.ticket = ticket;
         message.author = user;
-        AttachmentHelper.attachToMessage(message, AttachmentHelper.readAttachments(input, "attachments"));
-        message.persist();
+        List<Attachment> attachments = AttachmentHelper.readAttachments(input, "attachments");
+        AttachmentHelper.attachToMessage(message, attachments);
+        message.persistAndFlush();
+        AttachmentHelper.resolveInlineAttachmentUrls(message, attachments);
         ticketEmailService.notifyMessageChange(ticket, message, user);
         return Response.seeOther(URI.create("/tickets/" + id)).build();
     }

@@ -8,6 +8,7 @@
 
 package ai.mnemosyne_systems.web;
 
+import ai.mnemosyne_systems.model.Attachment;
 import ai.mnemosyne_systems.model.Message;
 import ai.mnemosyne_systems.model.Ticket;
 import ai.mnemosyne_systems.model.User;
@@ -95,8 +96,10 @@ public class MessageResource {
         String date = AttachmentHelper.readFormValue(input, "date");
         Long ticketId = AttachmentHelper.readFormLong(input, "ticketId");
         Message message = buildMessage(null, user, body, date, ticketId);
-        AttachmentHelper.attachToMessage(message, AttachmentHelper.readAttachments(input, "attachments"));
-        message.persist();
+        List<Attachment> attachments = AttachmentHelper.readAttachments(input, "attachments");
+        AttachmentHelper.attachToMessage(message, attachments);
+        message.persistAndFlush();
+        AttachmentHelper.resolveInlineAttachmentUrls(message, attachments);
         ticketEmailService.notifyMessageChange(message.ticket, message, user);
         return Response.seeOther(URI.create("/messages")).build();
     }
@@ -116,7 +119,9 @@ public class MessageResource {
             throw new NotFoundException();
         }
         buildMessage(message, user, body, date, ticketId);
-        AttachmentHelper.attachToMessage(message, AttachmentHelper.readAttachments(input, "attachments"));
+        List<Attachment> attachments = AttachmentHelper.readAttachments(input, "attachments");
+        AttachmentHelper.attachToMessage(message, attachments);
+        AttachmentHelper.resolveInlineAttachmentUrls(message, attachments);
         ticketEmailService.notifyMessageChange(message.ticket, message, user);
         return Response.seeOther(URI.create("/messages")).build();
     }

@@ -382,6 +382,18 @@
             border-left: 3px solid var(--card-border);
             color: #555;
         }
+        .markdown-preview img,
+        .markdown-preview video {
+            width: 100%;
+            max-width: 100%;
+            height: auto;
+            display: block;
+            margin: 8px 0;
+            border-radius: 6px;
+        }
+        .markdown-preview video {
+            background: #000;
+        }
         .markdown-output p {
             margin: 0 0 6px 0;
         }
@@ -391,6 +403,18 @@
         .markdown-output ul {
             margin: 0 0 6px 18px;
             padding: 0;
+        }
+        .markdown-output img,
+        .markdown-output video {
+            width: 100%;
+            max-width: 100%;
+            height: auto;
+            display: block;
+            margin: 8px 0;
+            border-radius: 6px;
+        }
+        .markdown-output video {
+            background: #000;
         }
         .markdown-output h1,
         .markdown-output h2,
@@ -782,10 +806,16 @@
         result = result.replace(/`([^`]+)`/g, '<code>$1</code>');
         result = result.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
         result = result.replace(/__([^_]+)__/g, '<strong>$1</strong>');
-        result = result.replace(/\*([^*]+)\*/g, '<em>$1</em>');
-        result = result.replace(/_([^_]+)_/g, '<em>$1</em>');
+        result = result.replace(/!video\[([^\]]*)\]\(([^)]+)\)/g, (match, title, url) =>
+            '<video controls preload="metadata" src="' + escapeMarkdownHtml(resolveMediaUrl(url))
+            + '" title="' + escapeMarkdownHtml(title) + '"></video>');
+        result = result.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, (match, alt, url) =>
+            '<img src="' + escapeMarkdownHtml(resolveMediaUrl(url))
+            + '" alt="' + escapeMarkdownHtml(alt) + '" loading="lazy">');
         result = result.replace(/\[([^\]]+)\]\(([^)]+)\)/g,
             '<a href="$2" target="_blank" rel="noopener">$1</a>');
+        result = result.replace(/\*([^*]+)\*/g, '<em>$1</em>');
+        result = result.replace(/_([^_]+)_/g, '<em>$1</em>');
         return result;
     }
 
@@ -864,6 +894,184 @@
         return html;
     }
 
+
+    function isVideoMediaType(type) {
+        return typeof type === 'string' && type.trim().toLowerCase().startsWith('video/');
+    }
+
+    function isImageMediaType(type) {
+        return typeof type === 'string' && type.trim().toLowerCase().startsWith('image/');
+    }
+
+    function isVideoUrl(url) {
+        return /\.(mp4|webm|ogg|mov|m4v|avi|mkv)(?:$|[?#])/i.test(url || '');
+    }
+
+    function collectRegisteredMediaAttachments() {
+        const entries = [];
+        const seen = new Set();
+        document.querySelectorAll('a[href^="/attachments/"]').forEach(link => {
+            const href = link.getAttribute('href');
+            if (!href || seen.has(href)) {
+                return;
+            }
+            const footer = link.closest('.attachment-footer') || link.closest('tr') || link.parentElement;
+            const meta = footer ? footer.querySelector('.attachment-meta') : null;
+            const metaText = meta ? meta.textContent || '' : '';
+            const mime = metaText.split(' - ')[0].trim().toLowerCase();
+            const isVideo = isVideoMediaType(mime) || isVideoUrl(href);
+            const isImage = isImageMediaType(mime);
+            if (!isVideo && !isImage) {
+                return;
+            }
+            seen.add(href);
+            const attachmentIdMatch = href.match(/^\/attachments\/(\d+)(?:$|[?#])/);
+            const mediaHref = attachmentIdMatch ? ('/attachments/' + attachmentIdMatch[1] + '/data') : href;
+            entries.push({
+                name: (link.textContent || 'attachment').trim(),
+                url: mediaHref,
+                isVideo: isVideo,
+                isPending: false
+            });
+        });
+        return entries;
+    }
+
+    function collectPendingMediaAttachments() {
+        const entries = [];
+        const seen = new Set();
+        document.querySelectorAll('[data-attachment-input]').forEach(input => {
+            const files = input._attachmentFiles || Array.from(input.files || []);
+            files.forEach(file => {
+                const mime = (file.type || '').toLowerCase();
+                const isVideo = isVideoMediaType(mime) || isVideoUrl(file.name || '');
+                const isImage = isImageMediaType(mime);
+                if (!isVideo && !isImage) {
+                    return;
+                }
+                const key = [file.name, file.size, file.lastModified].join('::');
+                if (seen.has(key)) {
+                    return;
+                }
+                seen.add(key);
+                entries.push({
+                    name: file.name || 'attachment',
+                    url: 'attachment://' + encodeURIComponent(file.name || ''),
+                    isVideo: isVideo,
+                    isPending: true,
+                    file: file
+                });
+            });
+        });
+        return entries;
+    }
+
+    function collectMediaAttachments() {
+        return collectRegisteredMediaAttachments().concat(collectPendingMediaAttachments());
+    }
+
+    function resolveMediaUrl(url) {
+        const normalizedUrl = typeof url === 'string' ? url.trim() : url;
+        const directAttachmentMatch = typeof normalizedUrl === 'string'
+            ? normalizedUrl.match(/^\/attachments\/(\d+)(?:$|[?#])/)
+            : null;
+        if (directAttachmentMatch) {
+            return '/attachments/' + directAttachmentMatch[1] + '/data';
+        }
+        if (typeof normalizedUrl !== 'string' || !normalizedUrl.startsWith('attachment://')) {
+            return normalizedUrl;
+        }
+        const name = decodeURIComponent(normalizedUrl.substring('attachment://'.length));
+        const pending = collectPendingMediaAttachments().find(item => item.name === name);
+        if (pending && pending.file) {
+            if (!pending.file._markdownObjectUrl) {
+                pending.file._markdownObjectUrl = URL.createObjectURL(pending.file);
+            }
+            return pending.file._markdownObjectUrl;
+        }
+        const registered = collectRegisteredMediaAttachments().find(item => item.name === name);
+        return registered ? registered.url : '#';
+    }
+
+    function showMediaPicker(mediaAttachments, onSelect) {
+        const overlay = document.createElement('div');
+        overlay.style.position = 'fixed';
+        overlay.style.inset = '0';
+        overlay.style.background = 'rgba(0,0,0,0.45)';
+        overlay.style.zIndex = '2000';
+        overlay.style.display = 'flex';
+        overlay.style.alignItems = 'center';
+        overlay.style.justifyContent = 'center';
+
+        const dialog = document.createElement('div');
+        dialog.style.background = '#fff';
+        dialog.style.border = '1px solid #d0d7de';
+        dialog.style.borderRadius = '8px';
+        dialog.style.padding = '12px';
+        dialog.style.width = 'min(520px, calc(100% - 32px))';
+        dialog.style.maxHeight = '80vh';
+        dialog.style.display = 'flex';
+        dialog.style.flexDirection = 'column';
+        dialog.style.gap = '10px';
+
+        const title = document.createElement('div');
+        title.textContent = 'Select media attachment';
+        title.style.fontWeight = '600';
+
+        const select = document.createElement('select');
+        select.size = Math.min(12, Math.max(6, mediaAttachments.length));
+        select.style.width = '100%';
+        select.style.overflow = 'auto';
+        mediaAttachments.forEach((item, index) => {
+            const option = document.createElement('option');
+            option.value = String(index);
+            option.textContent = item.name || 'attachment';
+            select.appendChild(option);
+        });
+
+        const actions = document.createElement('div');
+        actions.style.display = 'flex';
+        actions.style.justifyContent = 'flex-end';
+        actions.style.gap = '8px';
+
+        const cancel = document.createElement('button');
+        cancel.type = 'button';
+        cancel.textContent = 'Close';
+
+        const insert = document.createElement('button');
+        insert.type = 'button';
+        insert.textContent = 'Insert';
+
+        const close = () => {
+            if (overlay.parentNode) {
+                overlay.parentNode.removeChild(overlay);
+            }
+        };
+
+        cancel.addEventListener('click', close);
+        overlay.addEventListener('click', event => {
+            if (event.target === overlay) {
+                close();
+            }
+        });
+        insert.addEventListener('click', () => {
+            const selectedIndex = Number(select.value);
+            if (Number.isInteger(selectedIndex) && selectedIndex >= 0 && selectedIndex < mediaAttachments.length) {
+                onSelect(mediaAttachments[selectedIndex]);
+            }
+            close();
+        });
+
+        actions.appendChild(cancel);
+        actions.appendChild(insert);
+        dialog.appendChild(title);
+        dialog.appendChild(select);
+        dialog.appendChild(actions);
+        overlay.appendChild(dialog);
+        document.body.appendChild(overlay);
+        select.focus();
+    }
+
     function applyMarkdownAction(input, action, option) {
         const start = input.selectionStart || 0;
         const end = input.selectionEnd || 0;
@@ -874,6 +1082,7 @@
             if (selectionStart != null && selectionEnd != null) {
                 input.setSelectionRange(selectionStart, selectionEnd);
             }
+            input.dispatchEvent(new Event('input', { bubbles: true }));
         };
         const wrap = (left, right, placeholder) => {
             const value = selected || placeholder;
@@ -926,6 +1135,29 @@
                 replaceRange(replacement, start + linkText.length + 3, start + linkText.length + 6);
                 break;
             }
+            case 'media': {
+                const mediaAttachments = collectMediaAttachments();
+                if (!mediaAttachments.length) {
+                    window.alert('No image or video attachments found on this ticket.');
+                    break;
+                }
+                showMediaPicker(mediaAttachments, selectedAttachment => {
+                    const mediaUrl = selectedAttachment.isPending
+                        ? 'attachment://' + encodeURIComponent(selectedAttachment.name || '')
+                        : selectedAttachment.url;
+                    const altText = selected || selectedAttachment.name || 'media';
+                    const replacement = selectedAttachment.isVideo
+                        ? '!video[' + altText + '](' + mediaUrl + ')'
+                        : '![' + altText + '](' + mediaUrl + ')';
+                    replaceRange(replacement, start, start + replacement.length);
+                });
+                break;
+            }
+            case 'emoji': {
+                const emoji = option || '😀';
+                replaceRange(emoji, start + emoji.length, start + emoji.length);
+                break;
+            }
             default:
                 break;
         }
@@ -954,7 +1186,9 @@
                 'task-list': 'Task list',
                 quote: 'Quote',
                 code: 'Inline code',
-                link: 'Link'
+                link: 'Link',
+                media: 'Media',
+                emoji: 'Emoji'
             };
             const icons = {
                 bold: '&#x1D401;',
@@ -966,7 +1200,9 @@
                 'task-list': '&#9745;',
                 quote: '&#10077;',
                 code: '&lt;/&gt;',
-                link: '&#128279;'
+                link: '&#128279;',
+                media: '&#127909;',
+                emoji: '&#128512;'
             };
             input.addEventListener('input', render);
             render();
@@ -994,6 +1230,48 @@
                             unorderedButton.insertAdjacentElement('afterend', task);
                         }
                     }
+                }
+                const linkButton = toolbar.querySelector('[data-md-action="link"]');
+                let mediaButton = toolbar.querySelector('[data-md-action="media"]');
+                if (!mediaButton) {
+                    const media = document.createElement('button');
+                    media.type = 'button';
+                    media.setAttribute('data-md-action', 'media');
+                    const lastActionButton = Array.from(toolbar.querySelectorAll('[data-md-action]')).pop();
+                    if (linkButton) {
+                        linkButton.insertAdjacentElement('afterend', media);
+                    } else if (lastActionButton) {
+                        lastActionButton.insertAdjacentElement('afterend', media);
+                    } else {
+                        toolbar.appendChild(media);
+                    }
+                    mediaButton = media;
+                }
+                if (mediaButton && !toolbar.querySelector('[data-md-emoji-picker]')) {
+                    const emojiPicker = document.createElement('select');
+                    emojiPicker.setAttribute('aria-label', 'Emoji');
+                    emojiPicker.setAttribute('data-md-emoji-picker', 'true');
+                    emojiPicker.innerHTML = '<option value="__label">😀</option>'
+                        + '<option value="😁">😁</option>'
+                        + '<option value="😂">😂</option>'
+                        + '<option value="🤣">🤣</option>'
+                        + '<option value="😊">😊</option>'
+                        + '<option value="😍">😍</option>'
+                        + '<option value="😘">😘</option>'
+                        + '<option value="😎">😎</option>'
+                        + '<option value="🤔">🤔</option>'
+                        + '<option value="😢">😢</option>'
+                        + '<option value="😭">😭</option>'
+                        + '<option value="😡">😡</option>'
+                        + '<option value="👍">👍</option>'
+                        + '<option value="👎">👎</option>'
+                        + '<option value="🙏">🙏</option>'
+                        + '<option value="👏">👏</option>'
+                        + '<option value="🎉">🎉</option>'
+                        + '<option value="🔥">🔥</option>'
+                        + '<option value="✅">✅</option>'
+                        + '<option value="❌">❌</option>';
+                    mediaButton.insertAdjacentElement('afterend', emojiPicker);
                 }
                 const codeBlockButton = toolbar.querySelector('[data-md-action="code-block"]');
                 if (codeBlockButton) {
@@ -1060,6 +1338,16 @@
                     render();
                 });
                 toolbar.addEventListener('change', event => {
+                    const emojiPicker = event.target.closest('[data-md-emoji-picker]');
+                    if (emojiPicker) {
+                        if (emojiPicker.value === '__label') {
+                            return;
+                        }
+                        applyMarkdownAction(input, 'emoji', emojiPicker.value);
+                        emojiPicker.value = '__label';
+                        render();
+                        return;
+                    }
                     const select = event.target.closest('[data-md-code-language]');
                     if (!select) {
                         return;

@@ -13,6 +13,8 @@ import ai.mnemosyne_systems.model.Message;
 import jakarta.ws.rs.BadRequestException;
 import jakarta.ws.rs.core.MultivaluedMap;
 import java.io.IOException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -128,6 +130,24 @@ final class AttachmentHelper {
             message.attachments.add(attachment);
         }
         LOGGER.debugf("Attached %d attachment(s) to message", attachments.size());
+    }
+
+    static void resolveInlineAttachmentUrls(Message message, List<Attachment> attachments) {
+        if (message == null || message.body == null || message.body.isBlank() || attachments == null
+                || attachments.isEmpty()) {
+            return;
+        }
+        String updatedBody = message.body;
+        for (Attachment attachment : attachments) {
+            if (attachment == null || attachment.id == null || attachment.name == null || attachment.name.isBlank()) {
+                continue;
+            }
+            String encodedName = URLEncoder.encode(attachment.name, StandardCharsets.UTF_8).replace("+", "%20");
+            String url = "/attachments/" + attachment.id + "/data";
+            updatedBody = updatedBody.replace("attachment://" + encodedName, url);
+            updatedBody = updatedBody.replace("attachment://" + attachment.name, url);
+        }
+        message.body = updatedBody;
     }
 
     private static List<String> listPartNames(MultipartFormDataInput input) {

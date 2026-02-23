@@ -25,6 +25,7 @@ import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import java.net.URI;
+import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Base64;
@@ -37,6 +38,24 @@ public class AttachmentResource {
 
     @Location("attachments/view.html")
     Template viewTemplate;
+
+    @GET
+    @Path("/{id}/data")
+    @Produces("*/*")
+    public Response data(@CookieParam(AuthHelper.AUTH_COOKIE) String auth, @PathParam("id") Long id) {
+        User user = AuthHelper.findUser(auth);
+        if (user == null) {
+            throw new WebApplicationException(Response.seeOther(URI.create("/")).build());
+        }
+        Attachment attachment = Attachment.findById(id);
+        if (attachment == null) {
+            throw new NotFoundException();
+        }
+        String encoded = URLEncoder.encode(attachment.name, java.nio.charset.StandardCharsets.UTF_8).replace("+",
+                "%20");
+        return Response.ok(attachment.data, attachment.mimeType)
+                .header("Content-Disposition", "inline; filename*=UTF-8''" + encoded).build();
+    }
 
     @GET
     @Path("/{id}")
