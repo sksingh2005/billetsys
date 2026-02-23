@@ -197,6 +197,8 @@ public class UserSeeder {
                 "Second attachment".getBytes(StandardCharsets.UTF_8));
         assignSupportIfMissing(a1, "support1@mnemosyne-systems.ai");
         assignSupportIfMissing(a4, "support1@mnemosyne-systems.ai");
+        assignTamIfMissing(a1, "tam@mnemosyne-systems.ai");
+        assignTamIfMissing(a4, "tam@mnemosyne-systems.ai");
         if (a4 != null) {
             a4.status = "Closed";
             a4.persist();
@@ -408,6 +410,22 @@ public class UserSeeder {
                 .anyMatch(existing -> existing.id != null && existing.id.equals(support.id));
         if (!exists) {
             ticket.supportUsers.add(support);
+            ticket.persist();
+        }
+    }
+
+    private void assignTamIfMissing(Ticket ticket, String email) {
+        if (ticket == null || email == null || email.isBlank()) {
+            return;
+        }
+        User tam = User.find("email", email).firstResult();
+        if (tam == null) {
+            return;
+        }
+        boolean exists = ticket.tamUsers.stream()
+                .anyMatch(existing -> existing.id != null && existing.id.equals(tam.id));
+        if (!exists) {
+            ticket.tamUsers.add(tam);
             ticket.persist();
         }
     }
