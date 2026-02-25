@@ -9,6 +9,7 @@
 package ai.mnemosyne_systems.web;
 
 import ai.mnemosyne_systems.model.Category;
+import ai.mnemosyne_systems.model.Article;
 import ai.mnemosyne_systems.model.Attachment;
 import ai.mnemosyne_systems.model.Company;
 import ai.mnemosyne_systems.model.CompanyEntitlement;
@@ -324,6 +325,55 @@ class UserAccessTest {
         RestAssured.given().redirects().follow(false).cookie(AuthHelper.AUTH_COOKIE, cookie)
                 .post("/companies/" + company.id + "/delete").then().statusCode(303);
         Assertions.assertNull(refreshedCompany(company.id));
+    }
+
+    @Test
+    void articlesRespectRolePermissions() {
+        ensureUser("admin", "admin@mnemosyne-systems.ai", User.TYPE_ADMIN, "admin");
+        ensureUser("support1", "support1@mnemosyne-systems.ai", User.TYPE_SUPPORT, "support1");
+        ensureUser("tam", "tam@mnemosyne-systems.ai", User.TYPE_TAM, "tam");
+        ensureUser("user", "user@mnemosyne-systems.ai", User.TYPE_USER, "user");
+        Article seeded = ensureArticle("Runbook", "ops,prod", "Seed article");
+        String supportCookie = login("support1", "support1");
+        String tamCookie = login("tam", "tam");
+        String userCookie = login("user", "user");
+        String adminCookie = login("admin", "admin");
+
+        RestAssured.given().cookie(AuthHelper.AUTH_COOKIE, supportCookie).get("/articles").then().statusCode(200)
+                .body(Matchers.containsString("Articles")).body(Matchers.containsString("Create"))
+                .body(Matchers.not(Matchers.containsString(">Edit<")));
+        RestAssured.given().cookie(AuthHelper.AUTH_COOKIE, supportCookie).get("/articles/create").then().statusCode(200)
+                .body(Matchers.containsString("markdown-editor"))
+                .body(Matchers.containsString("data-md-action=\"media\""))
+                .body(Matchers.containsString("data-attachment-input"));
+        RestAssured.given().redirects().follow(false).cookie(AuthHelper.AUTH_COOKIE, supportCookie)
+                .contentType("multipart/form-data").multiPart("title", "Article One").multiPart("tags", "guide")
+                .multiPart("body", "![pic](attachment://article.png)\n\n**Important**")
+                .multiPart("attachments", "article.png", "img".getBytes(StandardCharsets.UTF_8), "image/png")
+                .post("/articles").then().statusCode(303);
+
+        Article created = Article.find("title", "Article One").firstResult();
+        Assertions.assertNotNull(created);
+        Assertions.assertTrue(created.body.contains("/article-attachments/"));
+
+        RestAssured.given().cookie(AuthHelper.AUTH_COOKIE, tamCookie).get("/articles/create").then().statusCode(200);
+        RestAssured.given().cookie(AuthHelper.AUTH_COOKIE, userCookie).get("/articles/" + created.id).then()
+                .statusCode(200).body(Matchers.containsString("<strong>Important</strong>"));
+        RestAssured.given().cookie(AuthHelper.AUTH_COOKIE, supportCookie).get("/articles/" + created.id).then()
+                .statusCode(200).body(Matchers.containsString(">Edit<"));
+        RestAssured.given().redirects().follow(false).cookie(AuthHelper.AUTH_COOKIE, userCookie).get("/articles/create")
+                .then().statusCode(303);
+
+        RestAssured.given().cookie(AuthHelper.AUTH_COOKIE, adminCookie).get("/articles").then().statusCode(200)
+                .body(Matchers.containsString("Runbook")).body(Matchers.not(Matchers.containsString("Create")));
+        RestAssured.given().redirects().follow(false).cookie(AuthHelper.AUTH_COOKIE, adminCookie)
+                .get("/articles/create").then().statusCode(303);
+        RestAssured.given().cookie(AuthHelper.AUTH_COOKIE, adminCookie).get("/articles/" + seeded.id).then()
+                .statusCode(200).body(Matchers.containsString("Delete"))
+                .body(Matchers.not(Matchers.containsString(">Back<")));
+        RestAssured.given().redirects().follow(false).cookie(AuthHelper.AUTH_COOKIE, adminCookie)
+                .post("/articles/" + seeded.id + "/delete").then().statusCode(303);
+        Assertions.assertNull(refreshedArticle(seeded.id));
     }
 
     @Test
@@ -800,6 +850,22 @@ class UserAccessTest {
     }
 
     @Transactional
+    Article ensureArticle(String title, String tags, String body) {
+        Article article = Article.find("title", title).firstResult();
+        if (article == null) {
+            article = new Article();
+            article.title = title;
+            article.tags = tags;
+            article.body = body;
+            article.persist();
+            return article;
+        }
+        article.tags = tags;
+        article.body = body;
+        return article;
+    }
+
+    @Transactional
     Entitlement refreshedEntitlement(Long id) {
         Panache.getEntityManager().clear();
         return Entitlement.findById(id);
@@ -840,6 +906,12 @@ class UserAccessTest {
     Message refreshedMessage(Long id) {
         Panache.getEntityManager().clear();
         return Message.findById(id);
+    }
+
+    @Transactional
+    Article refreshedArticle(Long id) {
+        Panache.getEntityManager().clear();
+        return Article.findById(id);
     }
 
     @Transactional

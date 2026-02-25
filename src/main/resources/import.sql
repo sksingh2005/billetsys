@@ -340,3 +340,16 @@ WHERE e.name = 'Enterprise' AND s.name = 'Normal';
 INSERT INTO categories (id, name, is_default) VALUES (nextval('category_seq'), 'Feature', false);
 INSERT INTO categories (id, name, is_default) VALUES (nextval('category_seq'), 'Bug', false);
 INSERT INTO categories (id, name, is_default) VALUES (nextval('category_seq'), 'Question', true);
+
+-- =====================
+-- ARTICLES
+-- =====================
+INSERT INTO articles (id, title, tags, body)
+VALUES (nextval('article_seq'),
+        'Getting Started Guide',
+        'guide, onboarding',
+        '## Welcome to billetsys
+
+- Open a ticket from the Tickets menu
+- Use Markdown in messages
+- Attach files with the attachment picker');
