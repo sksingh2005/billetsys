@@ -78,6 +78,21 @@ erDiagram
         BIGINT message_id FK
     }
 
+    ARTICLE {
+        BIGINT id PK
+        STRING title
+        TEXT tags
+        TEXT body
+    }
+
+    ARTICLE_ATTACHMENT {
+        BIGINT id PK
+        STRING name
+        STRING mime_type
+        BYTEA data
+        BIGINT article_id FK
+    }
+
     ENTITLEMENT {
         BIGINT id PK
         STRING name
@@ -133,6 +148,7 @@ erDiagram
     TICKET }o--o{ USER : "support assigned"
     TICKET }o--o{ USER : "tam assigned"
     MESSAGE ||--o{ ATTACHMENT : has
+    ARTICLE ||--o{ ARTICLE_ATTACHMENT : has
     MESSAGE }o--|| USER : authored
     ENTITLEMENT ||--o{ COMPANY_ENTITLEMENT : includes
     ENTITLEMENT ||--o{ ENTITLEMENT_LEVEL : maps
