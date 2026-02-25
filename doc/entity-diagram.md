@@ -109,6 +109,7 @@ erDiagram
     CATEGORY {
         BIGINT id PK
         STRING name
+        STRING description
         BOOLEAN is_default
     }
 

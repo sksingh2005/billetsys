@@ -45,6 +45,10 @@ public class Attachment extends PanacheEntityBase {
     @JoinColumn(name = "article_id")
     public Article article;
 
+    @ManyToOne
+    @JoinColumn(name = "category_id")
+    public Category category;
+
     public int sizeBytes() {
         return data == null ? 0 : data.length;
     }

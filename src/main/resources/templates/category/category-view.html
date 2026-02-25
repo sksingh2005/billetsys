@@ -9,12 +9,29 @@
 {#include admin-layout}
 {#content}
 <div class="form-card">
+    <style>
+        .markdown-output img,
+        .markdown-output video {
+            max-width: 100%;
+            height: auto;
+        }
+    </style>
     <h1>{category.name}</h1>
     <table>
         <tbody>
         <tr>
             <th>Name</th>
             <td>{category.name}</td>
+        </tr>
+        <tr>
+            <th>Description</th>
+            <td>
+                {#if category.description != null && !category.description.isBlank}
+                <div class="markdown-output">{category.description.markdown}</div>
+                {#else}
+                -
+                {/if}
+            </td>
         </tr>
         <tr>
             <th>Default</th>

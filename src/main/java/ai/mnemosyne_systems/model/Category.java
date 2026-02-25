@@ -14,8 +14,11 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "categories")
@@ -29,8 +32,14 @@ public class Category extends PanacheEntityBase {
     @Column(nullable = false)
     public String name;
 
+    @Column(columnDefinition = "text")
+    public String description;
+
     @Column(name = "is_default", nullable = false)
     public boolean isDefault;
+
+    @OneToMany(mappedBy = "category")
+    public List<Attachment> attachments = new ArrayList<>();
 
     public static Category findDefault() {
         return find("isDefault", true).firstResult();

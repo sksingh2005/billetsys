@@ -790,14 +790,17 @@ class UserAccessTest {
         }
         Category feature = new Category();
         feature.name = "Feature";
+        feature.description = "Feature requests and improvements";
         feature.isDefault = false;
         feature.persist();
         Category bug = new Category();
         bug.name = "Bug";
+        bug.description = "Defects and unexpected behavior reports";
         bug.isDefault = false;
         bug.persist();
         Category question = new Category();
         question.name = "Question";
+        question.description = "General product and usage questions";
         question.isDefault = true;
         question.persist();
     }

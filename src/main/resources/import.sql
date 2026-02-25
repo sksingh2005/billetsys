@@ -337,9 +337,12 @@ WHERE e.name = 'Enterprise' AND s.name = 'Normal';
 -- =====================
 -- CATEGORIES
 -- =====================
-INSERT INTO categories (id, name, is_default) VALUES (nextval('category_seq'), 'Feature', false);
-INSERT INTO categories (id, name, is_default) VALUES (nextval('category_seq'), 'Bug', false);
-INSERT INTO categories (id, name, is_default) VALUES (nextval('category_seq'), 'Question', true);
+INSERT INTO categories (id, name, description, is_default)
+VALUES (nextval('category_seq'), 'Feature', 'Feature requests', false);
+INSERT INTO categories (id, name, description, is_default)
+VALUES (nextval('category_seq'), 'Bug', 'Bug reports', false);
+INSERT INTO categories (id, name, description, is_default)
+VALUES (nextval('category_seq'), 'Question', 'General questions', true);
 
 -- =====================
 -- ARTICLES
