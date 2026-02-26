@@ -4,7 +4,7 @@ This document describes how to build the project, run it locally, and generate t
 
 ## Prerequisites
 
-- Java 17+
+- Java 25+
 - Maven
 - PostgreSQL
 - Pandoc
@@ -55,4 +55,3 @@ Generated files:
 
 - `target/billetsys-en.html`
 - `target/billetsys-en.pdf`
-
