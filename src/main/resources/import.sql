@@ -151,9 +151,6 @@ INSERT INTO timezones (id, name, country_id) VALUES (nextval('timezone_seq'), 'A
 -- Saudi Arabia
 INSERT INTO timezones (id, name, country_id) VALUES (nextval('timezone_seq'), 'Asia/Riyadh', (SELECT id FROM countries WHERE code = 'SA'));
 
--- Israel
-INSERT INTO timezones (id, name, country_id) VALUES (nextval('timezone_seq'), 'Asia/Jerusalem', (SELECT id FROM countries WHERE code = 'IL'));
-
 -- Turkey
 INSERT INTO timezones (id, name, country_id) VALUES (nextval('timezone_seq'), 'Europe/Istanbul', (SELECT id FROM countries WHERE code = 'TR'));
 
@@ -224,44 +221,6 @@ INSERT INTO timezones (id, name, country_id) VALUES (nextval('timezone_seq'), 'A
 INSERT INTO timezones (id, name, country_id) VALUES (nextval('timezone_seq'), 'Asia/Dhaka', (SELECT id FROM countries WHERE code = 'BD'));
 
 -- =====================
--- USERS
--- =====================
-INSERT INTO users (id, name, full_name, email, phone_number, phone_extension, country_id, timezone_id, user_type, password_hash)
-VALUES (nextval('user_seq'), 'admin', 'System Administrator', 'admin@mnemosyne-systems.ai', '+1-555-0100', NULL,
-        (SELECT id FROM countries WHERE code = 'US'),
-        (SELECT id FROM timezones WHERE name = 'America/New_York'),
-        'admin', '\$2b$12$FskCWeYhIunkWrF0WXZVc.PUuxK0RAjw6Xir0gHg7hBu3t5qohzca')
-ON CONFLICT (email) DO NOTHING;
-
-INSERT INTO users (id, name, full_name, email, phone_number, phone_extension, country_id, timezone_id, user_type, password_hash)
-VALUES (nextval('user_seq'), 'support1', 'Sarah Johnson', 'support1@mnemosyne-systems.ai', '+1-555-0101', '101',
-        (SELECT id FROM countries WHERE code = 'US'),
-        (SELECT id FROM timezones WHERE name = 'America/New_York'),
-        'support', '\$2b$12$Z8QAXEmmgoprqsDg4Om4SeE0xWnCiAN86QaWntvoV5bd3mrP0ViEW')
-ON CONFLICT (email) DO NOTHING;
-
-INSERT INTO users (id, name, full_name, email, phone_number, phone_extension, country_id, timezone_id, user_type, password_hash)
-VALUES (nextval('user_seq'), 'support2', 'Michael Chen', 'support2@mnemosyne-systems.ai', '+1-555-0102', '102',
-        (SELECT id FROM countries WHERE code = 'US'),
-        (SELECT id FROM timezones WHERE name = 'America/Los_Angeles'),
-        'support', '\$2b$12$Z8QAXEmmgoprqsDg4Om4SeE0xWnCiAN86QaWntvoV5bd3mrP0ViEW')
-ON CONFLICT (email) DO NOTHING;
-
-INSERT INTO users (id, name, full_name, email, phone_number, phone_extension, country_id, timezone_id, user_type, password_hash)
-VALUES (nextval('user_seq'), 'user', 'Demo User', 'user@mnemosyne-systems.ai', '+1-555-0200', NULL,
-        (SELECT id FROM countries WHERE code = 'GB'),
-        (SELECT id FROM timezones WHERE name = 'Europe/London'),
-        'user', '\$2b$12$jik3uV5QEO43S7nS3p9o/.OBR0RWEU3RQ4B/XGlPnjyh0NB7Mm3Y.')
-ON CONFLICT (email) DO NOTHING;
-
-INSERT INTO users (id, name, full_name, email, phone_number, phone_extension, country_id, timezone_id, user_type, password_hash)
-VALUES (nextval('user_seq'), 'tam', 'Technical Account Manager', 'tam@mnemosyne-systems.ai', '+1-555-0300', '300',
-        (SELECT id FROM countries WHERE code = 'US'),
-        (SELECT id FROM timezones WHERE name = 'America/Chicago'),
-        'tam', '\$2b$12$raOKDcLqK.0gZ.HG0yMd2udJFYwr1vZxngYTrHKUM9ihp/yF54Z2a')
-ON CONFLICT (email) DO NOTHING;
-
--- =====================
 -- ENTITLEMENTS
 -- =====================
 INSERT INTO entitlements (id, name, description)
@@ -283,27 +242,6 @@ FROM entitlements e;
 INSERT INTO versions (id, name, date, entitlement_id)
 SELECT nextval('version_seq'), '1.0.1', CURRENT_DATE, e.id
 FROM entitlements e;
-
--- =====================
--- LEVELS
--- =====================
-INSERT INTO support_levels (id, name, description, level, color, from_day, from_time, to_day, to_time, country_id, timezone_id)
-VALUES (nextval('support_level_seq'), 'Critical', 'Critical response level', 60, 'Red',
-        1, 0, 7, 23,
-        (SELECT id FROM countries WHERE code = 'US'),
-        (SELECT id FROM timezones WHERE name = 'America/New_York'));
-
-INSERT INTO support_levels (id, name, description, level, color, from_day, from_time, to_day, to_time, country_id, timezone_id)
-VALUES (nextval('support_level_seq'), 'Escalate', 'Escalation response level', 120, 'Yellow',
-        1, 0, 7, 23,
-        (SELECT id FROM countries WHERE code = 'US'),
-        (SELECT id FROM timezones WHERE name = 'America/New_York'));
-
-INSERT INTO support_levels (id, name, description, level, color, from_day, from_time, to_day, to_time, country_id, timezone_id)
-VALUES (nextval('support_level_seq'), 'Normal', 'Normal response level', 1440, 'White',
-        1, 0, 7, 23,
-        (SELECT id FROM countries WHERE code = 'US'),
-        (SELECT id FROM timezones WHERE name = 'America/New_York'));
 
 -- =====================
 -- ENTITLEMENT LEVELS
