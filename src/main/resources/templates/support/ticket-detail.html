@@ -19,7 +19,7 @@
                 <input type="text" value="{ticket.company.name}" readonly>
             </label>
             <label>Category
-                {#if editableStatus?? && editableStatus}
+                {#if editableStatus?? && editableStatus && displayStatus != 'Closed'}
                 <select name="categoryId">
                     {#for cat in categories}
                         <option value="{cat.id}" {#if ticket.category != null && ticket.category.id == cat.id}selected{/if}>{cat.name}</option>
@@ -38,7 +38,7 @@
                 {/if}
             </label>
             <label>Status
-                {#if editableStatus?? && editableStatus}
+                {#if editableStatus?? && editableStatus && displayStatus != 'Closed'}
                     <select name="status" required>
                         <option value="Open" {#if displayStatus == 'Open'}selected{/if}>Open</option>
                         <option value="Assigned" {#if displayStatus == 'Assigned'}selected{/if}>Assigned</option>
@@ -61,7 +61,7 @@
             </label>
             {/if}
             <label>External issue
-                {#if editableStatus?? && editableStatus}
+                {#if editableStatus?? && editableStatus && displayStatus != 'Closed'}
                     <input type="text" name="externalIssueLink" value="{#if ticket.externalIssueLink != null}{ticket.externalIssueLink}{/if}">
                 {#else}
                     {#if ticket.externalIssueLink != null && !ticket.externalIssueLink.isBlank}
@@ -77,7 +77,7 @@
             </label>
             {/if}
             <label>Affects
-                {#if editableStatus?? && editableStatus}
+                {#if editableStatus?? && editableStatus && displayStatus != 'Closed'}
                 <select name="affectsVersionId" required>
                     {#if versions.isEmpty}
                     <option value="">-</option>
@@ -91,7 +91,7 @@
                 {/if}
             </label>
             <label>Resolved
-                {#if editableStatus?? && editableStatus}
+                {#if editableStatus?? && editableStatus && displayStatus != 'Closed'}
                 <select name="resolvedVersionId">
                     <option value="">-</option>
                     {#for version in versions}
@@ -150,7 +150,7 @@
             </label>
             {/if}
         </div>
-        {#if editableStatus?? && editableStatus}
+        {#if editableStatus?? && editableStatus && displayStatus != 'Closed'}
         <input type="hidden" name="companyId" value="{ticket.company.id}">
         <input type="hidden" name="companyEntitlementId" value="{ticket.companyEntitlement.id}">
         <div class="form-actions">
@@ -258,6 +258,7 @@
 </table>
 {/if}
 
+{#if displayStatus != 'Closed'}
 <h2>Reply</h2>
 <form method="post" action="{messageAction}" enctype="multipart/form-data">
     <div>
@@ -307,5 +308,6 @@
         </div>
     </div>
 </form>
+{/if}
 {/content}
 {/include}
