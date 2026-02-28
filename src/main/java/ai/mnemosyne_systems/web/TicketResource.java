@@ -341,11 +341,11 @@ public class TicketResource {
         if (ticket == null) {
             throw new NotFoundException();
         }
-        if (AuthHelper.isTam(user) && ticket.tamUsers.stream().noneMatch(t -> t.id.equals(user.id))) {
+        if (AuthHelper.isTam(user) && ticket.company.users.stream().noneMatch(u -> u.id.equals(user.id))) {
             throw new WebApplicationException(Response.seeOther(URI.create("/")).build());
         }
         byte[] ticketPdf = pdfService.generateTicketPdf(ticket);
-        return Response.ok(ticketPdf).header("Content-Disposition", "attachment; filename=\"ticket-" + id + ".pdf\"")
+        return Response.ok(ticketPdf).header("Content-Disposition", "attachment; filename=\"" + ticket.name + ".pdf\"")
                 .build();
     }
 

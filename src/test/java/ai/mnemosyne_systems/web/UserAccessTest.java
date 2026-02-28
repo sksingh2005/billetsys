@@ -761,7 +761,7 @@ class UserAccessTest {
         entry.persist();
         ai.mnemosyne_systems.model.Ticket ticket = new ai.mnemosyne_systems.model.Ticket();
         ticket.name = ai.mnemosyne_systems.model.Ticket.nextName(company);
-        ticket.status = "Open";
+        ticket.status = "Assigned";
         ticket.company = company;
         ticket.requester = user;
         ticket.companyEntitlement = entry;

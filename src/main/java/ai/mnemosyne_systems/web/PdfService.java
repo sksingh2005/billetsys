@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Comparator;
 import java.util.List;
 
 @ApplicationScoped
@@ -31,10 +32,21 @@ public class PdfService {
             document.open();
             Color color = getTicketColor(ticket);
             Font titleFont = FontFactory.getFont(FontFactory.COURIER_BOLD, 16);
+            Font subHeaderFont = FontFactory.getFont(FontFactory.COURIER_BOLD, 14, Color.white);
             Font normalFont = FontFactory.getFont(FontFactory.COURIER, 12);
+
+            // Owner Header
+            Installation installation = getOwner();
+            Chunk ownerHeader = new Chunk(installation.name, subHeaderFont);
+            ownerHeader.setBackground(red, 5f, 5f, 400f, 5f);
+            Paragraph owner = new Paragraph(ownerHeader);
+            owner.setAlignment(Paragraph.ALIGN_LEFT);
+            document.add(owner);
+            document.add(Chunk.NEWLINE);
+
             // Pdf title
             Chunk titleChunk = new Chunk("Ticket: " + ticket.name, titleFont);
-            titleChunk.setBackground(color);
+            titleChunk.setBackground(Color.RED, 5f, 5f, 5f, 5f);
             Paragraph title = new Paragraph(titleChunk);
             title.setAlignment(Paragraph.ALIGN_CENTER);
             document.add(title);
@@ -43,13 +55,33 @@ public class PdfService {
             // Reason for SLA
             Message lastMessage = getLastMessage(ticket.messages);
             Long overDue = getOverdue(ticket.companyEntitlement.supportLevel, lastMessage);
-            String lastMessageText;
+            String lastMessageText = "minutes ago";
             if (overDue < 0) {
                 lastMessageText = String.format("Last message: %s | Expires in: %s minutes",
                         lastMessage.date.format(formatter), overDue * -1);
             } else {
-                lastMessageText = String.format("Last message: %s | Expired %s minutes ago",
-                        lastMessage.date.format(formatter), overDue);
+                // more than an hour
+                if (overDue > 60) {
+                    overDue = overDue / 60;
+                    lastMessageText = "hour(s) ago";
+                    // more than a day
+                    if (overDue > 24) {
+                        overDue = overDue / 24;
+                        lastMessageText = "day(s) ago";
+                        // more than month
+                        if (overDue > 30) {
+                            lastMessageText = "month(s) ago";
+                            overDue = overDue / 30;
+                            // more than a year
+                            if (overDue > 365) {
+                                overDue = overDue / 365;
+                                lastMessageText = "year(s) ago";
+                            }
+                        }
+                    }
+                }
+                lastMessageText = String.format("Last message: %s | Expired %s ", lastMessage.date.format(formatter),
+                        overDue) + lastMessageText;
             }
             Paragraph lastMessageSubTitle = new Paragraph(lastMessageText);
             lastMessageSubTitle.setAlignment(Paragraph.ALIGN_LEFT);
@@ -152,7 +184,7 @@ public class PdfService {
     private PdfPTable generateMessages(List<Message> messages) {
         PdfPTable messageTable = new PdfPTable(2);
         messageTable.setWidthPercentage(100);
-
+        messages.sort(Comparator.reverseOrder());
         for (Message message : messages) {
             messageTable.addCell(createCell(message.date.format(formatter), red, Color.WHITE));
             messageTable.addCell(createCell(message.author.email, red, Color.WHITE));
@@ -217,6 +249,10 @@ public class PdfService {
             return java.time.Duration.between(timeToExpire, LocalDateTime.now()).toMinutes();
         }
         return java.time.Duration.between(timeToExpire, LocalDateTime.now()).toMinutes();
+    }
+
+    private Installation getOwner() {
+        return Installation.find("SELECT i from Installation i WHERE i.singletonKey = 'installation'").firstResult();
     }
 
 }

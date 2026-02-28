@@ -389,11 +389,6 @@ public class SupportResource {
         if (displayStatus == null || displayStatus.isBlank()) {
             displayStatus = "Open";
         }
-        boolean assignedToCurrent = Ticket
-                .count("select count(t) from Ticket t join t.supportUsers u where t = ?1 and u = ?2", ticket, user) > 0;
-        if (assignedToCurrent && "Open".equalsIgnoreCase(displayStatus)) {
-            displayStatus = "Assigned";
-        }
         java.util.List<User> supportUsers = User
                 .find("select u from Ticket t join t.supportUsers u where t = ?1 order by u.email", ticket).list();
         java.util.List<User> tamUsers = User.find(

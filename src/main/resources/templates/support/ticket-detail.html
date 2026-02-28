@@ -311,16 +311,20 @@
         </div>
         <input type="file" name="attachments" multiple data-attachment-input class="attachment-input">
         <div class="form-actions attachment-actions">
+            {#if currentUser.type == 'tam' || currentUser.type == 'support'}
             <a class="action-button export-btn" href="/tickets/export/{ticket.id}">Export</a>
+            {/if}
             <button type="button" class="action-button" data-attachment-trigger>Browse</button>
             <button type="submit" class="action-button">Add</button>
         </div>
     </div>
 </form>
     {#else}
+    {#if currentUser.type == 'tam' || currentUser.type == 'support'}
     <div class="form-actions attachment-actions">
         <a class="action-button export-btn" href="/tickets/export/{ticket.id}">Export</a>
     </div>
+    {/if}
 {/if}
 {/content}
 {/include}

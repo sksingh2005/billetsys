@@ -141,9 +141,14 @@ public class UserSeeder {
         User userB = seedUser("userb", "Bob Brown", "userb@mnemosyne-systems.ai", "+1-555-0203", null,
                 "America/New_York", "US", User.TYPE_USER, "userb");
         User tam = User.find("email", "tam@mnemosyne-systems.ai").firstResult();
+        User tam2 = User.find("email", "tam2@mnemosyne-systems.ai").firstResult();
         if (tam == null) {
             tam = seedUser("tam", "Technical Account Manager", "tam@mnemosyne-systems.ai", "+1-555-0300", "300",
                     "America/Chicago", "US", User.TYPE_TAM, "tam");
+        }
+        if (tam2 == null) {
+            tam2 = seedUser("tam2", "Technical Account Manager", "tam2@mnemosyne-systems.ai", "+1-555-0311", "300",
+                    "America/Chicago", "US", User.TYPE_TAM, "tam2");
         }
         User primaryContact = User.find("email", "primaryContact@sample.com").firstResult();
         if (primaryContact == null) {
@@ -243,7 +248,7 @@ public class UserSeeder {
         companyB.users.removeIf(existing -> User.TYPE_ADMIN.equalsIgnoreCase(existing.type)
                 || User.TYPE_SUPPORT.equalsIgnoreCase(existing.type));
         addUserIfMissing(companyB, userB);
-        addUserIfMissing(companyB, tam);
+        addUserIfMissing(companyB, tam2);
         addUserIfMissing(companyB, primaryContact);
         CompanyEntitlement starterCritical = ensureCompanyEntitlement(companyB, "Starter", "Critical");
         if (starterCritical != null) {
@@ -516,6 +521,10 @@ public class UserSeeder {
                 .anyMatch(existing -> existing.id != null && existing.id.equals(support.id));
         if (!exists) {
             ticket.supportUsers.add(support);
+            ticket.status = "Assigned";
+            ticket.persist();
+        } else if (ticket.status.equals("Open")) {
+            ticket.status = "Assigned";
             ticket.persist();
         }
     }

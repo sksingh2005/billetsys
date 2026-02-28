@@ -26,7 +26,7 @@ import java.util.List;
 
 @Entity
 @Table(name = "messages")
-public class Message extends PanacheEntityBase {
+public class Message extends PanacheEntityBase implements Comparable<Message> {
 
     @Id
     @SequenceGenerator(name = "message_seq", sequenceName = "message_seq", allocationSize = 1)
@@ -49,4 +49,16 @@ public class Message extends PanacheEntityBase {
 
     @OneToMany(mappedBy = "message", cascade = CascadeType.ALL, orphanRemoval = true)
     public List<Attachment> attachments = new ArrayList<>();
+
+    @Override
+    public int compareTo(Message other) {
+        if (this.date == null && other.date == null)
+            return 0;
+        if (this.date == null)
+            return 1;
+        if (other.date == null)
+            return -1;
+        return this.date.compareTo(other.date);
+    }
+
 }

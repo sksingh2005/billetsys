@@ -500,12 +500,6 @@ public class UserResource {
         java.util.List<User> supportUsers = User
                 .find("select u from Ticket t join t.supportUsers u where t = ?1 order by u.email", ticket).list();
         String displayStatus = ticket.status;
-        if (displayStatus == null || displayStatus.isBlank()) {
-            displayStatus = "Open";
-        }
-        if ("Open".equalsIgnoreCase(displayStatus) && !supportUsers.isEmpty()) {
-            displayStatus = "Assigned";
-        }
         java.util.List<User> tamUsers = ticket.company == null ? new java.util.ArrayList<>()
                 : User.find(
                         "select distinct u from Company c join c.users u where c = ?1 and lower(u.type) = ?2 order by u.email",
