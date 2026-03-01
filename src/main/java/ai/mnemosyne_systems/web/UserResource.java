@@ -421,9 +421,16 @@ public class UserResource {
         if (company == null) {
             throw new NotFoundException();
         }
+        java.util.List<User> users = User.find(
+                "select distinct u from Company c join c.users u where c = ?1 and lower(u.type) = ?2 order by u.name",
+                company, User.TYPE_USER).list();
+        java.util.List<User> tamUsers = User.find(
+                "select distinct u from Company c join c.users u where c = ?1 and lower(u.type) = ?2 order by u.name",
+                company, User.TYPE_TAM).list();
         SupportTicketData data = buildTicketDataForUser(user);
-        return companyViewTemplate.data("company", company).data("assignedCount", data.assignedTickets.size())
-                .data("openCount", data.openTickets.size()).data("ticketsBase", "/user/tickets")
+        return companyViewTemplate.data("company", company).data("users", users).data("tamUsers", tamUsers)
+                .data("assignedCount", data.assignedTickets.size()).data("openCount", data.openTickets.size())
+                .data("ticketsBase", "/user/tickets")
                 .data("showSupportUsers", User.TYPE_TAM.equalsIgnoreCase(user.type))
                 .data("usersBase", User.TYPE_TAM.equalsIgnoreCase(user.type) ? "/tam/users" : "/user/users")
                 .data("currentUser", user);
@@ -529,7 +536,7 @@ public class UserResource {
                 .data("messageAuthorLinks", messageAuthorLinks).data("action", "/user/tickets/" + id)
                 .data("editableStatus", false).data("supportUserBase", "/user/support-users")
                 .data("ticketEntitlementExpired", isEntitlementExpired(ticket)).data("tamUserBase", "/user/tam-users")
-                .data("showLevel", showLevel).data("levelName", levelName)
+                .data("companyBase", "/user/companies").data("showLevel", showLevel).data("levelName", levelName)
                 .data("messageAction", "/user/tickets/" + id + "/messages")
                 .data("assignedCount", data.assignedTickets.size()).data("openCount", data.openTickets.size())
                 .data("ticketsBase", "/user/tickets")

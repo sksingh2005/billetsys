@@ -46,6 +46,37 @@
                 </tr>
                 </tbody>
             </table>
+            <p style="margin-top: 20px;">&nbsp;</p>
+            <table>
+                <thead>
+                <tr>
+                    <th>User</th>
+                    <th>TAM</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td>
+                        {#if users.isEmpty}
+                            <span>-</span>
+                        {#else}
+                            {#for user in users}
+                                <div><a href="/support/user-profiles/{user.id}">{user.name}</a></div>
+                            {/for}
+                        {/if}
+                    </td>
+                    <td>
+                        {#if tamUsers.isEmpty}
+                            <span>-</span>
+                        {#else}
+                            {#for user in tamUsers}
+                                <div><a href="/support/tam-users/{user.id}">{user.name}</a></div>
+                            {/for}
+                        {/if}
+                    </td>
+                </tr>
+                </tbody>
+            </table>
         </div>
     {/content}
 {/include}

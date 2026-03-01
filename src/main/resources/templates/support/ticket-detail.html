@@ -16,7 +16,10 @@
                 <input type="text" name="ticketName" value="{ticket.name}" readonly>
             </label>
             <label>Company
-                <input type="text" value="{ticket.company.name}" readonly>
+                <div class="readonly-link-field">
+                    <input type="text" value="{ticket.company.name}" readonly>
+                    <a class="readonly-link-field-link" href="{companyBase}/{ticket.company.id}">{ticket.company.name}</a>
+                </div>
             </label>
             <label>Category
                 {#if editableStatus?? && editableStatus && displayStatus != 'Closed'}
@@ -218,6 +221,23 @@
     }
     .export-btn {
         margin-right: auto;
+    }
+    .readonly-link-field {
+        position: relative;
+    }
+    .readonly-link-field input {
+        width: 100%;
+        color: transparent;
+    }
+    .readonly-link-field-link {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        padding: 8px 10px;
+        z-index: 2;
+        color: var(--body-text);
+        text-decoration: underline;
     }
 </style>
 

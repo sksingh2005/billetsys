@@ -196,10 +196,16 @@ public class SupportResource {
         if (company == null) {
             throw new NotFoundException();
         }
+        List<User> users = User.find(
+                "select distinct u from Company c join c.users u where c = ?1 and lower(u.type) = ?2 order by u.name",
+                company, User.TYPE_USER).list();
+        List<User> tamUsers = User.find(
+                "select distinct u from Company c join c.users u where c = ?1 and lower(u.type) = ?2 order by u.name",
+                company, User.TYPE_TAM).list();
         SupportTicketCounts counts = loadTicketCounts(currentUser);
-        return companyViewTemplate.data("company", company).data("assignedCount", counts.assignedCount)
-                .data("openCount", counts.openCount).data("ticketsBase", "/support").data("showSupportUsers", true)
-                .data("currentUser", currentUser);
+        return companyViewTemplate.data("company", company).data("users", users).data("tamUsers", tamUsers)
+                .data("assignedCount", counts.assignedCount).data("openCount", counts.openCount)
+                .data("ticketsBase", "/support").data("showSupportUsers", true).data("currentUser", currentUser);
     }
 
     @GET
@@ -443,7 +449,8 @@ public class SupportResource {
                 .data("action", "/support/tickets/" + id).data("title", "Update").data("editableStatus", true)
                 .data("showLevel", true).data("ticketEntitlementExpired", isEntitlementExpired(ticket))
                 .data("supportUserBase", "/support/support-users").data("tamUserBase", "/support/tam-users")
-                .data("versions", versions).data("messageAction", "/support/tickets/" + id + "/messages")
+                .data("companyBase", "/support/companies").data("versions", versions)
+                .data("messageAction", "/support/tickets/" + id + "/messages")
                 .data("assignedCount", counts.assignedCount).data("openCount", counts.openCount)
                 .data("ticketsBase", "/support").data("showSupportUsers", true).data("currentUser", user)
                 .data("categories", categories);
