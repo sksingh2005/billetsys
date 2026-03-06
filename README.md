@@ -5,7 +5,7 @@ navigate and get their work done quicker.
 
 ## Features
 
-* Support ticket system with 4 roles (User, TAM, Support, Admin)
+* Support ticket system with 5 roles (User, Superuser, TAM, Support, Admin)
 * Transport Layer Security v1.3 (TLS) support
 * Email integration
 * Markdown editor
@@ -34,6 +34,8 @@ The users defined for testing are
 * User: `user1` / `user1`
 * User: `user2` / `user2`
 * User: `userb` / `userb`
+* Superuser: `superuser1` / `superuser1`
+* Superuser: `superuser2` / `superuser2`
 * TAM: `tam1` / `tam1`
 * TAM: `tam2` / `tam2`
 * Support: `support1` / `support1`

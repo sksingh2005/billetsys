@@ -212,13 +212,22 @@ public class ProfileResource {
                 .find("select c from Company c join c.users u where u = ?1 order by c.name", user).list();
         Company userCompany = userCompanies.isEmpty() ? null : userCompanies.get(0);
         List<Company> allCompanies = Company.list("order by name");
+        String companyBase = AuthHelper.isSuperuser(user) ? "/superuser/companies" : "/user/companies";
         TemplateInstance instance = template.data("user", user).data("currentUser", user).data("error", error)
                 .data("cancelUrl", cancelUrl).data("countries", countries).data("timezones", timezones)
-                .data("userCompany", userCompany).data("allCompanies", allCompanies);
+                .data("userCompany", userCompany).data("allCompanies", allCompanies).data("companyBase", companyBase);
         if (!AuthHelper.isAdmin(user)) {
-            SupportResource.SupportTicketCounts counts = SupportResource.loadTicketCounts(user);
-            instance.data("assignedCount", counts.assignedCount).data("openCount", counts.openCount)
-                    .data("ticketsBase", "/support").data("showSupportUsers", true);
+            if (AuthHelper.isSuperuser(user)) {
+                SupportResource.SupportTicketCounts counts = SuperuserResource.loadTicketCounts(user);
+                instance.data("assignedCount", counts.assignedCount).data("openCount", counts.openCount)
+                        .data("ticketsBase", "/superuser/tickets").data("usersBase", "/superuser/users")
+                        .data("showSupportUsers", true);
+            } else {
+                SupportResource.SupportTicketCounts counts = SupportResource.loadTicketCounts(user);
+                instance.data("assignedCount", counts.assignedCount).data("openCount", counts.openCount)
+                        .data("ticketsBase", "/support").data("usersBase", "/support/users")
+                        .data("showSupportUsers", true);
+            }
         }
         return instance;
     }
@@ -229,9 +238,17 @@ public class ProfileResource {
         TemplateInstance instance = template.data("currentUser", user).data("error", error).data("cancelUrl",
                 cancelUrl);
         if (!AuthHelper.isAdmin(user)) {
-            SupportResource.SupportTicketCounts counts = SupportResource.loadTicketCounts(user);
-            instance.data("assignedCount", counts.assignedCount).data("openCount", counts.openCount)
-                    .data("ticketsBase", "/support").data("showSupportUsers", true);
+            if (AuthHelper.isSuperuser(user)) {
+                SupportResource.SupportTicketCounts counts = SuperuserResource.loadTicketCounts(user);
+                instance.data("assignedCount", counts.assignedCount).data("openCount", counts.openCount)
+                        .data("ticketsBase", "/superuser/tickets").data("usersBase", "/superuser/users")
+                        .data("showSupportUsers", true);
+            } else {
+                SupportResource.SupportTicketCounts counts = SupportResource.loadTicketCounts(user);
+                instance.data("assignedCount", counts.assignedCount).data("openCount", counts.openCount)
+                        .data("ticketsBase", "/support").data("usersBase", "/support/users")
+                        .data("showSupportUsers", true);
+            }
         }
         return instance;
     }

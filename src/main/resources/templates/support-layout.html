@@ -557,14 +557,14 @@
             <a href="{#if usersBase??}{usersBase}{#else}/support/users{/if}">Users</a>
             {/if}
             <a href="/articles">Articles</a>
-            {#if currentUser != null && currentUser.type == 'tam'}
-            <a href="/reports/tam">Reports</a>
+            {#if currentUser != null && (currentUser.type == 'tam' || currentUser.type == 'superuser')}
+            <a href="{#if currentUser.type == 'tam'}/reports/tam{#else}/reports/superuser{/if}">Reports</a>
             {/if}
         </nav>
     </div>
     <div class="header-actions">
         {#if currentUser != null}
-        <a class="icon-link" href="{#if currentUser.type == 'tam'}/rss/tam{#else}/rss/support{/if}" title="RSS feed"
+        <a class="icon-link" href="{#if currentUser.type == 'tam'}/rss/tam{#else if currentUser.type == 'superuser'}/rss/superuser{#else}/rss/support{/if}" title="RSS feed"
             aria-label="RSS feed">
             <svg viewBox="0 0 24 24" aria-hidden="true">
                 <circle cx="6" cy="18" r="1.8" fill="currentColor" stroke="none"></circle>

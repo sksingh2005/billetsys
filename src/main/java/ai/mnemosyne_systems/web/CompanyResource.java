@@ -316,7 +316,8 @@ public class CompanyResource {
         if (ids.isEmpty()) {
             return java.util.List.of();
         }
-        return User.list("id in ?1 and type in ?2", ids, java.util.List.of(User.TYPE_USER, User.TYPE_TAM));
+        return User.list("id in ?1 and type in ?2", ids,
+                java.util.List.of(User.TYPE_USER, User.TYPE_TAM, User.TYPE_SUPERUSER));
     }
 
     private java.util.Set<String> applyEntitlements(Company company, java.util.List<Long> entitlementIds,
@@ -446,7 +447,7 @@ public class CompanyResource {
         user.social = social != null && !social.isBlank() ? social : null;
         user.timezone = timezone != null ? Timezone.findById(timezone) : null;
         user.fullName = fullName != null && !fullName.isBlank() ? fullName : null;
-        user.type = User.TYPE_USER;
+        user.type = User.TYPE_SUPERUSER;
         return user;
     }
 }

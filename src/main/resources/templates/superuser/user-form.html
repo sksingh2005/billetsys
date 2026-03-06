@@ -6,7 +6,7 @@
     OF THE PROGRAM CONSTITUTES RECIPIENT'S ACCEPTANCE OF THIS AGREEMENT.
 -->
 
-{#include admin-layout}
+{#include support-layout}
     {#content}
         <div class="form-card">
             <h1>{title}</h1>
@@ -52,33 +52,30 @@
                     </label>
                 </div>
                 <div>
-                    <label>Company
-                        <select name="companyId">
-                            <option value="">Select company</option>
-                            {#for company in allCompanies}
-                                <option value="{company.id}" {#if userCompany != null && userCompany.id == company.id}selected{/if}>{company.name}</option>
-                            {/for}
-                        </select>
+                    <label>Type
+                        <input type="text" value="User" readonly>
+                        <input type="hidden" name="type" value="user">
                     </label>
                 </div>
                 <div>
-                    <label>Type
-                        <select name="type" required>
-                            <option value="admin" {#if user.type == 'admin'}selected{/if}>Admin</option>
-                            <option value="support" {#if user.type == 'support'}selected{/if}>Support</option>
-                            <option value="user" {#if user.type == 'user'}selected{/if}>User</option>
-                            <option value="tam" {#if user.type == 'tam'}selected{/if}>TAM</option>
-                            <option value="superuser" {#if user.type == 'superuser'}selected{/if}>Superuser</option>
-                        </select>
+                    <label>Company
+                        {#if companyLocked?? && companyLocked}
+                            <input type="text" value="{#for company in companies}{#if selectedCompanyId == company.id}{company.name}{/if}{/for}" readonly>
+                            <input type="hidden" name="companyId" value="{selectedCompanyId}">
+                        {#else}
+                            <select name="companyId" required>
+                                <option value="">Select a company</option>
+                                {#for company in companies}
+                                    <option value="{company.id}" {#if selectedCompanyId == company.id}selected{/if}>{company.name}</option>
+                                {/for}
+                            </select>
+                        {/if}
                     </label>
                 </div>
                 <div>
                     <label>Password
-                        <input type="password" name="password" {#if user.id == null}required{/if}>
+                        <input type="password" name="password" required>
                     </label>
-                    {#if user.id != null}
-                        <small>Leave blank to keep the current password.</small>
-                    {/if}
                 </div>
                 <div class="form-actions">
                     <button type="submit" class="action-button">Save</button>

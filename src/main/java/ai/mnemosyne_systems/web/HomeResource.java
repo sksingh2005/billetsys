@@ -41,6 +41,9 @@ public class HomeResource {
         if (AuthHelper.isSupport(user)) {
             return Response.status(Response.Status.SEE_OTHER).header("Location", "/support").build();
         }
+        if (AuthHelper.isSuperuser(user)) {
+            return Response.status(Response.Status.SEE_OTHER).header("Location", "/superuser").build();
+        }
         if (AuthHelper.isUser(user)) {
             return Response.status(Response.Status.SEE_OTHER).header("Location", "/user").build();
         }

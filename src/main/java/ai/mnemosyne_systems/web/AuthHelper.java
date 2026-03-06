@@ -80,6 +80,10 @@ public final class AuthHelper {
         return user != null && User.TYPE_TAM.equalsIgnoreCase(user.type);
     }
 
+    public static boolean isSuperuser(User user) {
+        return user != null && User.TYPE_SUPERUSER.equalsIgnoreCase(user.type);
+    }
+
     public static boolean isUser(User user) {
         return user != null
                 && (User.TYPE_USER.equalsIgnoreCase(user.type) || User.TYPE_TAM.equalsIgnoreCase(user.type));

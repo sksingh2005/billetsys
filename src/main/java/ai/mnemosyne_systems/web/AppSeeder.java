@@ -144,6 +144,10 @@ public class AppSeeder {
                 "America/Chicago", "US", User.TYPE_TAM, "tam1");
         User tam2 = seedUser("tam2", "Technical Account Manager 2", "tam2@mnemosyne-systems.ai", "+1-555-0311", "301",
                 "America/Chicago", "US", User.TYPE_TAM, "tam2");
+        User superuser1 = seedUser("superuser1", "Superuser 1", "superuser1@mnemosyne-systems.ai", "+1-555-0401", "401",
+                "America/New_York", "US", User.TYPE_SUPERUSER, "superuser1");
+        User superuser2 = seedUser("superuser2", "Superuser 2", "superuser2@mnemosyne-systems.ai", "+1-555-0402", "402",
+                "America/New_York", "US", User.TYPE_SUPERUSER, "superuser2");
 
         Company company = Company
                 .find("select distinct c from Company c left join fetch c.users where c.name = ?1", "A").firstResult();
@@ -165,10 +169,13 @@ public class AppSeeder {
                 || User.TYPE_SUPPORT.equalsIgnoreCase(existing.type));
         company.users.removeIf(existing -> User.TYPE_TAM.equalsIgnoreCase(existing.type)
                 && !"tam1@mnemosyne-systems.ai".equalsIgnoreCase(existing.email));
+        company.users.removeIf(existing -> User.TYPE_SUPERUSER.equalsIgnoreCase(existing.type)
+                && !"superuser1@mnemosyne-systems.ai".equalsIgnoreCase(existing.email));
         addUserIfMissing(company, user1);
         addUserIfMissing(company, user2);
         addUserIfMissing(company, tam1);
-        company.primaryContact = user1;
+        addUserIfMissing(company, superuser1);
+        company.primaryContact = superuser1;
 
         ensureCompanyEntitlement(company, "Enterprise", "Escalate");
         ensureCompanyEntitlement(company, "Enterprise", "Normal");
@@ -240,9 +247,12 @@ public class AppSeeder {
                 || User.TYPE_SUPPORT.equalsIgnoreCase(existing.type));
         companyB.users.removeIf(existing -> User.TYPE_TAM.equalsIgnoreCase(existing.type)
                 && !"tam2@mnemosyne-systems.ai".equalsIgnoreCase(existing.email));
+        companyB.users.removeIf(existing -> User.TYPE_SUPERUSER.equalsIgnoreCase(existing.type)
+                && !"superuser2@mnemosyne-systems.ai".equalsIgnoreCase(existing.email));
         addUserIfMissing(companyB, userB);
         addUserIfMissing(companyB, tam2);
-        companyB.primaryContact = userB;
+        addUserIfMissing(companyB, superuser2);
+        companyB.primaryContact = superuser2;
         CompanyEntitlement starterCritical = ensureCompanyEntitlement(companyB, "Starter", "Critical");
         if (starterCritical != null) {
             starterCritical.duration = CompanyEntitlement.DURATION_MONTHLY;

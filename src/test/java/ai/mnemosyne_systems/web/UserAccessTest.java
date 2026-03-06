@@ -196,6 +196,7 @@ class UserAccessTest {
         ensureUser("user", "user@mnemosyne-systems.ai", User.TYPE_USER, "user");
         ensureDefaultCategories();
         Long companyId = ensureCompany("Test Co");
+        ensureCompanyUsers(companyId, "user@mnemosyne-systems.ai", "superuser1@mnemosyne-systems.ai");
         ai.mnemosyne_systems.model.Ticket userTicket = ensureTicket(companyId);
         String userTicketName = userTicket == null ? "" : userTicket.name;
         String cookie = login("user", "user");
@@ -221,9 +222,16 @@ class UserAccessTest {
                 .body(Matchers.containsString("TAM")).body(Matchers.containsString("Category"))
                 .body(Matchers.containsString("External issue")).body(Matchers.containsString("Reply"))
                 .body(Matchers.not(Matchers.containsString("Back")));
+        RestAssured.given().cookie(AuthHelper.AUTH_COOKIE, cookie).get("/user/companies/" + companyId).then()
+                .statusCode(200).body(Matchers.containsString("<th>User</th>"))
+                .body(Matchers.containsString("<th>Superuser</th>")).body(Matchers.containsString("<th>TAM</th>"))
+                .body(Matchers.containsString("/user/superuser-users/"));
         RestAssured.given().cookie(AuthHelper.AUTH_COOKIE, cookie).get("/tickets/" + ticketId).then().statusCode(200)
                 .body(Matchers.containsString("/user/support-users/" + supportUser.id))
                 .body(Matchers.containsString("/user/tam-users/" + tamUser.id));
+        User superuser = User.find("email", "superuser1@mnemosyne-systems.ai").firstResult();
+        RestAssured.given().cookie(AuthHelper.AUTH_COOKIE, cookie).get("/user/superuser-users/" + superuser.id).then()
+                .statusCode(200).body(Matchers.containsString("Profile")).body(Matchers.containsString("Superuser"));
         RestAssured.given().cookie(AuthHelper.AUTH_COOKIE, cookie).get("/user/support-users/" + supportUser.id).then()
                 .statusCode(200).body(Matchers.containsString("Profile")).body(Matchers.containsString("support1"));
         RestAssured.given().cookie(AuthHelper.AUTH_COOKIE, cookie).get("/user/tam-users/" + tamUser.id).then()
@@ -276,6 +284,49 @@ class UserAccessTest {
         RestAssured.given().cookie(AuthHelper.AUTH_COOKIE, cookie).get("/user/support-users/" + supportUser.id).then()
                 .statusCode(200).body(Matchers.containsString("Profile")).body(Matchers.containsString("support1"))
                 .body(Matchers.not(Matchers.containsString("Back")));
+    }
+
+    @Test
+    void superuserCanAccessCompanyScopedPages() {
+        ensureUser("superuser1", "superuser1@mnemosyne-systems.ai", User.TYPE_SUPERUSER, "superuser1");
+        Long companyId = ensureCompany("Superuser Co");
+        Long otherCompanyId = ensureCompany("Other Superuser Co");
+        ensureCompanyUsers(companyId, "superuser1@mnemosyne-systems.ai");
+        ai.mnemosyne_systems.model.Ticket superuserTicket = ensureTicket(companyId);
+        ai.mnemosyne_systems.model.Ticket otherCompanyTicket = ensureTicket(otherCompanyId);
+        String cookie = login("superuser1", "superuser1");
+
+        RestAssured.given().redirects().follow(false).cookie(AuthHelper.AUTH_COOKIE, cookie).get("/").then()
+                .statusCode(303).header("Location", "/superuser");
+
+        RestAssured.given().cookie(AuthHelper.AUTH_COOKIE, cookie).get("/superuser").then().statusCode(200)
+                .body(Matchers.containsString("Tickets")).body(Matchers.containsString("Create"));
+
+        RestAssured.given().cookie(AuthHelper.AUTH_COOKIE, cookie).get("/superuser/users/" + companyId).then()
+                .statusCode(200).body(Matchers.containsString("Users")).body(Matchers.containsString("superuser1"));
+
+        RestAssured.given().cookie(AuthHelper.AUTH_COOKIE, cookie).get("/reports/superuser").then().statusCode(200)
+                .body(Matchers.containsString("Reports"));
+
+        RestAssured.given().cookie(AuthHelper.AUTH_COOKIE, cookie).get("/rss/superuser").then().statusCode(200)
+                .contentType(Matchers.containsString("application/rss+xml"))
+                .body(Matchers.containsString("Superuser tickets feed"));
+
+        Long ticketId = superuserTicket == null ? null : superuserTicket.id;
+        RestAssured.given().cookie(AuthHelper.AUTH_COOKIE, cookie).get("/superuser/tickets/" + ticketId).then()
+                .statusCode(200).body(Matchers.containsString("Superusers"))
+                .body(Matchers.containsString("/superuser/companies/"));
+
+        RestAssured.given().cookie(AuthHelper.AUTH_COOKIE, cookie).get("/tickets/" + ticketId).then().statusCode(200)
+                .body(Matchers.containsString("Superusers"));
+
+        RestAssured.given().cookie(AuthHelper.AUTH_COOKIE, cookie).get("/superuser/tickets").then().statusCode(200)
+                .body(Matchers.containsString(superuserTicket.name))
+                .body(Matchers.not(Matchers.containsString(otherCompanyTicket.name)));
+
+        RestAssured.given().redirects().follow(false).cookie(AuthHelper.AUTH_COOKIE, cookie)
+                .get("/superuser/companies/" + otherCompanyId).then().statusCode(303)
+                .header("Location", Matchers.endsWith("/"));
     }
 
     @Test

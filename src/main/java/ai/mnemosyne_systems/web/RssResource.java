@@ -91,6 +91,30 @@ public class RssResource {
         return Response.ok(xml).type("application/rss+xml; charset=UTF-8").build();
     }
 
+    @GET
+    @Path("/superuser")
+    @Produces("application/rss+xml")
+    public Response superuser(@CookieParam(AuthHelper.AUTH_COOKIE) String auth, @Context UriInfo uriInfo) {
+        User user = AuthHelper.findUser(auth);
+        if (user == null) {
+            throw new WebApplicationException(Response.seeOther(URI.create("/")).build());
+        }
+        if (!User.TYPE_SUPERUSER.equalsIgnoreCase(user.type)) {
+            throw new ForbiddenException();
+        }
+        List<Ticket> scoped = SuperuserResource.loadScopedTickets(user);
+        LinkedHashMap<Long, Ticket> merged = new LinkedHashMap<>();
+        for (Ticket ticket : scoped) {
+            if (ticket == null || ticket.id == null || "Closed".equalsIgnoreCase(ticket.status)) {
+                continue;
+            }
+            merged.put(ticket.id, ticket);
+        }
+        String xml = buildFeed("Superuser tickets feed", "Active + Open company tickets", merged.values(), uriInfo,
+                "/superuser/tickets/");
+        return Response.ok(xml).type("application/rss+xml; charset=UTF-8").build();
+    }
+
     private String buildFeed(String title, String description, Collection<Ticket> tickets, UriInfo uriInfo,
             String ticketPath) {
         List<Ticket> ticketList = tickets == null ? List.of() : new ArrayList<>(tickets);

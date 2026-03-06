@@ -93,6 +93,9 @@ public class UserResource {
     @Location("support/tam-user-view.html")
     Template tamUserViewTemplate;
 
+    @Location("superuser/superuser-user-view.html")
+    Template superuserUserViewTemplate;
+
     @Location("support/user-profile-view.html")
     Template userProfileViewTemplate;
 
@@ -104,8 +107,12 @@ public class UserResource {
 
     @GET
     @Path("user")
-    public TemplateInstance home(@CookieParam(AuthHelper.AUTH_COOKIE) String auth) {
-        User user = requireUser(auth);
+    public Object home(@CookieParam(AuthHelper.AUTH_COOKIE) String auth) {
+        User user = AuthHelper.findUser(auth);
+        if (AuthHelper.isSuperuser(user)) {
+            return Response.seeOther(URI.create("/superuser")).build();
+        }
+        user = requireUser(auth);
         return userTickets(user);
     }
 
@@ -397,6 +404,28 @@ public class UserResource {
     }
 
     @GET
+    @Path("user/superuser-users/{id}")
+    public TemplateInstance viewSuperuser(@CookieParam(AuthHelper.AUTH_COOKIE) String auth, @PathParam("id") Long id) {
+        User user = requireUser(auth);
+        User superuser = User.findById(id);
+        if (superuser == null || !User.TYPE_SUPERUSER.equalsIgnoreCase(superuser.type)) {
+            throw new NotFoundException();
+        }
+        boolean allowed = Company.count(
+                "select count(c) from Company c join c.users current join c.users viewed where current = ?1 and viewed = ?2",
+                user, superuser) > 0;
+        if (!allowed) {
+            throw new NotFoundException();
+        }
+        SupportTicketData data = buildTicketDataForUser(user);
+        return superuserUserViewTemplate.data("superuser", superuser).data("assignedCount", data.assignedTickets.size())
+                .data("openCount", data.openTickets.size()).data("ticketsBase", "/user/tickets")
+                .data("showSupportUsers", User.TYPE_TAM.equalsIgnoreCase(user.type))
+                .data("usersBase", User.TYPE_TAM.equalsIgnoreCase(user.type) ? "/tam/users" : "/user/users")
+                .data("currentUser", user);
+    }
+
+    @GET
     @Path("user/user-profiles/{id}")
     public TemplateInstance viewUserProfile(@CookieParam(AuthHelper.AUTH_COOKIE) String auth,
             @PathParam("id") Long id) {
@@ -424,16 +453,19 @@ public class UserResource {
         java.util.List<User> users = User.find(
                 "select distinct u from Company c join c.users u where c = ?1 and lower(u.type) = ?2 order by u.name",
                 company, User.TYPE_USER).list();
+        java.util.List<User> superusers = User.find(
+                "select distinct u from Company c join c.users u where c = ?1 and lower(u.type) = ?2 order by u.name",
+                company, User.TYPE_SUPERUSER).list();
         java.util.List<User> tamUsers = User.find(
                 "select distinct u from Company c join c.users u where c = ?1 and lower(u.type) = ?2 order by u.name",
                 company, User.TYPE_TAM).list();
         SupportTicketData data = buildTicketDataForUser(user);
-        return companyViewTemplate.data("company", company).data("users", users).data("tamUsers", tamUsers)
-                .data("assignedCount", data.assignedTickets.size()).data("openCount", data.openTickets.size())
-                .data("ticketsBase", "/user/tickets")
+        return companyViewTemplate.data("company", company).data("users", users).data("superusers", superusers)
+                .data("tamUsers", tamUsers).data("assignedCount", data.assignedTickets.size())
+                .data("openCount", data.openTickets.size()).data("ticketsBase", "/user/tickets")
                 .data("showSupportUsers", User.TYPE_TAM.equalsIgnoreCase(user.type))
                 .data("usersBase", User.TYPE_TAM.equalsIgnoreCase(user.type) ? "/tam/users" : "/user/users")
-                .data("currentUser", user);
+                .data("superuserUserBase", "/user/superuser-users").data("currentUser", user);
     }
 
     @GET
@@ -496,6 +528,8 @@ public class UserResource {
                 messageAuthorNames.put(message.id, message.author.name);
                 if (User.TYPE_SUPPORT.equalsIgnoreCase(message.author.type)) {
                     messageAuthorLinks.put(message.id, "/user/support-users/" + message.author.id);
+                } else if (User.TYPE_SUPERUSER.equalsIgnoreCase(message.author.type)) {
+                    messageAuthorLinks.put(message.id, "/user/superuser-users/" + message.author.id);
                 } else if (User.TYPE_TAM.equalsIgnoreCase(message.author.type)) {
                     messageAuthorLinks.put(message.id, "/user/tam-users/" + message.author.id);
                 } else {
@@ -726,8 +760,9 @@ public class UserResource {
         newUser.phoneExtension = trimOrNull(phoneExtension);
         newUser.timezone = timezoneId != null ? Timezone.findById(timezoneId) : null;
         newUser.country = countryId != null ? Country.findById(countryId) : null;
-        newUser.type = normalizeType(type, Set.of(User.TYPE_ADMIN, User.TYPE_SUPPORT, User.TYPE_USER, User.TYPE_TAM),
-                "Type must be admin, support, user, or tam");
+        newUser.type = normalizeType(type,
+                Set.of(User.TYPE_ADMIN, User.TYPE_SUPPORT, User.TYPE_USER, User.TYPE_TAM, User.TYPE_SUPERUSER),
+                "Type must be admin, support, user, tam, or superuser");
         newUser.passwordHash = BcryptUtil.bcryptHash(password);
         newUser.persist();
         if (companyId != null) {
@@ -762,8 +797,9 @@ public class UserResource {
         editUser.phoneExtension = trimOrNull(phoneExtension);
         editUser.timezone = timezoneId != null ? Timezone.findById(timezoneId) : null;
         editUser.country = countryId != null ? Country.findById(countryId) : null;
-        editUser.type = normalizeType(type, Set.of(User.TYPE_ADMIN, User.TYPE_SUPPORT, User.TYPE_USER, User.TYPE_TAM),
-                "Type must be admin, support, user, or tam");
+        editUser.type = normalizeType(type,
+                Set.of(User.TYPE_ADMIN, User.TYPE_SUPPORT, User.TYPE_USER, User.TYPE_TAM, User.TYPE_SUPERUSER),
+                "Type must be admin, support, user, tam, or superuser");
         if (password != null && !password.isBlank()) {
             editUser.passwordHash = BcryptUtil.bcryptHash(password);
         }
@@ -1185,6 +1221,7 @@ public class UserResource {
             case User.TYPE_ADMIN -> "Admin";
             case User.TYPE_SUPPORT -> "Support";
             case User.TYPE_TAM -> "TAM";
+            case User.TYPE_SUPERUSER -> "Superuser";
             default -> "User";
         };
     }

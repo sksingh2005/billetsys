@@ -68,6 +68,9 @@ public class TicketResource {
     UserResource userResource;
 
     @Inject
+    SuperuserResource superuserResource;
+
+    @Inject
     TicketEmailService ticketEmailService;
 
     @Inject
@@ -149,6 +152,9 @@ public class TicketResource {
         User user = AuthHelper.findUser(auth);
         if (AuthHelper.isSupport(user)) {
             return supportResource.ticketDetail(auth, id);
+        }
+        if (AuthHelper.isSuperuser(user)) {
+            return superuserResource.ticketDetail(auth, id);
         }
         if (AuthHelper.isUser(user)) {
             return userResource.ticketDetail(auth, id);
@@ -334,14 +340,15 @@ public class TicketResource {
     @Produces("application/pdf")
     public Response exportTicketToPdf(@CookieParam(AuthHelper.AUTH_COOKIE) String auth, @PathParam("id") Long id) {
         User user = AuthHelper.findUser(auth);
-        if (!AuthHelper.isSupport(user) && !AuthHelper.isTam(user)) {
+        if (!AuthHelper.isSupport(user) && !AuthHelper.isTam(user) && !AuthHelper.isSuperuser(user)) {
             throw new WebApplicationException(Response.seeOther(URI.create("/")).build());
         }
         Ticket ticket = Ticket.findById(id);
         if (ticket == null) {
             throw new NotFoundException();
         }
-        if (AuthHelper.isTam(user) && ticket.company.users.stream().noneMatch(u -> u.id.equals(user.id))) {
+        if ((AuthHelper.isTam(user) || AuthHelper.isSuperuser(user))
+                && ticket.company.users.stream().noneMatch(u -> u.id.equals(user.id))) {
             throw new WebApplicationException(Response.seeOther(URI.create("/")).build());
         }
         byte[] ticketPdf = pdfService.generateTicketPdf(ticket);
@@ -405,6 +412,11 @@ public class TicketResource {
         if (User.TYPE_TAM.equalsIgnoreCase(user.type)) {
             return Ticket.find(
                     "select distinct t from Ticket t left join t.tamUsers tu left join t.company c left join c.users cu where (tu = ?1 or cu = ?1) and (t.status is null or lower(t.status) <> 'closed')",
+                    user).list();
+        }
+        if (User.TYPE_SUPERUSER.equalsIgnoreCase(user.type)) {
+            return Ticket.find(
+                    "select distinct t from Ticket t join t.company c join c.users u where u = ?1 and (t.status is null or lower(t.status) <> 'closed')",
                     user).list();
         }
         if (User.TYPE_USER.equalsIgnoreCase(user.type)) {

@@ -484,14 +484,14 @@
             {cdi:branding.installationCompanyName}
         </a>
         <nav class="header-nav">
-            {#if currentUser != null && (currentUser.type == 'tam' || currentUser.type == 'user')}
+            {#if currentUser != null && (currentUser.type == 'tam' || currentUser.type == 'superuser' || currentUser.type == 'user')}
             <a href="/user/tickets">
                 Tickets ({#if assignedCount??}{assignedCount}{#else}0{/if}/{#if openCount??}{openCount}{#else}0{/if})
                 <span class="ticket-alarm" data-ticket-alarm aria-label="Alarm" title="SLA alarm">🚨</span>
             </a>
             <a href="/articles">Articles</a>
-            {#if currentUser != null && currentUser.type == 'tam'}
-            <a href="/reports/tam">Reports</a>
+            {#if currentUser != null && (currentUser.type == 'tam' || currentUser.type == 'superuser')}
+            <a href="{#if currentUser.type == 'tam'}/reports/tam{#else}/reports/superuser{/if}">Reports</a>
             {/if}
             {#else}
             <a href="/">Home</a>
@@ -506,8 +506,8 @@
     </div>
     <div class="header-actions">
         {#if currentUser != null}
-        {#if currentUser.type == 'tam'}
-        <a class="icon-link" href="/rss/tam" title="RSS feed" aria-label="RSS feed">
+        {#if currentUser.type == 'tam' || currentUser.type == 'superuser'}
+        <a class="icon-link" href="{#if currentUser.type == 'tam'}/rss/tam{#else}/rss/superuser{/if}" title="RSS feed" aria-label="RSS feed">
             <svg viewBox="0 0 24 24" aria-hidden="true">
                 <circle cx="6" cy="18" r="1.8" fill="currentColor" stroke="none"></circle>
                 <path d="M4 11a9 9 0 0 1 9 9"></path>

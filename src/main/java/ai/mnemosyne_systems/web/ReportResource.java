@@ -43,6 +43,9 @@ public class ReportResource {
     @Location("report/reports.html")
     Template reportsTemplate;
 
+    @Location("superuser/reports.html")
+    Template superuserReportsTemplate;
+
     @GET
     public TemplateInstance adminReports(@CookieParam(AuthHelper.AUTH_COOKIE) String auth,
             @QueryParam("companyId") Long companyId, @QueryParam("period") String period) {
@@ -116,6 +119,49 @@ public class ReportResource {
                 .data("resolutionTimeData", raw(toJsonDoubleArray(data.avgResolutionTime.values())))
                 .data("totalTickets", data.totalTickets).data("period", safePeriod)
                 .data("showCompanyChart", showCompanyChart);
+    }
+
+    @GET
+    @Path("/superuser")
+    public TemplateInstance superuserReports(@CookieParam(AuthHelper.AUTH_COOKIE) String auth,
+            @QueryParam("companyId") Long companyId, @QueryParam("period") String period) {
+        User user = requireSuperuser(auth);
+        List<Company> companies = Company.list(
+                "select distinct c from Company c join c.users u where u = ?1 and exists (select t from Ticket t where t.company = c) order by c.name",
+                user);
+        if (companies.isEmpty()) {
+            throw new WebApplicationException(Response.seeOther(URI.create("/")).build());
+        }
+
+        Company selectedCompany = null;
+        if (companyId != null) {
+            selectedCompany = companies.stream().filter(c -> c.id.equals(companyId)).findFirst().orElse(null);
+        }
+
+        String safePeriod = period == null || period.isBlank() ? "all" : period.toLowerCase();
+        List<Company> dataFilter = selectedCompany != null ? List.of(selectedCompany) : companies;
+        ReportData data = buildReportData(dataFilter, safePeriod);
+        String companyName = selectedCompany != null ? selectedCompany.name : "All";
+        SupportResource.SupportTicketCounts counts = SuperuserResource.loadTicketCounts(user);
+
+        return superuserReportsTemplate.data("currentUser", user).data("companies", companies)
+                .data("selectedCompanyId", companyId).data("showCompanyFilter", true)
+                .data("assignedCount", counts.assignedCount).data("openCount", counts.openCount)
+                .data("ticketsBase", "/superuser/tickets").data("usersBase", "/superuser/users")
+                .data("showSupportUsers", true).data("companyName", companyName)
+                .data("statusLabels", raw(toJsonStringArray(data.ticketsByStatus.keySet())))
+                .data("statusData", raw(toJsonNumberArray(data.ticketsByStatus.values())))
+                .data("categoryLabels", raw(toJsonStringArray(data.ticketsByCategory.keySet())))
+                .data("categoryData", raw(toJsonNumberArray(data.ticketsByCategory.values())))
+                .data("companyLabels", raw(toJsonStringArray(data.ticketsByCompany.keySet())))
+                .data("companyData", raw(toJsonNumberArray(data.ticketsByCompany.values())))
+                .data("timeLabels", raw(toJsonStringArray(data.ticketsOverTime.keySet())))
+                .data("timeData", raw(toJsonNumberArray(data.ticketsOverTime.values())))
+                .data("responseTimeLabels", raw(toJsonStringArray(data.avgFirstResponseTime.keySet())))
+                .data("responseTimeData", raw(toJsonDoubleArray(data.avgFirstResponseTime.values())))
+                .data("resolutionTimeLabels", raw(toJsonStringArray(data.avgResolutionTime.keySet())))
+                .data("resolutionTimeData", raw(toJsonDoubleArray(data.avgResolutionTime.values())))
+                .data("totalTickets", data.totalTickets).data("period", safePeriod).data("showCompanyChart", false);
     }
 
     private ReportData buildReportData(List<Company> filterCompanies, String period) {
@@ -353,6 +399,14 @@ public class ReportResource {
     private User requireTam(String auth) {
         User user = AuthHelper.findUser(auth);
         if (user == null || !User.TYPE_TAM.equalsIgnoreCase(user.type)) {
+            throw new WebApplicationException(Response.seeOther(URI.create("/")).build());
+        }
+        return user;
+    }
+
+    private User requireSuperuser(String auth) {
+        User user = AuthHelper.findUser(auth);
+        if (user == null || !User.TYPE_SUPERUSER.equalsIgnoreCase(user.type)) {
             throw new WebApplicationException(Response.seeOther(URI.create("/")).build());
         }
         return user;

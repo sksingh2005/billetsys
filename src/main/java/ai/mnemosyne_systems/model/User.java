@@ -28,6 +28,7 @@ public class User extends PanacheEntityBase {
     public static final String TYPE_ADMIN = "admin";
     public static final String TYPE_USER = "user";
     public static final String TYPE_TAM = "tam";
+    public static final String TYPE_SUPERUSER = "superuser";
 
     @Id
     @SequenceGenerator(name = "user_seq", sequenceName = "user_seq", allocationSize = 1)

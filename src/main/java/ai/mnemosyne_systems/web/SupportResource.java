@@ -79,6 +79,9 @@ public class SupportResource {
     @Location("support/tam-user-view.html")
     Template tamUserViewTemplate;
 
+    @Location("superuser/superuser-user-view.html")
+    Template superuserUserViewTemplate;
+
     @Location("support/user-profile-view.html")
     Template userProfileViewTemplate;
 
@@ -174,6 +177,20 @@ public class SupportResource {
     }
 
     @GET
+    @Path("/superuser-users/{id}")
+    public TemplateInstance viewSuperuser(@CookieParam(AuthHelper.AUTH_COOKIE) String auth, @PathParam("id") Long id) {
+        User currentUser = requireSupport(auth);
+        User superuser = User.findById(id);
+        if (superuser == null || !User.TYPE_SUPERUSER.equalsIgnoreCase(superuser.type)) {
+            throw new NotFoundException();
+        }
+        SupportTicketCounts counts = loadTicketCounts(currentUser);
+        return superuserUserViewTemplate.data("superuser", superuser).data("assignedCount", counts.assignedCount)
+                .data("openCount", counts.openCount).data("ticketsBase", "/support").data("showSupportUsers", true)
+                .data("currentUser", currentUser);
+    }
+
+    @GET
     @Path("/user-profiles/{id}")
     public TemplateInstance viewUserProfile(@CookieParam(AuthHelper.AUTH_COOKIE) String auth,
             @PathParam("id") Long id) {
@@ -199,13 +216,17 @@ public class SupportResource {
         List<User> users = User.find(
                 "select distinct u from Company c join c.users u where c = ?1 and lower(u.type) = ?2 order by u.name",
                 company, User.TYPE_USER).list();
+        List<User> superusers = User.find(
+                "select distinct u from Company c join c.users u where c = ?1 and lower(u.type) = ?2 order by u.name",
+                company, User.TYPE_SUPERUSER).list();
         List<User> tamUsers = User.find(
                 "select distinct u from Company c join c.users u where c = ?1 and lower(u.type) = ?2 order by u.name",
                 company, User.TYPE_TAM).list();
         SupportTicketCounts counts = loadTicketCounts(currentUser);
-        return companyViewTemplate.data("company", company).data("users", users).data("tamUsers", tamUsers)
-                .data("assignedCount", counts.assignedCount).data("openCount", counts.openCount)
-                .data("ticketsBase", "/support").data("showSupportUsers", true).data("currentUser", currentUser);
+        return companyViewTemplate.data("company", company).data("users", users).data("superusers", superusers)
+                .data("tamUsers", tamUsers).data("assignedCount", counts.assignedCount)
+                .data("openCount", counts.openCount).data("ticketsBase", "/support").data("showSupportUsers", true)
+                .data("superuserUserBase", "/support/superuser-users").data("currentUser", currentUser);
     }
 
     @GET
@@ -427,6 +448,8 @@ public class SupportResource {
                 messageAuthorNames.put(message.id, message.author.name);
                 if (User.TYPE_SUPPORT.equalsIgnoreCase(message.author.type)) {
                     messageAuthorLinks.put(message.id, "/support/support-users/" + message.author.id);
+                } else if (User.TYPE_SUPERUSER.equalsIgnoreCase(message.author.type)) {
+                    messageAuthorLinks.put(message.id, "/support/superuser-users/" + message.author.id);
                 } else if (User.TYPE_TAM.equalsIgnoreCase(message.author.type)) {
                     messageAuthorLinks.put(message.id, "/support/tam-users/" + message.author.id);
                 } else {

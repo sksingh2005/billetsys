@@ -283,6 +283,11 @@ public class ArticleResource {
             SupportResource.SupportTicketCounts counts = SupportResource.loadTicketCounts(user);
             return new TicketCounts(counts.assignedCount, counts.openCount, "/support", "/support/users", true);
         }
+        if (User.TYPE_SUPERUSER.equalsIgnoreCase(user.type)) {
+            SupportResource.SupportTicketCounts counts = SuperuserResource.loadTicketCounts(user);
+            return new TicketCounts(counts.assignedCount, counts.openCount, "/superuser/tickets", "/superuser/users",
+                    true);
+        }
         if (User.TYPE_TAM.equalsIgnoreCase(user.type)) {
             List<Ticket> tickets = Ticket.find(
                     "select distinct t from Ticket t left join t.tamUsers tu left join t.company c left join c.users cu where tu = ?1 or cu = ?1",
