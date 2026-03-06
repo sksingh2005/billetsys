@@ -785,12 +785,12 @@ public class SuperuserResource {
                 .find("select distinct c from Company c left join fetch c.users where c.id = ?1", companyId)
                 .firstResult();
         if (company == null) {
-            throw new NotFoundException();
+            throw new WebApplicationException(Response.seeOther(URI.create("/")).build());
         }
         boolean allowed = company.users.stream().anyMatch(
                 existing -> existing != null && existing.id != null && user.id != null && existing.id.equals(user.id));
         if (!allowed) {
-            throw new NotFoundException();
+            throw new WebApplicationException(Response.seeOther(URI.create("/")).build());
         }
         return company;
     }

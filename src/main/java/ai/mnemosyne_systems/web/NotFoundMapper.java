@@ -8,17 +8,23 @@
 
 package ai.mnemosyne_systems.web;
 
+import io.quarkus.qute.Location;
+import io.quarkus.qute.Template;
+import jakarta.inject.Inject;
 import jakarta.ws.rs.NotFoundException;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.ext.ExceptionMapper;
 import jakarta.ws.rs.ext.Provider;
-import java.net.URI;
 
 @Provider
-public class NotFoundRedirectMapper implements ExceptionMapper<NotFoundException> {
+public class NotFoundMapper implements ExceptionMapper<NotFoundException> {
+
+    @Inject
+    @Location("error.html")
+    Template errorTemplate;
 
     @Override
     public Response toResponse(NotFoundException exception) {
-        return Response.seeOther(URI.create("/")).build();
+        return Response.status(404).entity(errorTemplate.render()).type("text/html").build();
     }
 }
