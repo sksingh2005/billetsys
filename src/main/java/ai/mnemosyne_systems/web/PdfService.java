@@ -17,6 +17,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 
 @ApplicationScoped
 public class PdfService {
@@ -110,6 +111,189 @@ public class PdfService {
             PdfPTable messagesTable = generateMessages(ticket.messages);
             document.add(messagesTable);
             document.add(Chunk.NEWLINE);
+            document.close();
+            return outputStream.toByteArray();
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to generate PDF", e);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to generate PDF", e);
+        }
+    }
+
+    public byte[] generateReportPdf(ReportResource.ReportData data, String companyName, String period,
+            boolean showCompanyTable, Map<String, String> chartImages) {
+        try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+            Document document = new Document();
+            PdfWriter.getInstance(document, outputStream);
+            document.open();
+
+            Font titleFont = FontFactory.getFont(FontFactory.COURIER_BOLD, 16);
+            Font sectionFont = FontFactory.getFont(FontFactory.COURIER_BOLD, 13);
+            Font normalFont = FontFactory.getFont(FontFactory.COURIER, 12);
+            Font subFont = FontFactory.getFont(FontFactory.COURIER, 10, Color.GRAY);
+
+            // Owner header
+            Installation installation = getOwner();
+            Font subHeaderFont = FontFactory.getFont(FontFactory.COURIER_BOLD, 14, Color.white);
+            Chunk ownerHeader = new Chunk(installation.name, subHeaderFont);
+            ownerHeader.setBackground(red, 5f, 5f, 400f, 5f);
+            Paragraph owner = new Paragraph(ownerHeader);
+            owner.setAlignment(Paragraph.ALIGN_LEFT);
+            document.add(owner);
+            document.add(Chunk.NEWLINE);
+
+            // Title
+            Paragraph title = new Paragraph("Report — " + companyName, titleFont);
+            title.setAlignment(Paragraph.ALIGN_CENTER);
+            document.add(title);
+            document.add(Chunk.NEWLINE);
+
+            // Summary line
+            Paragraph summary = new Paragraph("Total tickets: " + data.totalTickets, subFont);
+            summary.setAlignment(Paragraph.ALIGN_CENTER);
+            document.add(summary);
+            document.add(Chunk.NEWLINE);
+
+            // Tickets by Status
+            document.add(new Paragraph("Tickets by Status", sectionFont));
+            document.add(Chunk.NEWLINE);
+            addChartImage(document, chartImages, "statusChart");
+            PdfPTable statusTable = new PdfPTable(2);
+            statusTable.setWidthPercentage(100);
+            statusTable.addCell(createCell("Status", red, Color.WHITE));
+            statusTable.addCell(createCell("Count", red, Color.WHITE));
+            for (Map.Entry<String, Long> entry : data.ticketsByStatus.entrySet()) {
+                statusTable.addCell(new Phrase(entry.getKey(), normalFont));
+                statusTable.addCell(new Phrase(String.valueOf(entry.getValue()), normalFont));
+            }
+            document.add(statusTable);
+            document.add(Chunk.NEWLINE);
+
+            // Tickets by Category
+            document.add(new Paragraph("Tickets by Category", sectionFont));
+            document.add(Chunk.NEWLINE);
+            addChartImage(document, chartImages, "categoryChart");
+            PdfPTable categoryTable = new PdfPTable(2);
+            categoryTable.setWidthPercentage(100);
+            categoryTable.addCell(createCell("Category", red, Color.WHITE));
+            categoryTable.addCell(createCell("Count", red, Color.WHITE));
+            for (Map.Entry<String, Long> entry : data.ticketsByCategory.entrySet()) {
+                categoryTable.addCell(new Phrase(entry.getKey(), normalFont));
+                categoryTable.addCell(new Phrase(String.valueOf(entry.getValue()), normalFont));
+            }
+            document.add(categoryTable);
+            document.add(Chunk.NEWLINE);
+
+            // Tickets by Company
+            if (showCompanyTable) {
+                document.add(new Paragraph("Tickets by Company", sectionFont));
+                document.add(Chunk.NEWLINE);
+                addChartImage(document, chartImages, "companyChart");
+                PdfPTable companyTable = new PdfPTable(2);
+                companyTable.setWidthPercentage(100);
+                companyTable.addCell(createCell("Company", red, Color.WHITE));
+                companyTable.addCell(createCell("Count", red, Color.WHITE));
+                for (Map.Entry<String, Long> entry : data.ticketsByCompany.entrySet()) {
+                    companyTable.addCell(new Phrase(entry.getKey(), normalFont));
+                    companyTable.addCell(new Phrase(String.valueOf(entry.getValue()), normalFont));
+                }
+                document.add(companyTable);
+                document.add(Chunk.NEWLINE);
+            }
+
+            // Ticket Volume Over Time
+            String periodLabel = "year".equals(period) ? "This year"
+                    : "month".equals(period) ? "This month" : "All time";
+            document.add(new Paragraph("Ticket Volume Over Time — " + periodLabel, sectionFont));
+            document.add(Chunk.NEWLINE);
+            addChartImage(document, chartImages, "timeChart");
+            if (data.ticketsOverTime.isEmpty()) {
+                document.add(new Paragraph("No data available", normalFont));
+            } else {
+                PdfPTable timeTable = new PdfPTable(2);
+                timeTable.setWidthPercentage(100);
+                timeTable.addCell(createCell("Period", red, Color.WHITE));
+                timeTable.addCell(createCell("Tickets Created", red, Color.WHITE));
+                for (Map.Entry<String, Long> entry : data.ticketsOverTime.entrySet()) {
+                    timeTable.addCell(new Phrase(entry.getKey(), normalFont));
+                    timeTable.addCell(new Phrase(String.valueOf(entry.getValue()), normalFont));
+                }
+                document.add(timeTable);
+            }
+            document.add(Chunk.NEWLINE);
+
+            // Avg First Response Time
+            document.add(new Paragraph("Avg. First Response Time (hours)", sectionFont));
+            document.add(Chunk.NEWLINE);
+            addChartImage(document, chartImages, "responseTimeChart");
+            if (data.avgFirstResponseTime.isEmpty()) {
+                document.add(new Paragraph("No data available", normalFont));
+            } else {
+                PdfPTable responseTable = new PdfPTable(2);
+                responseTable.setWidthPercentage(100);
+                responseTable.addCell(createCell("Category", red, Color.WHITE));
+                responseTable.addCell(createCell("Avg. Hours", red, Color.WHITE));
+                for (Map.Entry<String, Double> entry : data.avgFirstResponseTime.entrySet()) {
+                    responseTable.addCell(new Phrase(entry.getKey(), normalFont));
+                    responseTable.addCell(new Phrase(String.valueOf(entry.getValue()), normalFont));
+                }
+                document.add(responseTable);
+            }
+            document.add(Chunk.NEWLINE);
+
+            // Resolution Histogram
+            document.add(new Paragraph("Resolution Time", sectionFont));
+            document.add(Chunk.NEWLINE);
+            addChartImage(document, chartImages, "histogramChart");
+            boolean hasHistogramData = data.resolutionHistogram.values().stream().anyMatch(list -> !list.isEmpty());
+            if (!hasHistogramData) {
+                document.add(new Paragraph("No data available", normalFont));
+                document.add(Chunk.NEWLINE);
+            } else {
+                PdfPTable histogramTable = new PdfPTable(3);
+                histogramTable.setWidthPercentage(100);
+                histogramTable.addCell(createCell("Duration", red, Color.WHITE));
+                histogramTable.addCell(createCell("Count", red, Color.WHITE));
+                histogramTable.addCell(createCell("Tickets", red, Color.WHITE));
+                for (Map.Entry<String, List<Ticket>> entry : data.resolutionHistogram.entrySet()) {
+                    List<Ticket> tickets = entry.getValue();
+                    histogramTable.addCell(new Phrase(entry.getKey(), normalFont));
+                    histogramTable.addCell(new Phrase(String.valueOf(tickets.size()), normalFont));
+                    if (tickets.isEmpty()) {
+                        histogramTable.addCell(new Phrase("-", normalFont));
+                    } else {
+                        StringBuilder names = new StringBuilder();
+                        for (int i = 0; i < tickets.size(); i++) {
+                            if (i > 0)
+                                names.append(", ");
+                            names.append(tickets.get(i).name);
+                        }
+                        histogramTable.addCell(new Phrase(names.toString(), normalFont));
+                    }
+                }
+                document.add(histogramTable);
+                document.add(Chunk.NEWLINE);
+            }
+
+            // Avg Resolution Time
+            document.add(new Paragraph("Avg. Resolution Time (hours)", sectionFont));
+            document.add(Chunk.NEWLINE);
+            addChartImage(document, chartImages, "resolutionTimeChart");
+            if (data.avgResolutionTime.isEmpty()) {
+                document.add(new Paragraph("No data available", normalFont));
+            } else {
+                PdfPTable resolutionTable = new PdfPTable(2);
+                resolutionTable.setWidthPercentage(100);
+                resolutionTable.addCell(createCell("Category", red, Color.WHITE));
+                resolutionTable.addCell(createCell("Avg. Hours", red, Color.WHITE));
+                for (Map.Entry<String, Double> entry : data.avgResolutionTime.entrySet()) {
+                    resolutionTable.addCell(new Phrase(entry.getKey(), normalFont));
+                    resolutionTable.addCell(new Phrase(String.valueOf(entry.getValue()), normalFont));
+                }
+                document.add(resolutionTable);
+            }
+            document.add(Chunk.NEWLINE);
+
             document.close();
             return outputStream.toByteArray();
         } catch (IOException e) {
@@ -255,4 +439,22 @@ public class PdfService {
         return Installation.find("SELECT i from Installation i WHERE i.singletonKey = 'installation'").firstResult();
     }
 
+    private void addChartImage(Document document, Map<String, String> chartImages, String key) {
+        if (chartImages == null)
+            return;
+        String base64 = chartImages.get(key);
+        if (base64 == null || base64.isBlank())
+            return;
+        try {
+            String data = base64.contains(",") ? base64.substring(base64.indexOf(',') + 1) : base64;
+            byte[] imageBytes = java.util.Base64.getDecoder().decode(data);
+            Image img = Image.getInstance(imageBytes);
+            img.scaleToFit(500, 200);
+            img.setAlignment(Image.ALIGN_LEFT);
+            document.add(img);
+            document.add(Chunk.NEWLINE);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to embed chart image: " + key, e);
+        }
+    }
 }

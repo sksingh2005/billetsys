@@ -26,7 +26,7 @@
     <p style="margin-bottom:16px;"><strong>Company:</strong> {companyName}</p>
 {/if}
 
-<p style="margin-bottom:16px;">Total tickets: <strong>{totalTickets}</strong></p>
+<p style="margin:0;">Total tickets: <strong>{totalTickets}</strong></p>
 
 <style>
     .report-grid {
@@ -114,6 +114,40 @@
             </div>
         </div>
         <div class="report-card">
+            <h2 class="report-title">Resolution Time</h2>
+            <div id="histogramContainer" class="report-chart-container">
+                <canvas id="histogramChart"></canvas>
+            </div>
+            {#if hasHistogramData}
+                <table style="width:100%; margin-top:12px; border-collapse:collapse; font-size:13px;">
+                    <thead>
+                    <tr>
+                        <th style="text-align:left; padding:4px 8px; border-bottom:1px solid var(--card-border);">Duration</th>
+                        <th style="text-align:left; padding:4px 8px; border-bottom:1px solid var(--card-border);">Count</th>
+                        <th style="text-align:left; padding:4px 8px; border-bottom:1px solid var(--card-border);">Tickets</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {#for entry in histogramTickets.entrySet()}
+                        <tr>
+                            <td style="padding:4px 8px;">{entry.key}</td>
+                            <td style="padding:4px 8px;">{entry.value.size()}</td>
+                            <td style="padding:4px 8px;">
+                                {#if entry.value.isEmpty()}
+                                    —
+                                {#else}
+                                    {#for ticket in entry.value}
+                                        <a href="/tickets/{ticket.id}">{ticket.name}</a>{#if ticket_hasNext}, {/if}
+                                    {/for}
+                                {/if}
+                            </td>
+                        </tr>
+                    {/for}
+                    </tbody>
+                </table>
+            {/if}
+        </div>
+        <div class="report-card">
             <h2 class="report-title">Avg. Resolution Time (hours)</h2>
             <div id="resolutionTimeContainer" class="report-chart-container">
                 <canvas id="resolutionTimeChart"></canvas>
@@ -121,7 +155,12 @@
         </div>
     </div>
 
-    <script src="/webjars/chart.js/4.4.7/dist/chart.umd.js"></script>
+    <button onclick="exportReport()"
+            style="display:inline-block; margin-top:24px; padding:10px 20px; background:#b00020; color:#fff; border-radius:4px; border:none; cursor:pointer; font-size:14px; font-weight:600; box-shadow:0 2px 8px rgba(0,0,0,0.25);">
+        Export
+    </button>
+
+    <script src="/webjars/chart.js/4.5.1/dist/chart.umd.js"></script>
     <script>
         var statusLabels = {statusLabels};
         var statusData = {statusData};
@@ -135,6 +174,8 @@
         var responseTimeData = {responseTimeData};
         var resolutionTimeLabels = {resolutionTimeLabels};
         var resolutionTimeData = {resolutionTimeData};
+        var histogramLabels = {histogramLabels};
+        var histogramData = {histogramData};
 
         var statusColors = {
             'Open': '#4285f4',
@@ -171,7 +212,7 @@
             maintainAspectRatio: false
         };
 
-        new Chart(document.getElementById('statusChart'), {
+        var statusChartInstance = new Chart(document.getElementById('statusChart'), {
             type: 'pie',
             data: {
                 labels: statusLabels,
@@ -190,7 +231,7 @@
             }
         });
 
-        new Chart(document.getElementById('categoryChart'), {
+        var categoryChartInstance = new Chart(document.getElementById('categoryChart'), {
             type: 'bar',
             data: {
                 labels: categoryLabels,
@@ -212,7 +253,7 @@
 
         var companyCanvas = document.getElementById('companyChart');
         if (companyCanvas) {
-            new Chart(companyCanvas, {
+            var companyChartInstance = new Chart(companyCanvas, {
                 type: 'bar',
                 data: {
                     labels: companyLabels,
@@ -234,7 +275,7 @@
         }
 
         if (timeLabels.length > 0) {
-            new Chart(document.getElementById('timeChart'), {
+            var timeChartInstance = new Chart(document.getElementById('timeChart'), {
                 type: 'line',
                 data: {
                     labels: timeLabels,
@@ -261,7 +302,7 @@
         }
 
         if (responseTimeLabels.length > 0) {
-            new Chart(document.getElementById('responseTimeChart'), {
+            var responseTimeChartInstance = new Chart(document.getElementById('responseTimeChart'), {
                 type: 'bar',
                 data: {
                     labels: responseTimeLabels,
@@ -285,7 +326,7 @@
         }
 
         if (resolutionTimeLabels.length > 0) {
-            new Chart(document.getElementById('resolutionTimeChart'), {
+            var resolutionTimeChartInstance = new Chart(document.getElementById('resolutionTimeChart'), {
                 type: 'bar',
                 data: {
                     labels: resolutionTimeLabels,
@@ -306,6 +347,59 @@
             });
         } else {
             showNoData('resolutionTimeContainer');
+        }
+
+        if (histogramData.some(function(v) { return v > 0; })) {
+            var histogramChartInstance = new Chart(document.getElementById('histogramChart'), {
+                type: 'bar',
+                data: {
+                    labels: histogramLabels,
+                    datasets: [{
+                        label: 'Tickets',
+                        data: histogramData,
+                        backgroundColor: [
+                            defaultColors[0], defaultColors[1], defaultColors[2], defaultColors[3], defaultColors[4]
+                        ],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { beginAtZero: true, ticks: { stepSize: 1 } }
+                    }
+                }
+            });
+        } else {
+            showNoData('histogramContainer');
+        }
+
+        function exportReport() {
+            var form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '{exportPath}?{#if selectedCompanyId != null}companyId={selectedCompanyId}&{/if}period={period}';
+
+            function addImage(name, instance) {
+                var input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = name;
+                input.value = instance ? instance.toBase64Image() : '';
+                form.appendChild(input);
+            }
+
+            addImage('statusChart', statusChartInstance);
+            addImage('categoryChart', categoryChartInstance);
+            addImage('companyChart', typeof companyChartInstance !== 'undefined' ? companyChartInstance : null);
+            addImage('timeChart', typeof timeChartInstance !== 'undefined' ? timeChartInstance : null);
+            addImage('responseTimeChart', typeof responseTimeChartInstance !== 'undefined' ? responseTimeChartInstance : null);
+            addImage('resolutionTimeChart', typeof resolutionTimeChartInstance !== 'undefined' ? resolutionTimeChartInstance : null);
+            addImage('histogramChart', typeof histogramChartInstance !== 'undefined' ? histogramChartInstance : null);
+
+            document.body.appendChild(form);
+            form.submit();
+            document.body.removeChild(form);
         }
 
         document.getElementById('periodSelect').addEventListener('change', function() {
@@ -336,6 +430,10 @@
         </div>
         <div class="report-card">
             <h2 class="report-title">Avg. First Response Time (hours)</h2>
+            <div class="report-no-data">No data available</div>
+        </div>
+        <div class="report-card">
+            <h2 class="report-title">Resolution Time</h2>
             <div class="report-no-data">No data available</div>
         </div>
         <div class="report-card">

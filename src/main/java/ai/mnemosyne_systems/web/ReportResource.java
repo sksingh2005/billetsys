@@ -17,12 +17,8 @@ import io.quarkus.qute.RawString;
 import io.quarkus.qute.Template;
 import io.quarkus.qute.TemplateInstance;
 import io.smallrye.common.annotation.Blocking;
-import jakarta.ws.rs.CookieParam;
-import jakarta.ws.rs.GET;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.Produces;
-import jakarta.ws.rs.QueryParam;
-import jakarta.ws.rs.WebApplicationException;
+import jakarta.inject.Inject;
+import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import java.net.URI;
@@ -39,12 +35,20 @@ import java.util.TreeMap;
 @Produces(MediaType.TEXT_HTML)
 @Blocking
 public class ReportResource {
+    private static final String BUCKET_UNDER_1H = "< 1h";
+    private static final String BUCKET_1_TO_8H = "1–8h";
+    private static final String BUCKET_8_TO_24H = "8–24h";
+    private static final String BUCKET_1_TO_7D = "1–7 days";
+    private static final String BUCKET_OVER_7D = "> 7 days";
 
     @Location("report/reports.html")
     Template reportsTemplate;
 
     @Location("superuser/reports.html")
     Template superuserReportsTemplate;
+
+    @Inject
+    PdfService pdfService;
 
     @GET
     public TemplateInstance adminReports(@CookieParam(AuthHelper.AUTH_COOKIE) String auth,
@@ -73,6 +77,12 @@ public class ReportResource {
                 .data("responseTimeData", raw(toJsonDoubleArray(data.avgFirstResponseTime.values())))
                 .data("resolutionTimeLabels", raw(toJsonStringArray(data.avgResolutionTime.keySet())))
                 .data("resolutionTimeData", raw(toJsonDoubleArray(data.avgResolutionTime.values())))
+                .data("histogramLabels", raw(toJsonStringArray(data.resolutionHistogram.keySet())))
+                .data("histogramData",
+                        raw(toJsonNumberArray(data.resolutionHistogram.values().stream().map(List::size)
+                                .map(Long::valueOf).toList())))
+                .data("histogramTickets", data.resolutionHistogram).data("exportPath", "/reports/export")
+                .data("hasHistogramData", data.resolutionHistogram.values().stream().anyMatch(v -> !v.isEmpty()))
                 .data("totalTickets", data.totalTickets).data("period", safePeriod)
                 .data("showCompanyChart", selectedCompany == null);
     }
@@ -117,6 +127,12 @@ public class ReportResource {
                 .data("responseTimeData", raw(toJsonDoubleArray(data.avgFirstResponseTime.values())))
                 .data("resolutionTimeLabels", raw(toJsonStringArray(data.avgResolutionTime.keySet())))
                 .data("resolutionTimeData", raw(toJsonDoubleArray(data.avgResolutionTime.values())))
+                .data("histogramLabels", raw(toJsonStringArray(data.resolutionHistogram.keySet())))
+                .data("histogramData",
+                        raw(toJsonNumberArray(data.resolutionHistogram.values().stream().map(List::size)
+                                .map(Long::valueOf).toList())))
+                .data("histogramTickets", data.resolutionHistogram).data("exportPath", "/reports/tam/export")
+                .data("hasHistogramData", data.resolutionHistogram.values().stream().anyMatch(v -> !v.isEmpty()))
                 .data("totalTickets", data.totalTickets).data("period", safePeriod)
                 .data("showCompanyChart", showCompanyChart);
     }
@@ -161,7 +177,96 @@ public class ReportResource {
                 .data("responseTimeData", raw(toJsonDoubleArray(data.avgFirstResponseTime.values())))
                 .data("resolutionTimeLabels", raw(toJsonStringArray(data.avgResolutionTime.keySet())))
                 .data("resolutionTimeData", raw(toJsonDoubleArray(data.avgResolutionTime.values())))
+                .data("histogramLabels", raw(toJsonStringArray(data.resolutionHistogram.keySet())))
+                .data("histogramData",
+                        raw(toJsonNumberArray(data.resolutionHistogram.values().stream().map(List::size)
+                                .map(Long::valueOf).toList())))
+                .data("histogramTickets", data.resolutionHistogram).data("exportPath", "/reports/superuser/export")
+                .data("hasHistogramData", data.resolutionHistogram.values().stream().anyMatch(v -> !v.isEmpty()))
                 .data("totalTickets", data.totalTickets).data("period", safePeriod).data("showCompanyChart", false);
+    }
+
+    @POST
+    @Path("/export")
+    @Produces("application/pdf")
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    public Response exportAdminReport(@CookieParam(AuthHelper.AUTH_COOKIE) String auth,
+            @QueryParam("companyId") Long companyId, @QueryParam("period") String period,
+            @FormParam("statusChart") String statusChart, @FormParam("categoryChart") String categoryChart,
+            @FormParam("companyChart") String companyChart, @FormParam("timeChart") String timeChart,
+            @FormParam("responseTimeChart") String responseTimeChart,
+            @FormParam("resolutionTimeChart") String resolutionTimeChart,
+            @FormParam("histogramChart") String histogramChart) {
+        requireAdmin(auth);
+        Company selectedCompany = companyId != null ? Company.findById(companyId) : null;
+        String safePeriod = period == null || period.isBlank() ? "all" : period.toLowerCase();
+        ReportData data = buildReportData(selectedCompany != null ? List.of(selectedCompany) : null, safePeriod);
+        String companyName = selectedCompany == null ? "All" : selectedCompany.name;
+        Map<String, String> chartImages = buildChartImages(statusChart, categoryChart, companyChart, timeChart,
+                responseTimeChart, resolutionTimeChart, histogramChart);
+        byte[] pdf = pdfService.generateReportPdf(data, companyName, safePeriod, selectedCompany == null, chartImages);
+        String filename = "report-" + companyName.toLowerCase().replace(" ", "-") + ".pdf";
+        return Response.ok(pdf).header("Content-Disposition", "attachment; filename=\"" + filename + "\"").build();
+    }
+
+    @POST
+    @Path("/tam/export")
+    @Produces("application/pdf")
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    public Response exportTamReport(@CookieParam(AuthHelper.AUTH_COOKIE) String auth,
+            @QueryParam("companyId") Long companyId, @QueryParam("period") String period,
+            @FormParam("statusChart") String statusChart, @FormParam("categoryChart") String categoryChart,
+            @FormParam("companyChart") String companyChart, @FormParam("timeChart") String timeChart,
+            @FormParam("responseTimeChart") String responseTimeChart,
+            @FormParam("resolutionTimeChart") String resolutionTimeChart,
+            @FormParam("histogramChart") String histogramChart) {
+        User user = requireTam(auth);
+        List<Company> tamCompanies = Company.list(
+                "select distinct c from Company c join c.users u where u = ?1 and exists (select t from Ticket t where t.company = c) order by c.name",
+                user);
+        Company selectedCompany = null;
+        if (companyId != null) {
+            selectedCompany = tamCompanies.stream().filter(c -> c.id.equals(companyId)).findFirst().orElse(null);
+        }
+        String safePeriod = period == null || period.isBlank() ? "all" : period.toLowerCase();
+        List<Company> dataFilter = selectedCompany != null ? List.of(selectedCompany) : tamCompanies;
+        ReportData data = buildReportData(dataFilter, safePeriod);
+        String companyName = selectedCompany != null ? selectedCompany.name : "All";
+        Map<String, String> chartImages = buildChartImages(statusChart, categoryChart, null, timeChart,
+                responseTimeChart, resolutionTimeChart, histogramChart);
+        byte[] pdf = pdfService.generateReportPdf(data, companyName, safePeriod, false, chartImages);
+        String filename = "report-" + companyName.toLowerCase().replace(" ", "-") + ".pdf";
+        return Response.ok(pdf).header("Content-Disposition", "attachment; filename=\"" + filename + "\"").build();
+    }
+
+    @POST
+    @Path("/superuser/export")
+    @Produces("application/pdf")
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    public Response exportSuperuserReport(@CookieParam(AuthHelper.AUTH_COOKIE) String auth,
+            @QueryParam("companyId") Long companyId, @QueryParam("period") String period,
+            @FormParam("statusChart") String statusChart, @FormParam("categoryChart") String categoryChart,
+            @FormParam("companyChart") String companyChart, @FormParam("timeChart") String timeChart,
+            @FormParam("responseTimeChart") String responseTimeChart,
+            @FormParam("resolutionTimeChart") String resolutionTimeChart,
+            @FormParam("histogramChart") String histogramChart) {
+        User user = requireSuperuser(auth);
+        List<Company> superuserCompanies = Company.list(
+                "select distinct c from Company c join c.users u where u = ?1 and exists (select t from Ticket t where t.company = c) order by c.name",
+                user);
+        Company selectedCompany = null;
+        if (companyId != null) {
+            selectedCompany = superuserCompanies.stream().filter(c -> c.id.equals(companyId)).findFirst().orElse(null);
+        }
+        String safePeriod = period == null || period.isBlank() ? "all" : period.toLowerCase();
+        List<Company> dataFilter = selectedCompany != null ? List.of(selectedCompany) : superuserCompanies;
+        ReportData data = buildReportData(dataFilter, safePeriod);
+        String companyName = selectedCompany != null ? selectedCompany.name : "All";
+        Map<String, String> chartImages = buildChartImages(statusChart, categoryChart, null, timeChart,
+                responseTimeChart, resolutionTimeChart, histogramChart);
+        byte[] pdf = pdfService.generateReportPdf(data, companyName, safePeriod, false, chartImages);
+        String filename = "report-" + companyName.toLowerCase().replace(" ", "-") + ".pdf";
+        return Response.ok(pdf).header("Content-Disposition", "attachment; filename=\"" + filename + "\"").build();
     }
 
     private ReportData buildReportData(List<Company> filterCompanies, String period) {
@@ -200,6 +305,7 @@ public class ReportResource {
         data.ticketsOverTime = buildTicketsOverTime(messagesByTicket, period);
         data.avgFirstResponseTime = buildAvgFirstResponseTime(tickets, messagesByTicket);
         data.avgResolutionTime = buildAvgResolutionTime(tickets, messagesByTicket);
+        data.resolutionHistogram = buildResolutionHistogram(tickets, messagesByTicket);
         return data;
     }
 
@@ -342,6 +448,44 @@ public class ReportResource {
         return result;
     }
 
+    private Map<String, List<Ticket>> buildResolutionHistogram(List<Ticket> tickets,
+            Map<Long, List<Message>> messagesByTicket) {
+        Map<String, List<Ticket>> histogram = new LinkedHashMap<>();
+        histogram.put(BUCKET_UNDER_1H, new ArrayList<>());
+        histogram.put(BUCKET_1_TO_8H, new ArrayList<>());
+        histogram.put(BUCKET_8_TO_24H, new ArrayList<>());
+        histogram.put(BUCKET_1_TO_7D, new ArrayList<>());
+        histogram.put(BUCKET_OVER_7D, new ArrayList<>());
+
+        for (Ticket ticket : tickets) {
+            if (!"Closed".equalsIgnoreCase(ticket.status)) {
+                continue;
+            }
+            List<Message> messages = messagesByTicket.get(ticket.id);
+            if (messages == null || messages.isEmpty()) {
+                continue;
+            }
+            Message first = messages.get(0);
+            Message last = messages.get(messages.size() - 1);
+            if (first.date == null || last.date == null) {
+                continue;
+            }
+            double hours = Duration.between(first.date, last.date).toMinutes() / 60.0;
+            if (hours < 1) {
+                histogram.get(BUCKET_UNDER_1H).add(ticket);
+            } else if (hours < 8) {
+                histogram.get(BUCKET_1_TO_8H).add(ticket);
+            } else if (hours < 24) {
+                histogram.get(BUCKET_8_TO_24H).add(ticket);
+            } else if (hours < 168) {
+                histogram.get(BUCKET_1_TO_7D).add(ticket);
+            } else {
+                histogram.get(BUCKET_OVER_7D).add(ticket);
+            }
+        }
+        return histogram;
+    }
+
     private RawString raw(String value) {
         return new RawString(value);
     }
@@ -388,6 +532,19 @@ public class ReportResource {
         return sb.append("]").toString();
     }
 
+    private Map<String, String> buildChartImages(String statusChart, String categoryChart, String companyChart,
+            String timeChart, String responseTimeChart, String resolutionTimeChart, String histogramChart) {
+        Map<String, String> images = new LinkedHashMap<>();
+        images.put("statusChart", statusChart);
+        images.put("categoryChart", categoryChart);
+        images.put("companyChart", companyChart);
+        images.put("timeChart", timeChart);
+        images.put("responseTimeChart", responseTimeChart);
+        images.put("resolutionTimeChart", resolutionTimeChart);
+        images.put("histogramChart", histogramChart);
+        return images;
+    }
+
     private User requireAdmin(String auth) {
         User user = AuthHelper.findUser(auth);
         if (!AuthHelper.isAdmin(user)) {
@@ -412,7 +569,7 @@ public class ReportResource {
         return user;
     }
 
-    private static class ReportData {
+    static class ReportData {
         int totalTickets;
         Map<String, Long> ticketsByStatus;
         Map<String, Long> ticketsByCategory;
@@ -420,5 +577,6 @@ public class ReportResource {
         Map<String, Long> ticketsOverTime;
         Map<String, Double> avgFirstResponseTime;
         Map<String, Double> avgResolutionTime;
+        Map<String, List<Ticket>> resolutionHistogram;
     }
 }
