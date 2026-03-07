@@ -5,38 +5,38 @@
 For RPM based distributions such as Fedora and RHEL you can add the
 [PostgreSQL YUM repository](https://yum.postgresql.org/) and do the install via
 
-**Fedora 42**
+**Fedora 43**
 
 ```sh
-rpm -Uvh https://download.postgresql.org/pub/repos/yum/reporpms/F-42-x86_64/pgdg-redhat-repo-latest.noarch.rpm
+rpm -Uvh https://download.postgresql.org/pub/repos/yum/reporpms/F-43-x86_64/pgdg-redhat-repo-latest.noarch.rpm
 ```
 
-**RHEL 9.x / Rocky Linux 9.x**
+**RHEL 10.x / Rocky Linux 10.x**
 
 **x86_64**
 
 ```sh
-dnf install https://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm
-rpm -Uvh https://download.postgresql.org/pub/repos/yum/reporpms/EL-9-x86_64/pgdg-redhat-repo-latest.noarch.rpm
+dnf install https://dl.fedoraproject.org/pub/epel/epel-release-latest-10.noarch.rpm
+rpm -Uvh https://download.postgresql.org/pub/repos/yum/reporpms/EL-10-x86_64/pgdg-redhat-repo-latest.noarch.rpm
 dnf config-manager --set-enabled crb
 ```
 
 **aarch64**
 
 ```sh
-dnf install https://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm
-rpm -Uvh https://download.postgresql.org/pub/repos/yum/reporpms/EL-9-aarch64/pgdg-redhat-repo-latest.noarch.rpm
+dnf install https://dl.fedoraproject.org/pub/epel/epel-release-latest-10.noarch.rpm
+rpm -Uvh https://download.postgresql.org/pub/repos/yum/reporpms/EL-10-aarch64/pgdg-redhat-repo-latest.noarch.rpm
 dnf config-manager --set-enabled crb
 ```
 
-**PostgreSQL 17**
+**PostgreSQL 18**
 
 ``` sh
 dnf -qy module disable postgresql
-dnf install -y postgresql17 postgresql17-server postgresql17-contrib postgresql17-libs
+dnf install -y postgresql18 postgresql18-server postgresql18-contrib postgresql18-libs
 ```
 
-This will install PostgreSQL 17.
+This will install PostgreSQL 18.
 
 ## Install billetsys
 
@@ -73,8 +73,17 @@ dnf install pandoc texlive-scheme-basic
     Download the additional packages required for generating PDF and HTML files.
 
 ```sh
-    dnf install 'tex(footnote.sty)' 'tex(footnotebackref.sty)' 'tex(pagecolor.sty)' 'tex(hardwrap.sty)' 'tex(mdframed.sty)' 'tex(sourcesanspro.sty)' 'tex(ly1enc.def)' 'tex(sourcecodepro.sty)' 'tex(titling.sty)' 'tex(csquotes.sty)' 'tex(zref-abspage.sty)' 'tex(needspace.sty)' 'tex(selnolig.sty)'
+    dnf install 'tex(fvextra.sty)' 'tex(footnote.sty)' 'tex(footnotebackref.sty)' 'tex(pagecolor.sty)' 'tex(hardwrap.sty)' 'tex(mdframed.sty)' 'tex(sourcesanspro.sty)' 'tex(ly1enc.def)' 'tex(sourcecodepro.sty)' 'tex(titling.sty)' 'tex(csquotes.sty)' 'tex(zref-abspage.sty)' 'tex(needspace.sty)' 'tex(selnolig.sty)'
 ```
+
+4. Generate the manual
+
+```sh
+cd doc/manual/en
+./generate-manual.sh
+```
+
+This creates both `build/manual.html` and `build/manual.pdf`. If the Eisvogel template is stored in a non-standard location, set `EISVOGEL_TEMPLATE` before running the script.
 
 ### Build
 
@@ -104,10 +113,10 @@ su - postgres
 
 **Initialize cluster**
 
-If you use dnf to install your postgresql, chances are the binary file is in `/usr/bin/`
+If you use dnf to install your postgresql, chances are the binary file is in `/usr/pgsql-18/bin/`
 
 ```sh
-export PATH=/usr/bin:$PATH
+export PATH=/usr/pgsql-18/bin:$PATH
 initdb -k /tmp/pgsql
 ```
 
@@ -150,7 +159,7 @@ to test
 **Add users and a database**
 
 ``` sh
-export PATH=/usr/pgsql-17/bin:$PATH
+export PATH=/usr/pgsql-18/bin:$PATH
 createuser -P ticketdb
 createdb -E UTF8 -O ticketdb ticketdb
 ```
@@ -228,6 +237,7 @@ Remember to add your name to the following files,
 
 ```
 AUTHORS
+doc/manual/en/97-acknowledgement.md
 ```
 
 in your first pull request

@@ -2,3 +2,4 @@ META-INF/
 target/
 .idea/
 *.iml
+doc/manual/en/build/
