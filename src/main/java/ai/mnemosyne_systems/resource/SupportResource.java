@@ -111,6 +111,7 @@ public class SupportResource {
                 .data("supportAssignments", data.supportAssignments)
                 .data("supportAssignmentNames", data.supportAssignmentNames)
                 .data("supportAssignmentIds", data.supportAssignmentIds)
+                .data("supportAssignmentUsers", data.supportAssignmentUsers)
                 .data("assignedTicketIds", data.assignedTicketIds).data("ticketsBase", "/support")
                 .data("createTicketUrl", "/support/tickets/create").data("showSupportUsers", true)
                 .data("currentUser", user);
@@ -128,6 +129,7 @@ public class SupportResource {
                 .data("supportAssignments", data.supportAssignments)
                 .data("supportAssignmentNames", data.supportAssignmentNames)
                 .data("supportAssignmentIds", data.supportAssignmentIds)
+                .data("supportAssignmentUsers", data.supportAssignmentUsers)
                 .data("assignedTicketIds", data.assignedTicketIds).data("ticketsBase", "/support")
                 .data("createTicketUrl", "/support/tickets/create").data("showSupportUsers", true)
                 .data("currentUser", user);
@@ -145,6 +147,7 @@ public class SupportResource {
                 .data("supportAssignments", data.supportAssignments)
                 .data("supportAssignmentNames", data.supportAssignmentNames)
                 .data("supportAssignmentIds", data.supportAssignmentIds)
+                .data("supportAssignmentUsers", data.supportAssignmentUsers)
                 .data("assignedTicketIds", data.assignedTicketIds).data("ticketsBase", "/support")
                 .data("createTicketUrl", "/support/tickets/create").data("showSupportUsers", true)
                 .data("currentUser", user);
@@ -443,12 +446,14 @@ public class SupportResource {
         java.util.Map<Long, String> messageLabels = new java.util.LinkedHashMap<>();
         java.util.Map<Long, String> messageAuthorNames = new java.util.LinkedHashMap<>();
         java.util.Map<Long, String> messageAuthorLinks = new java.util.LinkedHashMap<>();
+        java.util.Map<Long, User> messageAuthorUsers = new java.util.LinkedHashMap<>();
         for (Message message : messages) {
             if (message.date != null) {
                 messageLabels.put(message.id, formatDate(message.date));
             }
             if (message.author != null && message.author.id != null) {
                 messageAuthorNames.put(message.id, message.author.name);
+                messageAuthorUsers.put(message.id, message.author);
                 if (User.TYPE_SUPPORT.equalsIgnoreCase(message.author.type)) {
                     messageAuthorLinks.put(message.id, "/support/support-users/" + message.author.id);
                 } else if (User.TYPE_SUPERUSER.equalsIgnoreCase(message.author.type)) {
@@ -468,8 +473,8 @@ public class SupportResource {
         return ticketDetailTemplate.data("ticket", ticket).data("displayStatus", displayStatus)
                 .data("supportUsers", supportUsers).data("tamUsers", tamUsers).data("messages", messages)
                 .data("messageLabels", messageLabels).data("messageAuthorNames", messageAuthorNames)
-                .data("messageAuthorLinks", messageAuthorLinks).data("companies", Company.listAll())
-                .data("companyEntitlements", entitlements)
+                .data("messageAuthorLinks", messageAuthorLinks).data("messageAuthorUsers", messageAuthorUsers)
+                .data("companies", Company.listAll()).data("companyEntitlements", entitlements)
                 .data("selectedCompanyEntitlementId",
                         ticket.companyEntitlement == null ? null : ticket.companyEntitlement.id)
                 .data("action", "/support/tickets/" + id).data("title", "Update").data("editableStatus", true)
@@ -914,6 +919,7 @@ public class SupportResource {
         Map<Long, String> supportAssignments = new LinkedHashMap<>();
         Map<Long, String> supportAssignmentNames = new LinkedHashMap<>();
         Map<Long, Long> supportAssignmentIds = new LinkedHashMap<>();
+        Map<Long, User> supportAssignmentUsers = new LinkedHashMap<>();
         for (Ticket ticket : tickets) {
             User assignedSupport = User
                     .find("select u from Ticket t join t.supportUsers u where t = ?1 order by u.id desc", ticket)
@@ -922,6 +928,7 @@ public class SupportResource {
                 supportAssignments.put(ticket.id, assignedSupport.email);
                 supportAssignmentNames.put(ticket.id, assignedSupport.name);
                 supportAssignmentIds.put(ticket.id, assignedSupport.id);
+                supportAssignmentUsers.put(ticket.id, assignedSupport);
             }
         }
         Set<Long> assignedTicketIds = new HashSet<>();
@@ -970,6 +977,7 @@ public class SupportResource {
         data.supportAssignments = supportAssignments;
         data.supportAssignmentNames = supportAssignmentNames;
         data.supportAssignmentIds = supportAssignmentIds;
+        data.supportAssignmentUsers = supportAssignmentUsers;
         data.assignedTicketIds = assignedTicketIds;
         return data;
     }
@@ -1055,6 +1063,7 @@ public class SupportResource {
         private Map<Long, String> supportAssignments;
         private Map<Long, String> supportAssignmentNames;
         private Map<Long, Long> supportAssignmentIds;
+        private Map<Long, User> supportAssignmentUsers;
         private Set<Long> assignedTicketIds;
     }
 

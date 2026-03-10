@@ -214,6 +214,7 @@ public class SuperuserResource {
                         .data("supportAssignments", data.supportAssignments)
                         .data("supportAssignmentNames", data.supportAssignmentNames)
                         .data("supportAssignmentIds", data.supportAssignmentIds)
+                        .data("supportAssignmentUsers", data.supportAssignmentUsers)
                         .data("createTicketUrl", "/superuser/tickets/create").data("ticketsBase", "/superuser/tickets")
                         .data("showSupportUsers", true).data("usersBase", "/superuser/users").data("currentUser", user))
                 .build();
@@ -232,6 +233,7 @@ public class SuperuserResource {
                         .data("supportAssignments", data.supportAssignments)
                         .data("supportAssignmentNames", data.supportAssignmentNames)
                         .data("supportAssignmentIds", data.supportAssignmentIds)
+                        .data("supportAssignmentUsers", data.supportAssignmentUsers)
                         .data("createTicketUrl", "/superuser/tickets/create").data("ticketsBase", "/superuser/tickets")
                         .data("showSupportUsers", true).data("usersBase", "/superuser/users").data("currentUser", user))
                 .build();
@@ -505,6 +507,7 @@ public class SuperuserResource {
                 .data("supportAssignments", data.supportAssignments)
                 .data("supportAssignmentNames", data.supportAssignmentNames)
                 .data("supportAssignmentIds", data.supportAssignmentIds)
+                .data("supportAssignmentUsers", data.supportAssignmentUsers)
                 .data("createTicketUrl", "/superuser/tickets/create").data("ticketsBase", "/superuser/tickets")
                 .data("showSupportUsers", true).data("usersBase", "/superuser/users").data("currentUser", user);
     }
@@ -617,6 +620,7 @@ public class SuperuserResource {
         Map<Long, String> supportAssignments = new HashMap<>();
         Map<Long, String> supportAssignmentNames = new HashMap<>();
         Map<Long, Long> supportAssignmentIds = new HashMap<>();
+        Map<Long, User> supportAssignmentUsers = new HashMap<>();
         for (Ticket ticket : scopedTickets) {
             User assignedSupport = User
                     .find("select u from Ticket t join t.supportUsers u where t = ?1 order by u.id desc", ticket)
@@ -625,6 +629,7 @@ public class SuperuserResource {
                 supportAssignments.put(ticket.id, assignedSupport.email);
                 supportAssignmentNames.put(ticket.id, assignedSupport.name);
                 supportAssignmentIds.put(ticket.id, assignedSupport.id);
+                supportAssignmentUsers.put(ticket.id, assignedSupport);
             }
         }
         List<Ticket> assignedTickets = new ArrayList<>();
@@ -663,6 +668,7 @@ public class SuperuserResource {
         data.supportAssignments = supportAssignments;
         data.supportAssignmentNames = supportAssignmentNames;
         data.supportAssignmentIds = supportAssignmentIds;
+        data.supportAssignmentUsers = supportAssignmentUsers;
         return data;
     }
 
@@ -952,5 +958,6 @@ public class SuperuserResource {
         private Map<Long, String> supportAssignments;
         private Map<Long, String> supportAssignmentNames;
         private Map<Long, Long> supportAssignmentIds;
+        private Map<Long, User> supportAssignmentUsers;
     }
 }

@@ -32,7 +32,15 @@
         <td>{#if ticket.category != null}{ticket.category.name}{#else}-{/if}</td>
         <td>
             {#if supportAssignmentIds.containsKey(ticket.id)}
-            <a href="/support/support-users/{supportAssignmentIds.get(ticket.id)}">{supportAssignmentNames.get(ticket.id)}</a>
+                <a href="/support/support-users/{supportAssignmentIds.get(ticket.id)}"
+                   data-user-card
+                   data-name="{supportAssignmentUsers.get(ticket.id).name}"
+                   data-fullname="{supportAssignmentUsers.get(ticket.id).fullName}"
+                   data-email="{supportAssignmentUsers.get(ticket.id).email}"
+                   data-country="{#if supportAssignmentUsers.get(ticket.id).country != null}{supportAssignmentUsers.get(ticket.id).country.name}{/if}"
+                   data-timezone="{#if supportAssignmentUsers.get(ticket.id).timezone != null}{supportAssignmentUsers.get(ticket.id).timezone.name}{/if}"
+                   data-logo="{supportAssignmentUsers.get(ticket.id).logoBase64}"
+                >{supportAssignmentNames.get(ticket.id)}</a>
             {#else}
             -
             {/if}

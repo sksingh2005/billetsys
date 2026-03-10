@@ -112,7 +112,15 @@
                 {#else}
                     <div>
                         {#for user in supportUsers}
-                            <a href="{supportUserBase}/{user.id}">{user.name}</a>{#if !user_isLast}, {/if}
+                            <a href="{supportUserBase}/{user.id}"
+                               data-user-card
+                               data-name="{user.name}"
+                               data-fullname="{user.fullName}"
+                               data-email="{user.email}"
+                               data-country="{#if user.country != null}{user.country.name}{/if}"
+                               data-timezone="{#if user.timezone != null}{user.timezone.name}{/if}"
+                               data-logo="{user.logoBase64}"
+                            >{user.name}</a>{#if !user_isLast}, {/if}
                         {/for}
                     </div>
                 {/if}
@@ -123,7 +131,15 @@
                 {#else}
                 <div>
                     {#for user in tamUsers}
-                    <a href="{tamUserBase}/{user.id}">{user.name}</a>{#if !user_isLast}, {/if}
+                        <a href="{tamUserBase}/{user.id}"
+                           data-user-card
+                           data-name="{user.name}"
+                           data-fullname="{user.fullName}"
+                           data-email="{user.email}"
+                           data-country="{#if user.country != null}{user.country.name}{/if}"
+                           data-timezone="{#if user.timezone != null}{user.timezone.name}{/if}"
+                           data-logo="{user.logoBase64}"
+                        >{user.name}</a>{#if !user_isLast}, {/if}
                     {/for}
                 </div>
                 {/if}
@@ -135,7 +151,15 @@
                 {#else}
                     <div>
                         {#for user in supportUsers}
-                            <a href="{supportUserBase}/{user.id}">{user.name}</a>{#if !user_isLast}, {/if}
+                            <a href="{supportUserBase}/{user.id}"
+                               data-user-card
+                               data-name="{user.name}"
+                               data-fullname="{user.fullName}"
+                               data-email="{user.email}"
+                               data-country="{#if user.country != null}{user.country.name}{/if}"
+                               data-timezone="{#if user.timezone != null}{user.timezone.name}{/if}"
+                               data-logo="{user.logoBase64}"
+                            >{user.name}</a>{#if !user_isLast}, {/if}
                         {/for}
                     </div>
                 {/if}
@@ -146,7 +170,15 @@
                 {#else}
                 <div>
                     {#for user in tamUsers}
-                    <a href="{tamUserBase}/{user.id}">{user.name}</a>{#if !user_isLast}, {/if}
+                        <a href="{tamUserBase}/{user.id}"
+                           data-user-card
+                           data-name="{user.name}"
+                           data-fullname="{user.fullName}"
+                           data-email="{user.email}"
+                           data-country="{#if user.country != null}{user.country.name}{/if}"
+                           data-timezone="{#if user.timezone != null}{user.timezone.name}{/if}"
+                           data-logo="{user.logoBase64}"
+                        >{user.name}</a>{#if !user_isLast}, {/if}
                     {/for}
                 </div>
                 {/if}
@@ -262,7 +294,15 @@
         <td class="message-email">
             {#if message.author != null}
             {#if messageAuthorLinks.containsKey(message.id)}
-            <a href="{messageAuthorLinks.get(message.id)}">{messageAuthorNames.get(message.id)}</a>
+                <a href="{messageAuthorLinks.get(message.id)}"
+                   data-user-card
+                   data-name="{messageAuthorUsers.get(message.id).name}"
+                   data-fullname="{messageAuthorUsers.get(message.id).fullName}"
+                   data-email="{messageAuthorUsers.get(message.id).email}"
+                   data-country="{#if messageAuthorUsers.get(message.id).country != null}{messageAuthorUsers.get(message.id).country.name}{/if}"
+                   data-timezone="{#if messageAuthorUsers.get(message.id).timezone != null}{messageAuthorUsers.get(message.id).timezone.name}{/if}"
+                   data-logo="{messageAuthorUsers.get(message.id).logoBase64}"
+                >{messageAuthorNames.get(message.id)}</a>
             {#else}
             {messageAuthorNames.get(message.id)}
             {/if}

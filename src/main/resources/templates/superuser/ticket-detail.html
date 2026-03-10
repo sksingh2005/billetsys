@@ -44,7 +44,15 @@
                 {#else}
                 <div>
                     {#for user in supportUsers}
-                    <a href="mailto:{user.email}">{user.email}</a>{#if !user_isLast}, {/if}
+                        <a href="mailto:{user.email}"
+                           data-user-card
+                           data-name="{user.name}"
+                           data-fullname="{user.fullName}"
+                           data-email="{user.email}"
+                           data-country="{#if user.country != null}{user.country.name}{/if}"
+                           data-timezone="{#if user.timezone != null}{user.timezone.name}{/if}"
+                           data-logo="{user.logoBase64}"
+                        >{user.email}</a>{#if !user_isLast}, {/if}
                     {/for}
                 </div>
                 {/if}
@@ -55,7 +63,15 @@
                 {#else}
                 <div>
                     {#for user in superusers}
-                    <a href="mailto:{user.email}">{user.email}</a>{#if !user_isLast}, {/if}
+                        <a href="mailto:{user.email}"
+                           data-user-card
+                           data-name="{user.name}"
+                           data-fullname="{user.fullName}"
+                           data-email="{user.email}"
+                           data-country="{#if user.country != null}{user.country.name}{/if}"
+                           data-timezone="{#if user.timezone != null}{user.timezone.name}{/if}"
+                           data-logo="{user.logoBase64}"
+                        >{user.email}</a>{#if !user_isLast}, {/if}
                     {/for}
                 </div>
                 {/if}
@@ -161,7 +177,15 @@
     <tr class="message-header">
         <td>{messageLabels.get(message.id)}</td>
         <td class="message-email">
-            {#if message.author != null}<a href="mailto:{message.author.email}">{message.author.email}</a>{#else}-{/if}
+            {#if message.author != null}<a href="mailto:{message.author.email}"
+                   data-user-card
+                   data-name="{message.author.name}"
+                   data-fullname="{message.author.fullName}"
+                   data-email="{message.author.email}"
+                   data-country="{#if message.author.country != null}{message.author.country.name}{/if}"
+                   data-timezone="{#if message.author.timezone != null}{message.author.timezone.name}{/if}"
+                   data-logo="{message.author.logoBase64}"
+                >{message.author.email}</a>{#else}-{/if}
         </td>
     </tr>
     <tr>

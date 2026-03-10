@@ -39,7 +39,15 @@
         <td>
             {#if supportAssignmentNames.containsKey(ticket.id)}
                 {#if showSupportUsers?? && showSupportUsers && supportAssignmentIds.containsKey(ticket.id)}
-                    <a href="/user/support-users/{supportAssignmentIds.get(ticket.id)}">{supportAssignmentNames.get(ticket.id)}</a>
+                    <a href="/user/support-users/{supportAssignmentIds.get(ticket.id)}"
+                       data-user-card
+                       data-name="{supportAssignmentUsers.get(ticket.id).name}"
+                       data-fullname="{supportAssignmentUsers.get(ticket.id).fullName}"
+                       data-email="{supportAssignmentUsers.get(ticket.id).email}"
+                       data-country="{#if supportAssignmentUsers.get(ticket.id).country != null}{supportAssignmentUsers.get(ticket.id).country.name}{/if}"
+                       data-timezone="{#if supportAssignmentUsers.get(ticket.id).timezone != null}{supportAssignmentUsers.get(ticket.id).timezone.name}{/if}"
+                       data-logo="{supportAssignmentUsers.get(ticket.id).logoBase64}"
+                    >{supportAssignmentNames.get(ticket.id)}</a>
                 {#else}
                     {supportAssignmentNames.get(ticket.id)}
                 {/if}

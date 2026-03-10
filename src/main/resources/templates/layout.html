@@ -468,6 +468,27 @@
         .session-warning-card .session-countdown {
             font-weight: 700;
         }
+        #user-tooltip-inner {
+            background: var(--card-bg, #fff);
+            border: 1px solid var(--card-border, #ddd);
+            border-radius: 8px;
+            padding: 12px 14px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.13);
+            min-width: 200px;
+            max-width: 280px;
+        }
+        #user-tooltip-avatar img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+        #user-tooltip-avatar svg {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            color: var(--body-text, #1a1a1a);
+        }
     </style>
     <link rel="stylesheet" href="/webjars/highlightjs/11.11.1/styles/github.min.css">
     <script src="/webjars/highlightjs/11.11.1/highlight.min.js"></script>
@@ -550,6 +571,21 @@
         <h2>Session expiring</h2>
         <p>You will be logged out in <span class="session-countdown" data-session-countdown></span>.</p>
         <button type="button" class="action-button" data-session-stay>Stay signed in</button>
+    </div>
+</div>
+<div id="user-tooltip" style="display:none;position:fixed;z-index:9999;pointer-events:none;">
+    <div id="user-tooltip-inner">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+            <div id="user-tooltip-avatar"></div>
+            <div>
+                <div id="user-tooltip-name" style="font-weight:700;font-size:16px;"></div>
+                <div id="user-tooltip-fullname" style="font-size:12px;color:#666;"></div>
+            </div>
+        </div>
+        <div style="border-top:1px solid var(--card-border,#ddd);margin:8px 0;"></div>
+        <div id="user-tooltip-email" style="font-size:12px;margin-bottom:5px;"></div>
+        <div id="user-tooltip-country" style="font-size:12px;margin-bottom:5px;"></div>
+        <div id="user-tooltip-timezone" style="font-size:12px;"></div>
     </div>
 </div>
     <script>
@@ -1385,6 +1421,70 @@
     highlightCodeBlocks(document);
     setupTicketAlarm();
     setInterval(setupTicketAlarm, 60000);
+
+    (function () {
+        const tooltip = document.getElementById('user-tooltip');
+        const avatarEl = document.getElementById('user-tooltip-avatar');
+        const nameEl = document.getElementById('user-tooltip-name');
+        const fullnameEl = document.getElementById('user-tooltip-fullname');
+        const emailEl = document.getElementById('user-tooltip-email');
+        const countryEl = document.getElementById('user-tooltip-country');
+        const timezoneEl = document.getElementById('user-tooltip-timezone');
+
+        function showTooltip(e) {
+            const el = e.currentTarget;
+            const logo = el.dataset.logo;
+            const name = el.dataset.name || '';
+            const fullname = el.dataset.fullname || '';
+            const email = el.dataset.email || '';
+            const country = el.dataset.country || '';
+            const timezone = el.dataset.timezone || '';
+
+            if (logo && logo.trim() !== '' && logo.trim() !== 'null') {
+                avatarEl.innerHTML = '<img src="' + logo + '" alt="avatar">';
+            } else {
+                avatarEl.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>';
+            }
+            nameEl.textContent = name;
+            fullnameEl.textContent = fullname;
+            emailEl.textContent = email ? '📧 ' + email : '';
+            countryEl.textContent = country ? '🌎 ' + country : '';
+            timezoneEl.textContent = timezone ? '🕐 ' + timezone : '';
+
+            tooltip.style.display = 'block';
+            positionTooltip(e);
+        }
+
+        function positionTooltip(e) {
+            const pad = 12;
+            const tw = tooltip.offsetWidth;
+            const th = tooltip.offsetHeight;
+            let x = e.clientX + pad;
+            let y = e.clientY + pad;
+            if (x + tw > window.innerWidth - pad) x = e.clientX - tw - pad;
+            if (y + th > window.innerHeight - pad) y = e.clientY - th - pad;
+            tooltip.style.left = x + 'px';
+            tooltip.style.top = y + 'px';
+        }
+
+        function hideTooltip() {
+            tooltip.style.display = 'none';
+        }
+
+        function attachTooltips() {
+            document.querySelectorAll('[data-user-card]').forEach(function (el) {
+                if (el.dataset.tooltipBound) return;
+                el.dataset.tooltipBound = '1';
+                el.addEventListener('mouseenter', showTooltip);
+                el.addEventListener('mousemove', positionTooltip);
+                el.addEventListener('mouseleave', hideTooltip);
+            });
+        }
+
+        attachTooltips();
+        const observer = new MutationObserver(attachTooltips);
+        observer.observe(document.body, { childList: true, subtree: true });
+    })();
     </script>
 </body>
 </html>

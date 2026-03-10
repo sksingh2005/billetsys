@@ -484,7 +484,7 @@ public class UserResource {
                 .data("supportAssignments", data.supportAssignments)
                 .data("supportAssignmentNames", data.supportAssignmentNames)
                 .data("supportAssignmentIds", data.supportAssignmentIds).data("createTicketUrl", "/user/tickets/create")
-                .data("ticketsBase", "/user/tickets")
+                .data("supportAssignmentUsers", data.supportAssignmentUsers).data("ticketsBase", "/user/tickets")
                 .data("showSupportUsers", User.TYPE_TAM.equalsIgnoreCase(user.type))
                 .data("usersBase", User.TYPE_TAM.equalsIgnoreCase(user.type) ? "/tam/users" : "/user/users")
                 .data("currentUser", user)).build();
@@ -502,7 +502,7 @@ public class UserResource {
                 .data("supportAssignments", data.supportAssignments)
                 .data("supportAssignmentNames", data.supportAssignmentNames)
                 .data("supportAssignmentIds", data.supportAssignmentIds).data("createTicketUrl", "/user/tickets/create")
-                .data("ticketsBase", "/user/tickets")
+                .data("supportAssignmentUsers", data.supportAssignmentUsers).data("ticketsBase", "/user/tickets")
                 .data("showSupportUsers", User.TYPE_TAM.equalsIgnoreCase(user.type))
                 .data("usersBase", User.TYPE_TAM.equalsIgnoreCase(user.type) ? "/tam/users" : "/user/users")
                 .data("currentUser", user)).build();
@@ -524,12 +524,14 @@ public class UserResource {
         java.util.Map<Long, String> messageLabels = new java.util.LinkedHashMap<>();
         java.util.Map<Long, String> messageAuthorNames = new java.util.LinkedHashMap<>();
         java.util.Map<Long, String> messageAuthorLinks = new java.util.LinkedHashMap<>();
+        java.util.Map<Long, User> messageAuthorUsers = new java.util.LinkedHashMap<>();
         for (ai.mnemosyne_systems.model.Message message : messages) {
             if (message.date != null) {
                 messageLabels.put(message.id, formatDate(message.date));
             }
             if (message.author != null && message.author.id != null) {
                 messageAuthorNames.put(message.id, message.author.name);
+                messageAuthorUsers.put(message.id, message.author);
                 if (User.TYPE_SUPPORT.equalsIgnoreCase(message.author.type)) {
                     messageAuthorLinks.put(message.id, "/user/support-users/" + message.author.id);
                 } else if (User.TYPE_SUPERUSER.equalsIgnoreCase(message.author.type)) {
@@ -571,8 +573,9 @@ public class UserResource {
         return tamTicketDetailTemplate.data("ticket", ticket).data("displayStatus", displayStatus)
                 .data("supportUsers", supportUsers).data("tamUsers", tamUsers).data("messages", messages)
                 .data("messageLabels", messageLabels).data("messageAuthorNames", messageAuthorNames)
-                .data("messageAuthorLinks", messageAuthorLinks).data("action", "/user/tickets/" + id)
-                .data("editableStatus", false).data("supportUserBase", "/user/support-users")
+                .data("messageAuthorLinks", messageAuthorLinks).data("messageAuthorUsers", messageAuthorUsers)
+                .data("action", "/user/tickets/" + id).data("editableStatus", false)
+                .data("supportUserBase", "/user/support-users")
                 .data("ticketEntitlementExpired", isEntitlementExpired(ticket)).data("tamUserBase", "/user/tam-users")
                 .data("companyBase", "/user/companies").data("showLevel", showLevel).data("levelName", levelName)
                 .data("messageAction", "/user/tickets/" + id + "/messages")
@@ -865,7 +868,7 @@ public class UserResource {
                 .data("supportAssignments", data.supportAssignments)
                 .data("supportAssignmentNames", data.supportAssignmentNames)
                 .data("supportAssignmentIds", data.supportAssignmentIds).data("createTicketUrl", "/user/tickets/create")
-                .data("ticketsBase", "/user/tickets")
+                .data("supportAssignmentUsers", data.supportAssignmentUsers).data("ticketsBase", "/user/tickets")
                 .data("showSupportUsers", User.TYPE_TAM.equalsIgnoreCase(user.type))
                 .data("usersBase", User.TYPE_TAM.equalsIgnoreCase(user.type) ? "/tam/users" : "/user/users")
                 .data("currentUser", user);
@@ -936,6 +939,7 @@ public class UserResource {
         java.util.Map<Long, String> supportAssignments = new java.util.LinkedHashMap<>();
         java.util.Map<Long, String> supportAssignmentNames = new java.util.LinkedHashMap<>();
         java.util.Map<Long, Long> supportAssignmentIds = new java.util.LinkedHashMap<>();
+        java.util.Map<Long, User> supportAssignmentUsers = new java.util.LinkedHashMap<>();
         for (Ticket ticket : scopedTickets) {
             User assignedSupport = User
                     .find("select u from Ticket t join t.supportUsers u where t = ?1 order by u.id desc", ticket)
@@ -944,6 +948,7 @@ public class UserResource {
                 supportAssignments.put(ticket.id, assignedSupport.email);
                 supportAssignmentNames.put(ticket.id, assignedSupport.name);
                 supportAssignmentIds.put(ticket.id, assignedSupport.id);
+                supportAssignmentUsers.put(ticket.id, assignedSupport);
             }
         }
         java.util.List<Ticket> assignedTickets = new java.util.ArrayList<>();
@@ -981,6 +986,7 @@ public class UserResource {
         data.supportAssignments = supportAssignments;
         data.supportAssignmentNames = supportAssignmentNames;
         data.supportAssignmentIds = supportAssignmentIds;
+        data.supportAssignmentUsers = supportAssignmentUsers;
         return data;
     }
 
@@ -1141,6 +1147,7 @@ public class UserResource {
         private Map<Long, String> supportAssignments;
         private Map<Long, String> supportAssignmentNames;
         private Map<Long, Long> supportAssignmentIds;
+        private Map<Long, User> supportAssignmentUsers;
     }
 
     private Ticket findTicketForUser(User user, Long id) {
