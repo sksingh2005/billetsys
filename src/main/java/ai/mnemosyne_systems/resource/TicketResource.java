@@ -33,11 +33,18 @@ import jakarta.ws.rs.NotFoundException;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
+import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import java.io.IOException;
 import java.net.URI;
+import java.net.URLEncoder;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -57,6 +64,8 @@ public class TicketResource {
 
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("MMMM d yyyy, h.mma",
             Locale.ENGLISH);
+    private static final HttpClient HTTP_CLIENT = HttpClient.newBuilder().followRedirects(HttpClient.Redirect.NORMAL)
+            .connectTimeout(Duration.ofSeconds(10)).build();
 
     @Location("tickets/list.html")
     Template listTemplate;
@@ -172,6 +181,27 @@ public class TicketResource {
         User user = AuthHelper.findUser(auth);
         boolean alarm = hasAlarm(user);
         return Response.ok(Boolean.toString(alarm)).build();
+    }
+
+    @GET
+    @Path("/external-preview")
+    public Response externalPreview(@CookieParam(AuthHelper.AUTH_COOKIE) String auth, @QueryParam("url") String url) {
+        requireSupport(auth);
+        if (url == null || url.isBlank()) {
+            throw new BadRequestException("URL is required");
+        }
+        URI previewUri;
+        try {
+            previewUri = URI.create(url.trim());
+        } catch (IllegalArgumentException e) {
+            throw new BadRequestException("URL is invalid");
+        }
+        String scheme = previewUri.getScheme();
+        if (scheme == null || (!"http".equalsIgnoreCase(scheme) && !"https".equalsIgnoreCase(scheme))) {
+            throw new BadRequestException("URL is invalid");
+        }
+        String html = fetchExternalPreviewHtml(previewUri);
+        return Response.ok(html).type(MediaType.TEXT_HTML + ";charset=UTF-8").build();
     }
 
     @POST
@@ -369,6 +399,53 @@ public class TicketResource {
             throw new WebApplicationException(Response.seeOther(URI.create("/")).build());
         }
         return user;
+    }
+
+    private String fetchExternalPreviewHtml(URI previewUri) {
+        HttpRequest request = HttpRequest.newBuilder(previewUri).timeout(Duration.ofSeconds(15))
+                .header("User-Agent", "billetsys-preview").GET().build();
+        try {
+            HttpResponse<String> response = HTTP_CLIENT.send(request, HttpResponse.BodyHandlers.ofString());
+            if (response.statusCode() >= 400) {
+                return previewErrorHtml(previewUri, "Unable to load page (" + response.statusCode() + ").");
+            }
+            return wrapPreviewHtml(previewUri, response.body());
+        } catch (IOException | InterruptedException e) {
+            if (e instanceof InterruptedException) {
+                Thread.currentThread().interrupt();
+            }
+            return previewErrorHtml(previewUri, "Unable to load page: " + e.getMessage());
+        }
+    }
+
+    private String wrapPreviewHtml(URI previewUri, String body) {
+        String escapedUrl = escapeHtml(previewUri.toString());
+        String baseHref = escapeHtml(previewUri.resolve("/").toString());
+        return "<!DOCTYPE html><html><head><meta charset=\"UTF-8\"><title>" + escapedUrl + "</title><base href=\""
+                + baseHref + "\"></head><body>" + body + "</body></html>";
+    }
+
+    private String previewErrorHtml(URI previewUri, String message) {
+        String escapedUrl = escapeHtml(previewUri.toString());
+        String escapedMessage = escapeHtml(message);
+        return "<!DOCTYPE html><html><head><meta charset=\"UTF-8\"><title>" + escapedUrl
+                + "</title><style>body{font-family:Arial,sans-serif;margin:0;padding:16px;color:#1a1a1a;}a{color:#b00020;}pre{white-space:pre-wrap;}</style></head><body><h1>"
+                + escapedUrl + "</h1><p>" + escapedMessage + "</p><p><a href=\"" + escapedUrl
+                + "\" target=\"_blank\" rel=\"noopener\">Open in new tab</a></p></body></html>";
+    }
+
+    private String escapeHtml(String value) {
+        if (value == null) {
+            return "";
+        }
+        return value.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;").replace("\"", "&quot;");
+    }
+
+    public static String externalPreviewUrl(String url) {
+        if (url == null || url.isBlank()) {
+            return "";
+        }
+        return "/tickets/external-preview?url=" + URLEncoder.encode(url.trim(), StandardCharsets.UTF_8);
     }
 
     private boolean hasAlarm(User user) {

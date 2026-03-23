@@ -212,8 +212,11 @@ public class AppSeeder {
 
         Category bugCategory = Category.find("name", "Bug").firstResult();
         Category featureCategory = Category.find("name", "Feature").firstResult();
-        if (a1 != null && bugCategory != null) {
-            a1.category = bugCategory;
+        if (a1 != null) {
+            a1.externalIssueLink = "https://github.com/mnemosyne-systems/billetsys/issues/6";
+            if (bugCategory != null) {
+                a1.category = bugCategory;
+            }
             a1.persist();
         }
         if (a3 != null && featureCategory != null) {

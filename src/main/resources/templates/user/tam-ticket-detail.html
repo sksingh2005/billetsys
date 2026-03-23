@@ -30,6 +30,13 @@
             <label>Resolved
                 <input type="text" value="{#if ticket.resolvedVersion != null}{ticket.resolvedVersion.name} ({ticket.resolvedVersion.date}){#else}-{/if}" readonly>
             </label>
+            <label>External issue
+                {#if ticket.externalIssueLink != null && !ticket.externalIssueLink.isBlank}
+                    <a href="{ticket.externalIssueLink}" target="_blank" rel="noopener">{ticket.externalIssueLink}</a>
+                {#else}
+                    <input type="text" value="-" readonly>
+                {/if}
+            </label>
             <label>Entitlement
                 {#if ticket.companyEntitlement == null || ticket.companyEntitlement.entitlement == null}
                 <input type="text" value="-" readonly>

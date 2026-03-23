@@ -27,6 +27,16 @@
         <th>Resolved</th>
         <td>{#if ticket.resolvedVersion != null}{ticket.resolvedVersion.name} ({ticket.resolvedVersion.date}){#else}-{/if}</td>
     </tr>
+    <tr>
+        <th>External issue</th>
+        <td>
+            {#if ticket.externalIssueLink != null && !ticket.externalIssueLink.isBlank}
+                <a href="{ticket.externalIssueLink}" target="_blank" rel="noopener">{ticket.externalIssueLink}</a>
+            {#else}
+                -
+            {/if}
+        </td>
+    </tr>
     </tbody>
 </table>
 

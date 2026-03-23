@@ -144,6 +144,20 @@ class UserAccessTest {
                 .body(Matchers.containsString("Level")).body(Matchers.containsString("Starter"))
                 .body(Matchers.containsString("Normal")).body(Matchers.containsString("Messages"))
                 .body(Matchers.containsString("Sample ticket created."));
+        RestAssured.given().cookie(AuthHelper.AUTH_COOKIE, cookie).get("/tickets/1/edit").then().statusCode(200)
+                .body(Matchers.containsString("External issue")).body(Matchers.containsString("target=\"_blank\""))
+                .body(Matchers.containsString("inline-link-field-link")).body(Matchers.containsString(">Open</a>"))
+                .body(Matchers.containsString("data-external-preview-link"))
+                .body(Matchers.containsString("data-external-preview-panel"))
+                .body(Matchers.containsString("data-external-preview-frame"))
+                .body(Matchers.containsString("data-external-preview-title"))
+                .body(Matchers.containsString("data-external-preview-close"))
+                .body(Matchers.containsString(">Close</button>"))
+                .body(Matchers.containsString("https://github.com/mnemosyne-systems/billetsys/issues/6"));
+        RestAssured.given().cookie(AuthHelper.AUTH_COOKIE, cookie)
+                .queryParam("url", "https://github.com/mnemosyne-systems/billetsys/issues/6")
+                .get("/tickets/external-preview").then().statusCode(200).body(Matchers
+                        .containsString("<title>https://github.com/mnemosyne-systems/billetsys/issues/6</title>"));
 
         RestAssured.given().cookie(AuthHelper.AUTH_COOKIE, cookie).get("/support/tickets/" + ticketId).then()
                 .statusCode(200).body(Matchers.containsString("Sample ticket created."))
@@ -155,6 +169,9 @@ class UserAccessTest {
                 .body(Matchers.containsString("Category")).body(Matchers.containsString("External issue"))
                 .body(Matchers.not(Matchers.containsString("Cancel")))
                 .body(Matchers.not(Matchers.containsString("Back")));
+        RestAssured.given().cookie(AuthHelper.AUTH_COOKIE, cookie).get("/tickets/1").then().statusCode(200)
+                .body(Matchers.containsString("External issue")).body(Matchers.containsString("target=\"_blank\""))
+                .body(Matchers.containsString("https://github.com/mnemosyne-systems/billetsys/issues/6"));
 
         ai.mnemosyne_systems.model.Ticket unassignedTicket = ensureUnassignedOpenTicket(companyId);
         RestAssured.given().redirects().follow(false).cookie(AuthHelper.AUTH_COOKIE, cookie)
@@ -241,7 +258,8 @@ class UserAccessTest {
                 .body(Matchers.containsString("/user/superuser-users/"));
         RestAssured.given().cookie(AuthHelper.AUTH_COOKIE, cookie).get("/tickets/" + ticketId).then().statusCode(200)
                 .body(Matchers.containsString("/user/support-users/" + supportUser.id))
-                .body(Matchers.containsString("/user/tam-users/" + tamUser.id));
+                .body(Matchers.containsString("/user/tam-users/" + tamUser.id))
+                .body(Matchers.containsString("External issue"));
         User superuser = User.find("email", "superuser1@mnemosyne-systems.ai").firstResult();
         RestAssured.given().cookie(AuthHelper.AUTH_COOKIE, cookie).get("/user/superuser-users/" + superuser.id).then()
                 .statusCode(200).body(Matchers.containsString("Profile")).body(Matchers.containsString("Superuser"));
@@ -302,6 +320,9 @@ class UserAccessTest {
         RestAssured.given().cookie(AuthHelper.AUTH_COOKIE, cookie).get("/tickets/" + ticketId).then().statusCode(200)
                 .body(Matchers.containsString(tamTicketName)).body(Matchers.containsString("Support"))
                 .body(Matchers.containsString("value=\"Assigned\""));
+        RestAssured.given().cookie(AuthHelper.AUTH_COOKIE, cookie).get("/tickets/1").then().statusCode(200)
+                .body(Matchers.containsString("External issue")).body(Matchers.containsString("target=\"_blank\""))
+                .body(Matchers.containsString("https://github.com/mnemosyne-systems/billetsys/issues/6"));
 
         RestAssured.given().cookie(AuthHelper.AUTH_COOKIE, cookie).get("/user/support-users/" + supportUser.id).then()
                 .statusCode(200).body(Matchers.containsString("Profile")).body(Matchers.containsString("support1"))
@@ -359,6 +380,9 @@ class UserAccessTest {
 
         RestAssured.given().cookie(AuthHelper.AUTH_COOKIE, cookie).get("/tickets/" + ticketId).then().statusCode(200)
                 .body(Matchers.containsString("Superusers"));
+        RestAssured.given().cookie(AuthHelper.AUTH_COOKIE, cookie).get("/tickets/1").then().statusCode(200)
+                .body(Matchers.containsString("External issue")).body(Matchers.containsString("target=\"_blank\""))
+                .body(Matchers.containsString("https://github.com/mnemosyne-systems/billetsys/issues/6"));
 
         RestAssured.given().cookie(AuthHelper.AUTH_COOKIE, cookie).get("/superuser/tickets").then().statusCode(200)
                 .body(Matchers.containsString(superuserTicket.name))

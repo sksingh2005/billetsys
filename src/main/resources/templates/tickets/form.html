@@ -90,7 +90,14 @@
             </div>
             <div>
                 <label>External issue
-                    <input type="text" name="externalIssueLink" value="{#if ticket.externalIssueLink != null}{ticket.externalIssueLink}{/if}">
+                    <div style="position: relative; width: 100%;">
+                        <input type="text" name="externalIssueLink" value="{#if ticket.externalIssueLink != null}{ticket.externalIssueLink}{/if}" style="padding-right: 64px; box-sizing: border-box; width: 100%;">
+                        {#if ticket.externalIssueLink != null && !ticket.externalIssueLink.isBlank}
+                        <a class="inline-link-field-link" href="{ticket.externalIssueLink}" target="_blank" rel="noopener"
+                           data-external-preview-link
+                           style="position:absolute;top:50%;right:10px;transform:translateY(-50%);white-space:nowrap;">Open</a>
+                        {/if}
+                    </div>
                 </label>
             </div>
             <input type="hidden" name="companyId" value="{ticket.company.id}">
@@ -122,18 +129,152 @@
                 <button type="submit" class="action-button">Save</button>
             </div>
         </form>
-</div>
-{#if ticket.id != null}
+    </div>
+    <div class="external-preview-panel" data-external-preview-panel hidden>
+        <div class="external-preview-header">
+            <strong data-external-preview-title></strong>
+            <button type="button" class="secondary-button external-preview-close" data-external-preview-close>Close</button>
+        </div>
+        <div class="external-preview-body">
+            <iframe class="external-preview-frame" data-external-preview-frame title="External issue preview"
+                    loading="lazy" referrerpolicy="no-referrer"></iframe>
+        </div>
+    </div>
+    {#if ticket.id != null}
 <h2>Messages</h2>
 {#if messages.isEmpty}
 <p>No messages yet.</p>
 {/if}
 {#for message in messages}
-<div style="margin-bottom: 12px;">
-    <div><strong>{messageLabels.get(message.id)}</strong></div>
-    <div class="markdown-output">{message.body.markdown}</div>
-</div>
-{/for}
-{/if}
+    <div style="margin-bottom: 12px;">
+        <div><strong>{messageLabels.get(message.id)}</strong></div>
+        <div class="markdown-output">{message.body.markdown}</div>
+    </div>
+    {/for}
+    {/if}
+    <style>
+        .external-preview-panel {
+            position: fixed;
+            z-index: 10000;
+            width: min(480px, calc(100vw - 24px));
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 8px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+        }
+        .external-preview-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 10px 12px;
+            border-bottom: 1px solid var(--card-border);
+            background: #f8f8f8;
+        }
+        .external-preview-close {
+            padding: 6px 10px;
+        }
+        .external-preview-body {
+            height: min(70vh, 520px);
+            overflow: auto;
+            background: #ffffff;
+        }
+        .external-preview-frame {
+            display: block;
+            width: 100%;
+            height: min(70vh, 520px);
+            border: 0;
+            background: #ffffff;
+        }
+    </style>
+    <script>
+        (function () {
+            const panel = document.querySelector('[data-external-preview-panel]');
+            const frame = panel ? panel.querySelector('[data-external-preview-frame]') : null;
+            const closeButton = panel ? panel.querySelector('[data-external-preview-close]') : null;
+            const title = panel ? panel.querySelector('[data-external-preview-title]') : null;
+            const triggers = document.querySelectorAll('[data-external-preview-link]');
+            let hideTimer = null;
+            let activeTrigger = null;
+
+            if (!panel || !frame || !closeButton || !title || !triggers.length) {
+                return;
+            }
+
+            function clearHideTimer() {
+                if (hideTimer !== null) {
+                    window.clearTimeout(hideTimer);
+                    hideTimer = null;
+                }
+            }
+
+            function positionPanel(trigger) {
+                const rect = trigger.getBoundingClientRect();
+                const panelWidth = panel.offsetWidth || 480;
+                const panelHeight = panel.offsetHeight || 520;
+                const margin = 12;
+                let left = Math.min(rect.left, window.innerWidth - panelWidth - margin);
+                left = Math.max(margin, left);
+                let top = rect.bottom + 8;
+                if (top + panelHeight > window.innerHeight - margin) {
+                    top = Math.max(margin, rect.top - panelHeight - 8);
+                }
+                panel.style.left = left + 'px';
+                panel.style.top = top + 'px';
+            }
+
+            function showPanel(trigger) {
+                clearHideTimer();
+                activeTrigger = trigger;
+                const href = trigger.getAttribute('href');
+                title.textContent = href || '';
+                const previewSrc = href ? '/tickets/external-preview?url=' + encodeURIComponent(href) : '';
+                if (previewSrc && frame.getAttribute('src') !== previewSrc) {
+                    frame.setAttribute('src', previewSrc);
+                }
+                panel.hidden = false;
+                positionPanel(trigger);
+            }
+
+            function hidePanel() {
+                clearHideTimer();
+                panel.hidden = true;
+                frame.removeAttribute('src');
+                activeTrigger = null;
+            }
+
+            function scheduleHide() {
+                clearHideTimer();
+                hideTimer = window.setTimeout(hidePanel, 180);
+            }
+
+            triggers.forEach(trigger => {
+                trigger.addEventListener('mouseenter', () => showPanel(trigger));
+                trigger.addEventListener('focus', () => showPanel(trigger));
+                trigger.addEventListener('mouseleave', scheduleHide);
+                trigger.addEventListener('blur', scheduleHide);
+            });
+
+            panel.addEventListener('mouseenter', clearHideTimer);
+            panel.addEventListener('mouseleave', scheduleHide);
+            closeButton.addEventListener('click', hidePanel);
+            document.addEventListener('keydown', event => {
+                if (event.key === 'Escape') {
+                    hidePanel();
+                }
+            });
+            window.addEventListener('resize', () => {
+                if (!panel.hidden && activeTrigger) {
+                    positionPanel(activeTrigger);
+                }
+            });
+            window.addEventListener('scroll', () => {
+                if (!panel.hidden && activeTrigger) {
+                    positionPanel(activeTrigger);
+                }
+            }, true);
+        })();
+    </script>
 {/content}
 {/include}
