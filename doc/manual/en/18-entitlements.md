@@ -4,6 +4,8 @@
 
 The **Entitlements** feature represents the service relationship that connects a company to the support offering it has in billetsys.
 
+![Entitlements administration](images/18-entitlements.png)
+
 ## Purpose
 
 Support work is not only about the ticket itself. It also depends on what kind of service relationship exists for the customer. Entitlements provide that context.

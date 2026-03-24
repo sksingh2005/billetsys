@@ -4,6 +4,8 @@
 
 The **Levels** feature defines support tiers and service expectations that can be used throughout billetsys.
 
+![Levels administration](images/19-levels.png)
+
 ## Purpose
 
 Not every support relationship operates under the same urgency or time expectations. Levels provide a structured way to describe those differences.

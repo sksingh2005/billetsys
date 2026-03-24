@@ -4,6 +4,8 @@
 
 The **Messages** area of billetsys captures the conversation that happens around a ticket.
 
+![Ticket message thread](images/12-messages.png)
+
 ## Purpose
 
 A ticket by itself is only a container for case information. Messages provide the ongoing dialogue that explains what was reported, what was investigated, what changed, and what was finally done.

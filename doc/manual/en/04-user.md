@@ -4,6 +4,8 @@
 
 The **User** role is intended for the people who report issues and follow their own support cases.
 
+![User home view](images/04-user.png)
+
 ## Main purpose
 
 Users interact with billetsys from the customer side. Their primary tasks are to open tickets, describe problems clearly, add follow-up information, and monitor replies from support.

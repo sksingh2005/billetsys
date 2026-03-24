@@ -4,6 +4,8 @@
 
 The **Attachments** feature in billetsys allows files to travel together with the ticket conversation and related knowledge content.
 
+![Attachment upload area](images/13-attachments.png)
+
 ## Purpose
 
 Support work often depends on evidence and reference material such as screenshots, logs, exports, documents, and sample files. Attachments make it possible to keep those files connected to the ticket or article where they matter.

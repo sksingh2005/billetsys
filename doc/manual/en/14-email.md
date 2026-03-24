@@ -4,6 +4,8 @@
 
 The **Email** functionality in billetsys connects ticket activity with mailbox-based communication.
 
+![Ticket conversation related to email flow](images/14-email.png)
+
 ## Purpose
 
 Support work often continues outside the web interface. Email integration helps billetsys stay aligned with how support teams and customers already communicate, while still keeping the ticket system as the main source of record.

@@ -4,6 +4,8 @@
 
 The **Articles** area in billetsys provides a shared knowledge base for solutions, guides, and reusable support information.
 
+![Articles page](images/09-articles.png)
+
 ## Purpose
 
 Not every answer should stay locked inside a ticket conversation. The articles feature makes it possible to capture useful knowledge in a form that can be reused by other users and teams.

@@ -4,6 +4,8 @@
 
 The **Users** feature manages the individual accounts that access billetsys and participate in support workflows.
 
+![Users administration](images/16-users.png)
+
 ## Purpose
 
 Every ticket, message, assignment, and role-based view depends on user accounts. The users feature defines who can sign in, what responsibilities they have, and which parts of the application they can access.

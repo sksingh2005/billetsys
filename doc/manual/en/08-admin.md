@@ -4,6 +4,8 @@
 
 The **Admin** role is responsible for maintaining the application and the data structures that the rest of billetsys depends on.
 
+![Admin home](images/08-admin.png)
+
 ## Main purpose
 
 Admins keep the system ready for day-to-day support work. They manage the reference data, organizational data, and user setup that define how tickets can be created and handled.

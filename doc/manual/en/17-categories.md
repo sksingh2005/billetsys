@@ -4,6 +4,8 @@
 
 The **Categories** feature helps billetsys classify tickets by the kind of issue they represent.
 
+![Categories administration](images/17-categories.png)
+
 ## Purpose
 
 Not all tickets mean the same thing. Categories give structure to incoming work by labeling tickets in a way that helps users and support staff understand what kind of case they are looking at.

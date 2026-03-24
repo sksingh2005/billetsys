@@ -4,6 +4,8 @@
 
 The **Companies** feature organizes the customer and organizational structure that tickets belong to.
 
+![Companies administration](images/15-companies.png)
+
 ## Purpose
 
 Tickets, users, entitlements, and account responsibilities need a shared organizational context. In billetsys, that context is the company record.

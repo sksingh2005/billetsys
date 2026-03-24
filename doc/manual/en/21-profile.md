@@ -4,6 +4,8 @@
 
 The **Profile** feature allows each user to maintain their own account details inside billetsys.
 
+![Profile page](images/21-profile.png)
+
 ## Purpose
 
 Support systems work best when the people using them have accurate identity and contact information. The profile area gives users a place to keep that information current without requiring separate administrative changes for every update.

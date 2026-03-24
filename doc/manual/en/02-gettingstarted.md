@@ -4,6 +4,8 @@
 
 This chapter describes how to prepare a local development setup for [**billetsys**](https://github.com/mnemosyne-systems/billetsys) using PostgreSQL and how to start the application in development mode.
 
+![Application after startup](images/02-gettingstarted.png)
+
 ## Requirements
 
 Before you begin, make sure the following tools are available:

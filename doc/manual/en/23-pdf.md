@@ -4,6 +4,8 @@
 
 The **PDF** functionality in billetsys makes it possible to turn ticket and report information into portable documents.
 
+![Report export view](images/23-pdf.png)
+
 ## Purpose
 
 Not every support activity stays inside the live application. Teams often need documents they can share, archive, review offline, or include in meetings and customer communication. PDF export supports that need.

@@ -4,6 +4,8 @@
 
 The **Navigation** structure in billetsys helps users move through the application according to their role and scope of responsibility.
 
+![Role-based navigation view](images/24-navigation.png)
+
 ## Purpose
 
 Billetsys includes several roles with different kinds of access. Navigation is what turns that role model into a practical user experience.

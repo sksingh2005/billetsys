@@ -4,6 +4,8 @@
 
 The **Reports** area provides analytical views of ticket activity so that teams can understand workload, trends, and service behavior over time.
 
+![Reports dashboard](images/10-reports.png)
+
 ## Purpose
 
 Ticket lists are useful for day-to-day operations, but reports answer different questions:

@@ -4,6 +4,8 @@
 
 The **Ticket** is the central object in billetsys. It represents a support case from the first report through investigation, communication, and final resolution.
 
+![Open tickets view](images/11-tickets.png)
+
 ## Purpose
 
 Tickets bring together the information needed to manage a case in one place. Instead of splitting status, ownership, communication, and attachments across different tools, billetsys keeps them connected to the same record.

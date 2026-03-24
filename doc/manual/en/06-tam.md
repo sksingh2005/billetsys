@@ -4,6 +4,8 @@
 
 The **TAM** role represents the Technical Account Manager.
 
+![TAM workspace](images/06-tam.png)
+
 ## Main purpose
 
 A TAM works close to the customer relationship and follows support activity across assigned companies. This role combines customer awareness with broader operational insight than a normal user.

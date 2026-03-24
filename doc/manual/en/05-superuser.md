@@ -4,6 +4,8 @@
 
 The **Superuser** role is a customer-side coordination role with broader access than a normal user.
 
+![Superuser workspace](images/05-superuser.png)
+
 ## Main purpose
 
 A superuser helps organize support work for the company. This role is useful when one or more people need visibility across a wider ticket scope and need to help coordinate users and cases.

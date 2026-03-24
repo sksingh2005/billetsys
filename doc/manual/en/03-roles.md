@@ -4,6 +4,8 @@
 
 [**billetsys**](https://github.com/mnemosyne-systems/billetsys) is designed around a small set of roles with different responsibilities and different views of the same support process.
 
+![Role overview](images/03-roles-overview.png)
+
 The role model separates customer-facing work from operational support work and system administration. This helps keep each screen focused on the information and actions that matter for that role.
 
 ## User

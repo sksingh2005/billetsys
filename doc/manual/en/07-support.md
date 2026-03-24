@@ -4,6 +4,8 @@
 
 The **Support** role is used by the people who actively process tickets and communicate with customers during investigation and resolution.
 
+![Support workspace](images/07-support.png)
+
 ## Main purpose
 
 Support users operate the working queue of the system. They turn incoming requests into managed cases, keep assignments current, reply to customers, and drive tickets toward a resolution.

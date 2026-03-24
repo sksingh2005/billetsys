@@ -4,6 +4,8 @@
 
 The **Versions** feature gives billetsys a way to connect tickets to product or release context.
 
+![Entitlement version view](images/20-versions.png)
+
 ## Purpose
 
 Support cases are often tied to specific product versions. A problem may affect one version, while the fix may appear in another. Versions make that relationship explicit.
