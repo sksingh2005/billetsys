@@ -3,7 +3,7 @@
 set -euo pipefail
 
 script_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
-output_dir="${1:-"$script_dir/build"}"
+output_dir="${1:-"$script_dir/../../../target"}"
 html_output="$output_dir/billetsys-en.html"
 pdf_output="$output_dir/billetsys-en.pdf"
 
