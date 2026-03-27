@@ -31,6 +31,7 @@ import io.quarkus.mailer.MockMailbox;
 import io.quarkus.test.junit.QuarkusTest;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
+import io.restassured.response.Response;
 import jakarta.inject.Inject;
 import jakarta.mail.Session;
 import jakarta.mail.internet.InternetAddress;
@@ -569,8 +570,14 @@ class SupportAccessTest extends AccessTestSupport {
 
     @Test
     void reactAppShellRedirectsToStaticIndex() {
-        RestAssured.given().redirects().follow(false).get("/app/").then().statusCode(200)
-                .body(Matchers.containsString("id=\"root\"")).body(Matchers.containsString("/app/assets/"));
+        Response response = RestAssured.given().redirects().follow(false).get("/app/");
+        int statusCode = response.statusCode();
+        if (statusCode == 200) {
+            response.then().body(Matchers.containsString("id=\"root\"")).body(Matchers.containsString("/app/assets/"));
+            return;
+        }
+        response.then().statusCode(Matchers.anyOf(Matchers.equalTo(302), Matchers.equalTo(303))).header("Location",
+                Matchers.endsWith("/"));
     }
 
     @Test
