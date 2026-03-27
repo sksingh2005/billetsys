@@ -144,7 +144,7 @@ class UserAccessTest extends AccessTestSupport {
     }
 
     @Test
-    void userReplyDoesNotResetAssignedTicketSlaColor() {
+    void userReplyUsesLatestPendingMessageForTicketSlaColor() {
         ensureUser("user", "user@mnemosyne-systems.ai", User.TYPE_USER, "user");
         ensureUser("support1", "support1@mnemosyne-systems.ai", User.TYPE_SUPPORT, "support1");
         ensureUser("tam1", "tam1@mnemosyne-systems.ai", User.TYPE_TAM, "tam1");
@@ -166,7 +166,7 @@ class UserAccessTest extends AccessTestSupport {
                 .statusCode(303);
 
         RestAssured.given().cookie(AuthHelper.AUTH_COOKIE, cookie).get("/api/user/tickets").then().statusCode(200)
-                .body("items.find { it.id == " + ticket.id + " }.slaColor", Matchers.equalTo("Red"));
+                .body("items.find { it.id == " + ticket.id + " }.slaColor", Matchers.equalTo("White"));
 
         ensureTimedMessage(ticket, "Support follow-up", "support1@mnemosyne-systems.ai",
                 java.time.LocalDateTime.now().minusMinutes(1));

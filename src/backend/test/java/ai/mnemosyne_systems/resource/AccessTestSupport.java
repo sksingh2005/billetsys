@@ -489,9 +489,17 @@ abstract class AccessTestSupport {
 
     @Transactional
     Long createCompany(String cookie, String name) {
+        String normalized = name == null ? "company"
+                : name.toLowerCase().replaceAll("[^a-z0-9]+", "-").replaceAll("(^-|-$)", "");
+        if (normalized.isBlank()) {
+            normalized = "company";
+        }
+        String primaryContactUsername = normalized + "-contact";
+        String primaryContactEmail = normalized + "@testing.com";
         String location = RestAssured.given().redirects().follow(false).cookie(AuthHelper.AUTH_COOKIE, cookie)
-                .contentType(ContentType.URLENC).formParam("name", name).formParam("primaryContactUsername", "username")
-                .formParam("primaryContactEmail", "user@@testing.com").formParam("primaryContactPassword", "pass")
+                .contentType(ContentType.URLENC).formParam("name", name)
+                .formParam("primaryContactUsername", primaryContactUsername)
+                .formParam("primaryContactEmail", primaryContactEmail).formParam("primaryContactPassword", "pass")
                 .post("/companies").then().statusCode(303).extract().header("Location");
         ai.mnemosyne_systems.model.Company company = ai.mnemosyne_systems.model.Company.find("name", name)
                 .firstResult();
