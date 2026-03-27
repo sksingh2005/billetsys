@@ -29,6 +29,10 @@ createdb -E UTF8 -O ticketdb ticketdb
 mvn clean quarkus:dev
 ```
 
+The root Maven build runs the frontend install and build from `src/frontend`, so a separate
+manual `npm run build` step is not required for the standard development workflow. If you need
+to skip the frontend build, use `-Dskip.frontend=true`.
+
 The users defined for testing are
 
 * User: `user1` / `user1`
