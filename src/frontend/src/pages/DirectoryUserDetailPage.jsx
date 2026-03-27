@@ -10,6 +10,14 @@ export default function DirectoryUserDetailPage({ sessionState, apiBase, backFal
   const { id } = useParams();
   const detailState = useJson(id ? `${apiBase}/${id}` : null);
   const detail = detailState.data;
+  const resolvedBackHref = detail?.backPath || backFallback;
+
+  const handleBackClick = event => {
+    if (window.history.length > 1) {
+      event.preventDefault();
+      navigate(-1);
+    }
+  };
 
   const deleteUser = async () => {
     if (!detail?.deletePath || !window.confirm('Delete this user?')) {
@@ -27,7 +35,7 @@ export default function DirectoryUserDetailPage({ sessionState, apiBase, backFal
     <section className="panel">
       <div className="section-header">
         <div>
-          <SmartLink className="inline-link back-link" href={detail?.backPath || backFallback}>
+          <SmartLink className="inline-link back-link" href={resolvedBackHref} onClick={handleBackClick}>
             Back
           </SmartLink>
           <h2>{detail?.displayName || detail?.fullName || detail?.username || 'User details'}</h2>

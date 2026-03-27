@@ -1,4 +1,4 @@
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import useJson from '../hooks/useJson';
 import DataState from '../components/common/DataState';
 import { SmartLink } from '../utils/routing.jsx';
@@ -27,15 +27,24 @@ function DirectoryUserReferenceList({ users }) {
 }
 
 export default function DirectoryCompanyDetailPage({ sessionState, apiBase, backFallback }) {
+  const navigate = useNavigate();
   const { id } = useParams();
   const companyState = useJson(id ? `${apiBase}/${id}` : null);
   const company = companyState.data;
+  const resolvedBackHref = company?.backPath || backFallback;
+
+  const handleBackClick = event => {
+    if (window.history.length > 1) {
+      event.preventDefault();
+      navigate(-1);
+    }
+  };
 
   return (
     <section className="panel">
       <div className="section-header">
         <div>
-          <SmartLink className="inline-link back-link" href={company?.backPath || backFallback}>
+          <SmartLink className="inline-link back-link" href={resolvedBackHref} onClick={handleBackClick}>
             Back
           </SmartLink>
           <h2>{company?.name || 'Company details'}</h2>

@@ -2,6 +2,7 @@ package ai.mnemosyne_systems.resource;
 
 import ai.mnemosyne_systems.model.Company;
 import ai.mnemosyne_systems.model.Country;
+import ai.mnemosyne_systems.model.Ticket;
 import ai.mnemosyne_systems.model.Timezone;
 import ai.mnemosyne_systems.model.User;
 import ai.mnemosyne_systems.util.AuthHelper;
@@ -81,7 +82,7 @@ public class SuperuserDirectoryApiResource {
             @PathParam("id") Long id) {
         User currentUser = requireSuperuser(auth);
         User user = userByType(id, User.TYPE_SUPPORT);
-        return detailResponse(currentUser, user);
+        return detailResponse(currentUser, user, canViewSupportUser(currentUser, user));
     }
 
     @GET
@@ -91,7 +92,7 @@ public class SuperuserDirectoryApiResource {
             @PathParam("id") Long id) {
         User currentUser = requireSuperuser(auth);
         User user = userByType(id, User.TYPE_SUPERUSER);
-        return detailResponse(currentUser, user);
+        return detailResponse(currentUser, user, false);
     }
 
     @GET
@@ -104,7 +105,7 @@ public class SuperuserDirectoryApiResource {
         if (user == null) {
             throw new NotFoundException();
         }
-        return detailResponse(currentUser, user);
+        return detailResponse(currentUser, user, false);
     }
 
     @GET
@@ -123,12 +124,18 @@ public class SuperuserDirectoryApiResource {
                 "/superuser/users?companyId=" + company.id);
     }
 
-    private UserDirectoryApiModels.UserDetailResponse detailResponse(User currentUser, User user) {
+    private UserDirectoryApiModels.UserDetailResponse detailResponse(User currentUser, User user,
+            boolean allowTicketAssignmentAccess) {
         Company company = Company.<Company> find("select c from Company c join c.users u where u = ?1", user)
                 .firstResult();
         boolean allowed = company != null && Company.count(
                 "select count(c) from Company c join c.users current join c.users viewed where current = ?1 and viewed = ?2",
                 currentUser, user) > 0;
+        if (!allowed && allowTicketAssignmentAccess) {
+            allowed = Ticket.count(
+                    "select count(distinct t) from Ticket t join t.supportUsers support join t.company.users current where support = ?1 and current = ?2",
+                    user, currentUser) > 0;
+        }
         if (!allowed && (currentUser.id == null || !currentUser.id.equals(user.id))) {
             throw new NotFoundException();
         }
@@ -138,6 +145,15 @@ public class SuperuserDirectoryApiResource {
                 user.timezone == null ? null : user.timezone.name, user.logoBase64, company == null ? null : company.id,
                 company == null ? null : company.name, company == null ? null : "/superuser/companies/" + company.id,
                 null, null, company == null ? "/superuser/users" : "/superuser/users?companyId=" + company.id);
+    }
+
+    private boolean canViewSupportUser(User currentUser, User supportUser) {
+        if (currentUser == null || supportUser == null) {
+            return false;
+        }
+        return Ticket.count(
+                "select count(distinct t) from Ticket t join t.supportUsers support join t.company.users current where support = ?1 and current = ?2",
+                supportUser, currentUser) > 0;
     }
 
     private List<UserDirectoryApiModels.UserReference> usersForCompany(Company company, String type, String basePath) {
