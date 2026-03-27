@@ -102,9 +102,9 @@ public class AdminUserApiResource {
         return new UserDirectoryApiModels.UserDetailResponse(user.id, user.name, user.getDisplayName(), user.fullName,
                 user.email, user.social, user.phoneNumber, user.phoneExtension, user.type,
                 UserDirectoryApiModels.typeLabel(user.type), user.country == null ? null : user.country.name,
-                user.timezone == null ? null : user.timezone.name, company == null ? null : company.id,
-                company == null ? null : company.name, "/users/" + user.id + "/edit", "/user/" + user.id + "/delete",
-                backPath);
+                user.timezone == null ? null : user.timezone.name, user.logoBase64, company == null ? null : company.id,
+                company == null ? null : company.name, company == null ? null : "/companies/" + company.id,
+                "/users/" + user.id + "/edit", "/user/" + user.id + "/delete", backPath);
     }
 
     private Company selectCompany(List<Company> companies, Long companyId) {

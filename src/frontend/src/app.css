@@ -468,6 +468,33 @@ pre code {
   color: var(--muted-text);
 }
 
+.loading-spinner {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.7rem;
+  color: var(--muted-text);
+  font-weight: 600;
+}
+
+.loading-spinner-ring {
+  width: 1rem;
+  height: 1rem;
+  border: 2px solid rgba(88, 96, 107, 0.22);
+  border-top-color: var(--primary);
+  border-radius: 50%;
+  animation: loading-spinner-rotate 0.8s linear infinite;
+}
+
+.loading-spinner-label {
+  line-height: 1.2;
+}
+
+@keyframes loading-spinner-rotate {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 .error-text {
   color: #b00020;
   font-weight: 600;

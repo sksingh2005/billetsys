@@ -102,8 +102,9 @@ public class UserViewApiResource {
         return new UserDirectoryApiModels.UserDetailResponse(user.id, user.name, user.getDisplayName(), user.fullName,
                 user.email, user.social, user.phoneNumber, user.phoneExtension, user.type,
                 UserDirectoryApiModels.typeLabel(user.type), user.country == null ? null : user.country.name,
-                user.timezone == null ? null : user.timezone.name, company == null ? null : company.id,
-                company == null ? null : company.name, null, null, "/user/tickets");
+                user.timezone == null ? null : user.timezone.name, user.logoBase64, company == null ? null : company.id,
+                company == null ? null : company.name, company == null ? null : "/user/companies/" + company.id, null,
+                null, "/user/tickets");
     }
 
     private List<UserDirectoryApiModels.UserReference> usersForCompany(Company company, String type, String basePath) {

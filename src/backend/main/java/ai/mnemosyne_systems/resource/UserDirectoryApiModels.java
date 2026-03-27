@@ -44,8 +44,8 @@ public final class UserDirectoryApiModels {
 
     public record UserDetailResponse(Long id, String username, String displayName, String fullName, String email,
             String social, String phoneNumber, String phoneExtension, String type, String typeLabel, String countryName,
-            String timezoneName, Long companyId, String companyName, String editPath, String deletePath,
-            String backPath) {
+            String timezoneName, String logoBase64, Long companyId, String companyName, String companyPath,
+            String editPath, String deletePath, String backPath) {
     }
 
     public record CompanyDetailResponse(Long id, String name, String address1, String address2, String city,

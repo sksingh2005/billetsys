@@ -4,3 +4,4 @@ target/
 *.iml
 doc/manual/en/build/
 src/frontend/node_modules/
+.m2/

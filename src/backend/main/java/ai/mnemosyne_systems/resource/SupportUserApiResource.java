@@ -143,8 +143,9 @@ public class SupportUserApiResource {
         return new UserDirectoryApiModels.UserDetailResponse(user.id, user.name, user.getDisplayName(), user.fullName,
                 user.email, user.social, user.phoneNumber, user.phoneExtension, user.type,
                 UserDirectoryApiModels.typeLabel(user.type), user.country == null ? null : user.country.name,
-                user.timezone == null ? null : user.timezone.name, company == null ? null : company.id,
-                company == null ? null : company.name, null, null, backPath);
+                user.timezone == null ? null : user.timezone.name, user.logoBase64, company == null ? null : company.id,
+                company == null ? null : company.name, company == null ? null : "/support/companies/" + company.id,
+                null, null, backPath);
     }
 
     private List<UserDirectoryApiModels.UserReference> usersForCompany(Company company, String type, String basePath) {
