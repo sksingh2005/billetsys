@@ -13,10 +13,12 @@ This document describes how to build the project, run it locally, and generate t
 ## Build the project
 
 ```bash
-mvn clean package
+mvn package
 ```
 
 This produces the application artifacts in `target/`.
+
+Use `mvn clean package` only when you want to remove previous build output before packaging.
 
 ## Run the project
 
@@ -33,9 +35,27 @@ Start in development mode:
 mvn quarkus:dev
 ```
 
+Quarkus dev mode starts the React frontend through Quinoa. The Vite dev server handles frontend
+live reload, so React changes should appear without rebuilding or restarting the backend.
+
 The application is available at:
 
 - http://localhost:8080
+
+## Frontend build integration
+
+The frontend source lives in `src/frontend`.
+
+- Development mode: Quinoa proxies `/app` to the Vite dev server.
+- Production packaging: Quinoa builds the frontend into `src/frontend/dist` and stages the
+  packaged assets under `target/quinoa/build`.
+
+Browser routes such as `/profile` and `/users/...` continue to work through the backend shell
+handoff while static frontend assets stay under `/app`.
+
+The old generated frontend folder under `src/backend/main/resources/META-INF/resources/app` is
+legacy output from the previous Maven wiring and should not be treated as the active source of
+truth for frontend assets.
 
 ## Run tests
 

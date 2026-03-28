@@ -1,5 +1,6 @@
 package ai.mnemosyne_systems.infra;
 
+import io.quarkus.runtime.LaunchMode;
 import jakarta.servlet.Filter;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -43,7 +44,11 @@ public class ReactShellFilter implements Filter {
         HttpServletResponse httpResponse = (HttpServletResponse) response;
         if (shouldServeReactShell(httpRequest)) {
             httpResponse.setHeader("Cache-Control", "no-store");
-            request.getRequestDispatcher("/app/index.html").forward(request, response);
+            if (LaunchMode.current() == LaunchMode.DEVELOPMENT) {
+                httpResponse.sendRedirect(reactShellLocation(httpRequest));
+            } else {
+                request.getRequestDispatcher("/app/index.html").forward(request, response);
+            }
             return;
         }
         chain.doFilter(request, response);
@@ -59,5 +64,15 @@ public class ReactShellFilter implements Filter {
         }
         String path = request.getRequestURI().substring(request.getContextPath().length());
         return SPA_PATHS.stream().anyMatch(pattern -> pattern.matcher(path).matches());
+    }
+
+    private String reactShellLocation(HttpServletRequest request) {
+        String path = request.getRequestURI().substring(request.getContextPath().length());
+        String query = request.getQueryString();
+        StringBuilder location = new StringBuilder(request.getContextPath()).append("/app/#").append(path);
+        if (query != null && !query.isBlank()) {
+            location.append('?').append(query);
+        }
+        return location.toString();
     }
 }

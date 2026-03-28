@@ -2,10 +2,16 @@
 
 This frontend is a Vite + React application that renders the React shell for `billetsys`.
 
+## Development Workflow
+
+- Run `mvn quarkus:dev` from the repository root for normal frontend and backend development.
+- Keep that process running while you edit frontend files so Vite live reload can update the UI.
+- Use `mvn clean quarkus:dev` only when you deliberately want to wipe `target/` and force a fresh rebuild.
+
 ## Entry Flow
 
 - `src/main.jsx`
-  Boots React, sets up `BrowserRouter`, and handles legacy `/app` URL normalization before render.
+  Boots React, sets up `BrowserRouter`, and handles `/app` and `/app/#...` URL normalization before render.
 - `src/App.jsx`
   Keeps the top-level shell small. It loads the session, sets the document title, chooses the login vs authenticated shell, and renders `AppRoutes`.
 - `src/AppRoutes.jsx`
@@ -91,7 +97,8 @@ When adding a new screen:
 4. If the screen requires sign-in, set `requiresAuth: true`.
 5. If the screen belongs to a clearly role-scoped route family such as support, TAM, user, or superuser, add `allowedRoles`.
 6. If the page is large or not part of the initial shell, prefer lazy-loading it in the route-group file.
-7. Run `npm run build` from `src/frontend` after the change.
+7. For day-to-day development, keep `mvn quarkus:dev` running from the repository root and rely on live reload.
+8. Run `npm run build` from `src/frontend` when you want a production-style frontend build.
 
 ## Choosing The Right Route File
 
@@ -141,3 +148,13 @@ Run the frontend build from this folder:
 ```bash
 npm run build
 ```
+
+The build output is written to `dist/`. Quarkus packages those files through Quinoa, while
+`mvn quarkus:dev` proxies `/app/*` to the Vite dev server for live frontend updates.
+
+## Backend Integration
+
+- Quarkus serves the frontend under `/app`.
+- In development, Quinoa proxies `/app/*` to the Vite dev server on port `5173`.
+- Top-level browser routes such as `/profile` are redirected by the backend to `/app/#...`, and `src/main.jsx` converts those locations back into normal client-side routes during app startup.
+- Production packaging uses the `dist/` output generated from this frontend project. The legacy generated folder under `src/backend/main/resources/META-INF/resources/app` should not be used as the active frontend source anymore.

@@ -38,7 +38,6 @@
         <quarkus.platform.artifact-id>quarkus-bom</quarkus.platform.artifact-id>
         <quarkus.platform.version>3.33.1</quarkus.platform.version>
         <maven.compiler.release>25</maven.compiler.release>
-        <skip.frontend>false</skip.frontend>
     </properties>
 
     <dependencyManagement>
@@ -97,6 +96,11 @@
         <dependency>
             <groupId>io.quarkus</groupId>
             <artifactId>quarkus-scheduler</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.quarkiverse.quinoa</groupId>
+            <artifactId>quarkus-quinoa</artifactId>
+            <version>2.7.2</version>
         </dependency>
         <dependency>
             <groupId>jakarta.mail</groupId>
@@ -161,44 +165,6 @@
         </testResources>
         <plugins>
             <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>exec-maven-plugin</artifactId>
-                <version>3.6.3</version>
-                <executions>
-                    <execution>
-                        <id>frontend-install</id>
-                        <phase>generate-resources</phase>
-                        <goals>
-                            <goal>exec</goal>
-                        </goals>
-                        <configuration>
-                            <skip>${skip.frontend}</skip>
-                            <executable>npm</executable>
-                            <arguments>
-                                <argument>ci</argument>
-                            </arguments>
-                            <workingDirectory>${project.basedir}/src/frontend</workingDirectory>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>frontend-build</id>
-                        <phase>generate-resources</phase>
-                        <goals>
-                            <goal>exec</goal>
-                        </goals>
-                        <configuration>
-                            <skip>${skip.frontend}</skip>
-                            <executable>npm</executable>
-                            <arguments>
-                                <argument>run</argument>
-                                <argument>build</argument>
-                            </arguments>
-                            <workingDirectory>${project.basedir}/src/frontend</workingDirectory>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
                 <groupId>io.quarkus</groupId>
                 <artifactId>quarkus-maven-plugin</artifactId>
                 <version>${quarkus.platform.version}</version>
@@ -210,6 +176,7 @@
                 <configuration>
                     <systemPropertyVariables>
                         <java.util.logging.manager>org.jboss.logmanager.LogManager</java.util.logging.manager>
+                        <maven.multiModuleProjectDirectory>${project.basedir}</maven.multiModuleProjectDirectory>
                     </systemPropertyVariables>
                 </configuration>
             </plugin>
@@ -226,6 +193,7 @@
                             <systemPropertyVariables>
                                 <native.image.path>${project.build.directory}/${project.build.finalName}-runner</native.image.path>
                                 <java.util.logging.manager>org.jboss.logmanager.LogManager</java.util.logging.manager>
+                                <maven.multiModuleProjectDirectory>${project.basedir}</maven.multiModuleProjectDirectory>
                             </systemPropertyVariables>
                         </configuration>
                     </execution>

@@ -179,8 +179,9 @@ psql -h localhost -p 5432 -U ticketdb ticketdb
 cd /usr/local
 git clone https://github.com/mnemosyne-systems/billetsys.git
 cd billetsys
-mvn clean quarkus:dev
 ```
+
+See `BUILDING.md` for the current development, build, test, and frontend integration commands.
 
 ## Logging levels
 

@@ -1,4 +1,7 @@
 [billetsys]: https://github.com/mnemosyne-systems/billetsys/
+[quarkus]: https://quarkus.io/
+[quinoa]: https://quarkus.io/extensions/io.quarkiverse.quinoa/quarkus-quinoa/
+[vite]: https://vite.dev/
 [postgresql]: https://www.postgresql.org
 [fedora]: https://getfedora.org/
 [rhel]: https://www.redhat.com/en/technologies/linux-platforms/enterprise-linux
