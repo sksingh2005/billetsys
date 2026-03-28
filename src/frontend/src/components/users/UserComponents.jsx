@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { SmartLink } from '../../utils/routing.jsx';
 
 export function UserHoverLink({ user, className, children }) {
   const [tooltipState, setTooltipState] = useState(null);
@@ -27,7 +28,7 @@ export function UserHoverLink({ user, className, children }) {
 
   return (
     <>
-      <a
+      <SmartLink
         className={className}
         href={user.detailPath}
         onMouseEnter={updateTooltip}
@@ -36,7 +37,7 @@ export function UserHoverLink({ user, className, children }) {
         onBlur={() => setTooltipState(null)}
       >
         {children}
-      </a>
+      </SmartLink>
       {tooltipState && (
         <div className="user-tooltip" style={{ left: tooltipState.left, top: tooltipState.top }}>
           <div className="user-tooltip-inner">
@@ -160,7 +161,7 @@ export function OwnerUserList({ users }) {
     <ul className="plain-list">
       {users.map(user => (
         <li key={user.id}>
-          <a href={user.profilePath}>{user.displayName || user.username}</a>
+          <SmartLink href={user.profilePath}>{user.displayName || user.username}</SmartLink>
         </li>
       ))}
     </ul>

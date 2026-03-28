@@ -21,6 +21,7 @@ import ai.mnemosyne_systems.model.Timezone;
 import ai.mnemosyne_systems.service.TicketEmailService;
 import ai.mnemosyne_systems.util.AttachmentHelper;
 import ai.mnemosyne_systems.util.AuthHelper;
+import io.quarkus.arc.profile.UnlessBuildProfile;
 import io.quarkus.elytron.security.common.BcryptUtil;
 import io.smallrye.common.annotation.Blocking;
 import jakarta.inject.Inject;
@@ -62,6 +63,7 @@ public class SupportResource {
     TicketEmailService ticketEmailService;
 
     @GET
+    @UnlessBuildProfile("dev")
     public Response listTickets(@CookieParam(AuthHelper.AUTH_COOKIE) String auth) {
         requireSupport(auth);
         return Response.seeOther(URI.create("/support/tickets")).build();
@@ -69,6 +71,7 @@ public class SupportResource {
 
     @GET
     @Path("/open")
+    @UnlessBuildProfile("dev")
     public Response listOpenTickets(@CookieParam(AuthHelper.AUTH_COOKIE) String auth) {
         requireSupport(auth);
         return Response.seeOther(URI.create("/support/tickets/open")).build();
@@ -76,6 +79,7 @@ public class SupportResource {
 
     @GET
     @Path("/closed")
+    @UnlessBuildProfile("dev")
     public Response listClosedTickets(@CookieParam(AuthHelper.AUTH_COOKIE) String auth) {
         requireSupport(auth);
         return Response.seeOther(URI.create("/support/tickets/closed")).build();
@@ -83,6 +87,7 @@ public class SupportResource {
 
     @GET
     @Path("/support-users/{id}")
+    @UnlessBuildProfile("dev")
     public Response viewSupportUser(@CookieParam(AuthHelper.AUTH_COOKIE) String auth, @PathParam("id") Long id) {
         requireSupport(auth);
         User supportUser = User.findById(id);
@@ -94,6 +99,7 @@ public class SupportResource {
 
     @GET
     @Path("/tam-users/{id}")
+    @UnlessBuildProfile("dev")
     public Response viewTamUser(@CookieParam(AuthHelper.AUTH_COOKIE) String auth, @PathParam("id") Long id) {
         requireSupport(auth);
         User tamUser = User.findById(id);
@@ -105,6 +111,7 @@ public class SupportResource {
 
     @GET
     @Path("/superuser-users/{id}")
+    @UnlessBuildProfile("dev")
     public Response viewSuperuser(@CookieParam(AuthHelper.AUTH_COOKIE) String auth, @PathParam("id") Long id) {
         requireSupport(auth);
         User superuser = User.findById(id);
@@ -116,6 +123,7 @@ public class SupportResource {
 
     @GET
     @Path("/user-profiles/{id}")
+    @UnlessBuildProfile("dev")
     public Response viewUserProfile(@CookieParam(AuthHelper.AUTH_COOKIE) String auth, @PathParam("id") Long id) {
         requireSupport(auth);
         User viewedUser = User.findById(id);
@@ -127,6 +135,7 @@ public class SupportResource {
 
     @GET
     @Path("/companies/{id}")
+    @UnlessBuildProfile("dev")
     public Response viewCompany(@CookieParam(AuthHelper.AUTH_COOKIE) String auth, @PathParam("id") Long id) {
         requireSupport(auth);
         Company company = Company.findById(id);
@@ -138,6 +147,7 @@ public class SupportResource {
 
     @GET
     @Path("/users")
+    @UnlessBuildProfile("dev")
     public Response supportUsersRoot(@CookieParam(AuthHelper.AUTH_COOKIE) String auth) {
         requireSupport(auth);
         return Response.seeOther(URI.create("/support/users")).build();
@@ -145,6 +155,7 @@ public class SupportResource {
 
     @GET
     @Path("/users/{companyId}")
+    @UnlessBuildProfile("dev")
     public Response listSupportUsers(@CookieParam(AuthHelper.AUTH_COOKIE) String auth,
             @PathParam("companyId") Long companyId) {
         requireSupport(auth);
@@ -164,6 +175,7 @@ public class SupportResource {
 
     @GET
     @Path("/users/{companyId}/create")
+    @UnlessBuildProfile("dev")
     public Response createSupportUserForm(@CookieParam(AuthHelper.AUTH_COOKIE) String auth,
             @PathParam("companyId") Long companyId) {
         requireSupport(auth);
@@ -231,6 +243,7 @@ public class SupportResource {
 
     @GET
     @Path("/tickets/create")
+    @UnlessBuildProfile("dev")
     public Response createForm(@CookieParam(AuthHelper.AUTH_COOKIE) String auth) {
         requireSupport(auth);
         return Response.seeOther(URI.create("/support/tickets/new")).build();
@@ -238,6 +251,7 @@ public class SupportResource {
 
     @GET
     @Path("/tickets/{id}")
+    @UnlessBuildProfile("dev")
     public Response ticketDetail(@CookieParam(AuthHelper.AUTH_COOKIE) String auth,
             @jakarta.ws.rs.PathParam("id") Long id) {
         Ticket ticket = Ticket.findById(id);
@@ -456,6 +470,7 @@ public class SupportResource {
 
     @GET
     @Path("/tickets/company/{id}/entitlements")
+    @UnlessBuildProfile("dev")
     public Response companyEntitlements(@CookieParam(AuthHelper.AUTH_COOKIE) String auth,
             @jakarta.ws.rs.PathParam("id") Long id, @QueryParam("message") String message) {
         requireSupport(auth);

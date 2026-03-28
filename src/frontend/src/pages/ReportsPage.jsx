@@ -3,6 +3,7 @@ import useJson from '../hooks/useJson';
 import useExternalScript from '../hooks/useExternalScript';
 import DataState from '../components/common/DataState';
 import { toQueryString } from '../utils/formatting';
+import { SmartLink } from '../utils/routing.jsx';
 
 const REPORT_STATUS_COLORS = {
   Open: '#4285f4',
@@ -318,7 +319,7 @@ export default function ReportsPage({ sessionState }) {
                           ) : (
                             bucket.tickets.map((ticket, index) => (
                               <span key={ticket.id}>
-                                <a href={`/tickets/${ticket.id}`}>{ticket.name}</a>
+                                <SmartLink href={`/tickets/${ticket.id}`}>{ticket.name}</SmartLink>
                                 {index < bucket.tickets.length - 1 ? ', ' : ''}
                               </span>
                             ))

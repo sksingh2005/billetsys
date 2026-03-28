@@ -62,18 +62,18 @@ export default function SupportTicketsPage({
                     <td>{ticket.categoryName || '-'}</td>
                     <td>
                       {ticket.supportUser ? (
-                        <a className="inline-link" href={ticket.supportUser.detailPath}>
+                        <SmartLink className="inline-link" href={ticket.supportUser.detailPath}>
                           {ticket.supportUser.displayName || ticket.supportUser.username}
-                        </a>
+                        </SmartLink>
                       ) : (
                         '—'
                       )}
                     </td>
                     <td>
                       {ticket.companyPath ? (
-                        <a className="inline-link" href={ticket.companyPath}>
+                        <SmartLink className="inline-link" href={ticket.companyPath}>
                           {ticket.companyName}
-                        </a>
+                        </SmartLink>
                       ) : (
                         ticket.companyName || '—'
                       )}

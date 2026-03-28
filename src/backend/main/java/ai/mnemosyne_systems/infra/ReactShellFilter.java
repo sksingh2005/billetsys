@@ -1,5 +1,6 @@
 package ai.mnemosyne_systems.infra;
 
+import io.quarkus.runtime.LaunchMode;
 import jakarta.servlet.Filter;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -41,9 +42,13 @@ public class ReactShellFilter implements Filter {
             throws IOException, ServletException {
         HttpServletRequest httpRequest = (HttpServletRequest) request;
         HttpServletResponse httpResponse = (HttpServletResponse) response;
+        if (LaunchMode.current() == LaunchMode.DEVELOPMENT) {
+            chain.doFilter(request, response);
+            return;
+        }
         if (shouldServeReactShell(httpRequest)) {
             httpResponse.setHeader("Cache-Control", "no-store");
-            request.getRequestDispatcher("/app/index.html").forward(request, response);
+            request.getRequestDispatcher("/index.html").forward(request, response);
             return;
         }
         chain.doFilter(request, response);

@@ -182,6 +182,11 @@ cd billetsys
 mvn clean quarkus:dev
 ```
 
+The [Quarkus Quinoa](https://docs.quarkiverse.io/quarkus-quinoa/dev/index.html) extension manages
+the React frontend in `src/frontend/` automatically. On startup it installs npm dependencies and
+starts the Vite dev server. Frontend changes are reflected live in the browser via HMR without
+restarting Quarkus. No separate `npm run build` step is needed during development.
+
 ## Logging levels
 
 | Level | Description |

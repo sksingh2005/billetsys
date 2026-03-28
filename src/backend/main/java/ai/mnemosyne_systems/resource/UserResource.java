@@ -21,6 +21,7 @@ import ai.mnemosyne_systems.model.Timezone;
 import ai.mnemosyne_systems.service.TicketEmailService;
 import ai.mnemosyne_systems.util.AttachmentHelper;
 import ai.mnemosyne_systems.util.AuthHelper;
+import io.quarkus.arc.profile.UnlessBuildProfile;
 import io.quarkus.elytron.security.common.BcryptUtil;
 import io.smallrye.common.annotation.Blocking;
 import jakarta.inject.Inject;
@@ -58,6 +59,7 @@ public class UserResource {
 
     @GET
     @Path("user")
+    @UnlessBuildProfile("dev")
     public Object home(@CookieParam(AuthHelper.AUTH_COOKIE) String auth) {
         User user = AuthHelper.findUser(auth);
         if (AuthHelper.isSuperuser(user)) {
@@ -69,6 +71,7 @@ public class UserResource {
 
     @GET
     @Path("tam/users")
+    @UnlessBuildProfile("dev")
     public Response tamUsersRoot(@CookieParam(AuthHelper.AUTH_COOKIE) String auth) {
         User user = requireUser(auth);
         if (!User.TYPE_TAM.equalsIgnoreCase(user.type)) {
@@ -79,6 +82,7 @@ public class UserResource {
 
     @GET
     @Path("tam/users/{companyId}")
+    @UnlessBuildProfile("dev")
     public Response listTamUsers(@CookieParam(AuthHelper.AUTH_COOKIE) String auth,
             @PathParam("companyId") Long companyId) {
         User user = requireUser(auth);
@@ -99,6 +103,7 @@ public class UserResource {
 
     @GET
     @Path("tam/users/{companyId}/create")
+    @UnlessBuildProfile("dev")
     public Response createTamUserForm(@CookieParam(AuthHelper.AUTH_COOKIE) String auth,
             @PathParam("companyId") Long companyId) {
         User user = requireUser(auth);
@@ -174,6 +179,7 @@ public class UserResource {
 
     @GET
     @Path("user/tickets")
+    @UnlessBuildProfile("dev")
     public Response tickets(@CookieParam(AuthHelper.AUTH_COOKIE) String auth) {
         requireUser(auth);
         return Response.seeOther(URI.create("/user/tickets")).build();
@@ -181,6 +187,7 @@ public class UserResource {
 
     @GET
     @Path("user/tickets/create")
+    @UnlessBuildProfile("dev")
     public Response createTicketForm(@CookieParam(AuthHelper.AUTH_COOKIE) String auth) {
         requireUser(auth);
         return Response.seeOther(URI.create("/user/tickets/new")).build();
@@ -246,6 +253,7 @@ public class UserResource {
 
     @GET
     @Path("user/support-users/{id}")
+    @UnlessBuildProfile("dev")
     public Response viewSupportUser(@CookieParam(AuthHelper.AUTH_COOKIE) String auth, @PathParam("id") Long id) {
         User user = requireUser(auth);
         User supportUser = User.findById(id);
@@ -257,6 +265,7 @@ public class UserResource {
 
     @GET
     @Path("user/tam-users/{id}")
+    @UnlessBuildProfile("dev")
     public Response viewTamUser(@CookieParam(AuthHelper.AUTH_COOKIE) String auth, @PathParam("id") Long id) {
         User user = requireUser(auth);
         User tamUser = User.findById(id);
@@ -268,6 +277,7 @@ public class UserResource {
 
     @GET
     @Path("user/superuser-users/{id}")
+    @UnlessBuildProfile("dev")
     public Response viewSuperuser(@CookieParam(AuthHelper.AUTH_COOKIE) String auth, @PathParam("id") Long id) {
         User user = requireUser(auth);
         User superuser = User.findById(id);
@@ -285,6 +295,7 @@ public class UserResource {
 
     @GET
     @Path("user/user-profiles/{id}")
+    @UnlessBuildProfile("dev")
     public Response viewUserProfile(@CookieParam(AuthHelper.AUTH_COOKIE) String auth, @PathParam("id") Long id) {
         User user = requireUser(auth);
         User viewedUser = User.findById(id);
@@ -296,6 +307,7 @@ public class UserResource {
 
     @GET
     @Path("user/companies/{id}")
+    @UnlessBuildProfile("dev")
     public Response viewCompany(@CookieParam(AuthHelper.AUTH_COOKIE) String auth, @PathParam("id") Long id) {
         User user = requireUser(auth);
         Company company = Company.findById(id);
@@ -307,6 +319,7 @@ public class UserResource {
 
     @GET
     @Path("user/tickets/open")
+    @UnlessBuildProfile("dev")
     public Response tamOpenTickets(@CookieParam(AuthHelper.AUTH_COOKIE) String auth) {
         requireUser(auth);
         return Response.seeOther(URI.create("/user/tickets/open")).build();
@@ -314,6 +327,7 @@ public class UserResource {
 
     @GET
     @Path("user/tickets/closed")
+    @UnlessBuildProfile("dev")
     public Response tamClosedTickets(@CookieParam(AuthHelper.AUTH_COOKIE) String auth) {
         requireUser(auth);
         return Response.seeOther(URI.create("/user/tickets/closed")).build();
@@ -321,6 +335,7 @@ public class UserResource {
 
     @GET
     @Path("user/tickets/{id}")
+    @UnlessBuildProfile("dev")
     public Response ticketDetail(@CookieParam(AuthHelper.AUTH_COOKIE) String auth, @PathParam("id") Long id) {
         User user = requireUser(auth);
         if (findTicketForUser(user, id) == null) {
@@ -369,6 +384,7 @@ public class UserResource {
 
     @GET
     @Path("user/tickets/{id}/edit")
+    @UnlessBuildProfile("dev")
     public Response ticketEdit(@CookieParam(AuthHelper.AUTH_COOKIE) String auth, @PathParam("id") Long id) {
         User user = requireUser(auth);
         if (findTicketForUser(user, id) == null) {
@@ -397,6 +413,7 @@ public class UserResource {
 
     @GET
     @Path("users")
+    @UnlessBuildProfile("dev")
     public Response listAdminUsersRoot(@CookieParam(AuthHelper.AUTH_COOKIE) String auth,
             @QueryParam("companyId") Long companyId) {
         requireAdmin(auth);
@@ -408,6 +425,7 @@ public class UserResource {
 
     @GET
     @Path("users/{companyId}")
+    @UnlessBuildProfile("dev")
     public Response listAdminUsers(@CookieParam(AuthHelper.AUTH_COOKIE) String auth,
             @PathParam("companyId") Long companyId) {
         requireAdmin(auth);
@@ -420,6 +438,7 @@ public class UserResource {
 
     @GET
     @Path("users/create")
+    @UnlessBuildProfile("dev")
     public Response createAdminUserForm(@CookieParam(AuthHelper.AUTH_COOKIE) String auth) {
         requireAdmin(auth);
         return Response.seeOther(URI.create("/users/new")).build();
@@ -427,6 +446,7 @@ public class UserResource {
 
     @GET
     @Path("user/{id}/edit")
+    @UnlessBuildProfile("dev")
     public Response editAdminUserForm(@CookieParam(AuthHelper.AUTH_COOKIE) String auth, @PathParam("id") Long id) {
         requireAdmin(auth);
         User editUser = User.findById(id);
@@ -438,6 +458,7 @@ public class UserResource {
 
     @GET
     @Path("user/{id}")
+    @UnlessBuildProfile("dev")
     public Response viewAdminUser(@CookieParam(AuthHelper.AUTH_COOKIE) String auth, @PathParam("id") Long id) {
         requireAdmin(auth);
         User viewUser = User.findById(id);

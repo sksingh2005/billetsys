@@ -91,7 +91,7 @@ When adding a new screen:
 4. If the screen requires sign-in, set `requiresAuth: true`.
 5. If the screen belongs to a clearly role-scoped route family such as support, TAM, user, or superuser, add `allowedRoles`.
 6. If the page is large or not part of the initial shell, prefer lazy-loading it in the route-group file.
-7. Run `npm run build` from `src/frontend` after the change.
+7. Start or restart `mvn quarkus:dev` from the project root — Quinoa will pick up the change automatically.
 
 ## Choosing The Right Route File
 
@@ -134,9 +134,28 @@ If a new feature grows large enough, create a new route-group file instead of ma
 - If route definitions begin repeating heavily inside a route group, consider a small config map, but keep readability first.
 - When a shared helper exports JSX, keep the file extension as `.jsx`.
 
+## Development
+
+The frontend is managed by the [Quarkus Quinoa](https://docs.quarkiverse.io/quarkus-quinoa/dev/index.html)
+extension. Run the full application from the project root:
+
+```bash
+mvn quarkus:dev
+```
+
+Quinoa starts the Vite dev server automatically and proxies frontend requests through Quarkus on
+port 8080. Edits to files in `src/` are reflected instantly in the browser via HMR — no manual
+build or restart needed.
+
 ## Build
 
-Run the frontend build from this folder:
+The frontend is built automatically as part of the root Maven build:
+
+```bash
+mvn clean package
+```
+
+To build the frontend standalone (e.g. for debugging a build issue):
 
 ```bash
 npm run build

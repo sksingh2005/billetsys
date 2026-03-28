@@ -3,9 +3,9 @@ import react from '@vitejs/plugin-react';
 
 export default defineConfig({
   plugins: [react()],
-  base: '/app/',
+  base: '/',
   build: {
-    outDir: '../backend/main/resources/META-INF/resources/app',
+    outDir: 'dist',
     emptyOutDir: true,
     assetsDir: 'assets'
   }

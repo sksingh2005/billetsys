@@ -6,6 +6,7 @@ This document describes how to build the project, run it locally, and generate t
 
 - Java 25
 - Maven
+- Node.js and npm (for the React frontend)
 - PostgreSQL
 - Pandoc
 - Eisvogel Pandoc template (for PDF manual generation)
@@ -16,7 +17,9 @@ This document describes how to build the project, run it locally, and generate t
 mvn clean package
 ```
 
-This produces the application artifacts in `target/`.
+This produces the application artifacts in `target/`. The [Quarkus Quinoa](https://docs.quarkiverse.io/quarkus-quinoa/dev/index.html)
+extension automatically runs `npm install` and `npm run build` for the React frontend in
+`src/frontend/` as part of this build — no separate frontend build step is required.
 
 ## Run the project
 
@@ -33,9 +36,17 @@ Start in development mode:
 mvn quarkus:dev
 ```
 
+On startup, Quinoa automatically installs npm dependencies (if `package.json` has changed) and
+starts the Vite dev server. All frontend requests are proxied through Quarkus on port 8080 — you
+do not need to run the Vite dev server separately.
+
 The application is available at:
 
 - http://localhost:8080
+
+**Live development:** While `quarkus:dev` is running, changes to Java files are picked up
+automatically by Quarkus live reload. Changes to frontend files in `src/frontend/src/` are
+reflected instantly in the browser via Vite HMR — no rebuild or restart needed.
 
 ## Run tests
 

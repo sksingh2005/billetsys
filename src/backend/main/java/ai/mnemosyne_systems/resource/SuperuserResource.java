@@ -21,6 +21,7 @@ import ai.mnemosyne_systems.model.Version;
 import ai.mnemosyne_systems.service.TicketEmailService;
 import ai.mnemosyne_systems.util.AttachmentHelper;
 import ai.mnemosyne_systems.util.AuthHelper;
+import io.quarkus.arc.profile.UnlessBuildProfile;
 import io.quarkus.elytron.security.common.BcryptUtil;
 import io.smallrye.common.annotation.Blocking;
 import jakarta.inject.Inject;
@@ -66,6 +67,7 @@ public class SuperuserResource {
 
     @GET
     @Path("superuser")
+    @UnlessBuildProfile("dev")
     public Response home(@CookieParam(AuthHelper.AUTH_COOKIE) String auth) {
         requireSuperuser(auth);
         return Response.seeOther(URI.create("/superuser/tickets")).build();
@@ -73,6 +75,7 @@ public class SuperuserResource {
 
     @GET
     @Path("superuser/users")
+    @UnlessBuildProfile("dev")
     public Response usersRoot(@CookieParam(AuthHelper.AUTH_COOKIE) String auth) {
         requireSuperuser(auth);
         return Response.seeOther(URI.create("/superuser/users")).build();
@@ -80,6 +83,7 @@ public class SuperuserResource {
 
     @GET
     @Path("superuser/users/{companyId}")
+    @UnlessBuildProfile("dev")
     public Response listUsers(@CookieParam(AuthHelper.AUTH_COOKIE) String auth,
             @PathParam("companyId") Long companyId) {
         User user = requireSuperuser(auth);
@@ -89,6 +93,7 @@ public class SuperuserResource {
 
     @GET
     @Path("superuser/users/{companyId}/create")
+    @UnlessBuildProfile("dev")
     public Response createUserForm(@CookieParam(AuthHelper.AUTH_COOKIE) String auth,
             @PathParam("companyId") Long companyId) {
         User user = requireSuperuser(auth);
@@ -135,6 +140,7 @@ public class SuperuserResource {
 
     @GET
     @Path("superuser/tickets")
+    @UnlessBuildProfile("dev")
     public Response tickets(@CookieParam(AuthHelper.AUTH_COOKIE) String auth) {
         requireSuperuser(auth);
         return Response.seeOther(URI.create("/superuser/tickets")).build();
@@ -142,6 +148,7 @@ public class SuperuserResource {
 
     @GET
     @Path("superuser/tickets/open")
+    @UnlessBuildProfile("dev")
     public Response openTickets(@CookieParam(AuthHelper.AUTH_COOKIE) String auth) {
         requireSuperuser(auth);
         return Response.seeOther(URI.create("/superuser/tickets/open")).build();
@@ -149,6 +156,7 @@ public class SuperuserResource {
 
     @GET
     @Path("superuser/tickets/closed")
+    @UnlessBuildProfile("dev")
     public Response closedTickets(@CookieParam(AuthHelper.AUTH_COOKIE) String auth) {
         requireSuperuser(auth);
         return Response.seeOther(URI.create("/superuser/tickets/closed")).build();
@@ -156,6 +164,7 @@ public class SuperuserResource {
 
     @GET
     @Path("superuser/tickets/create")
+    @UnlessBuildProfile("dev")
     public Response createTicketForm(@CookieParam(AuthHelper.AUTH_COOKIE) String auth) {
         requireSuperuser(auth);
         return Response.seeOther(URI.create("/superuser/tickets/new")).build();
@@ -217,6 +226,7 @@ public class SuperuserResource {
 
     @GET
     @Path("superuser/support-users/{id}")
+    @UnlessBuildProfile("dev")
     public Response viewSupportUser(@CookieParam(AuthHelper.AUTH_COOKIE) String auth, @PathParam("id") Long id) {
         requireSuperuser(auth);
         User supportUser = User.findById(id);
@@ -228,6 +238,7 @@ public class SuperuserResource {
 
     @GET
     @Path("superuser/superuser-users/{id}")
+    @UnlessBuildProfile("dev")
     public Response viewSuperuser(@CookieParam(AuthHelper.AUTH_COOKIE) String auth, @PathParam("id") Long id) {
         User user = requireSuperuser(auth);
         User viewedUser = User.findById(id);
@@ -245,6 +256,7 @@ public class SuperuserResource {
 
     @GET
     @Path("superuser/user-profiles/{id}")
+    @UnlessBuildProfile("dev")
     public Response viewUserProfile(@CookieParam(AuthHelper.AUTH_COOKIE) String auth, @PathParam("id") Long id) {
         User user = requireSuperuser(auth);
         User viewedUser = User.findById(id);
@@ -262,6 +274,7 @@ public class SuperuserResource {
 
     @GET
     @Path("superuser/companies/{id}")
+    @UnlessBuildProfile("dev")
     public Response viewCompany(@CookieParam(AuthHelper.AUTH_COOKIE) String auth, @PathParam("id") Long id) {
         User user = requireSuperuser(auth);
         Company company = allowedCompany(user, id);
@@ -270,6 +283,7 @@ public class SuperuserResource {
 
     @GET
     @Path("superuser/tickets/{id}")
+    @UnlessBuildProfile("dev")
     public Response ticketDetail(@CookieParam(AuthHelper.AUTH_COOKIE) String auth, @PathParam("id") Long id) {
         User user = requireSuperuser(auth);
         if (findTicketForSuperuser(user, id) == null) {
@@ -308,6 +322,7 @@ public class SuperuserResource {
 
     @GET
     @Path("superuser/tickets/{id}/edit")
+    @UnlessBuildProfile("dev")
     public Response ticketEdit(@CookieParam(AuthHelper.AUTH_COOKIE) String auth, @PathParam("id") Long id) {
         User user = requireSuperuser(auth);
         if (findTicketForSuperuser(user, id) == null) {

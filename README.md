@@ -29,9 +29,11 @@ createdb -E UTF8 -O ticketdb ticketdb
 mvn clean quarkus:dev
 ```
 
-The root Maven build runs the frontend install and build from `src/frontend`, so a separate
-manual `npm run build` step is not required for the standard development workflow. If you need
-to skip the frontend build, use `-Dskip.frontend=true`.
+The [Quarkus Quinoa](https://docs.quarkiverse.io/quarkus-quinoa/dev/index.html) extension manages
+the React frontend automatically. During `quarkus:dev`, Quinoa starts the Vite dev server and
+proxies frontend requests through it — edits to frontend files are reflected instantly in the
+browser via Hot Module Replacement (HMR) without restarting. For production builds, Quinoa runs
+`npm install` and `npm run build` automatically as part of `mvn clean package`.
 
 The users defined for testing are
 

@@ -125,9 +125,9 @@ export default function SupportTicketDetailPage({
                     <div className="readonly-link-field">
                       <input value={ticket.companyName || ''} readOnly />
                       {ticket.companyId ? (
-                        <a className="readonly-link-field-link" href={`/support/companies/${ticket.companyId}`}>
+                        <SmartLink className="readonly-link-field-link" href={`/support/companies/${ticket.companyId}`}>
                           {ticket.companyName || '-'}
-                        </a>
+                        </SmartLink>
                       ) : null}
                     </div>
                   </label>

@@ -10,6 +10,7 @@ package ai.mnemosyne_systems.resource;
 
 import ai.mnemosyne_systems.model.User;
 import ai.mnemosyne_systems.util.AuthHelper;
+import io.quarkus.arc.profile.UnlessBuildProfile;
 import io.smallrye.common.annotation.Blocking;
 import jakarta.ws.rs.CookieParam;
 import jakarta.ws.rs.GET;
@@ -22,6 +23,7 @@ import jakarta.ws.rs.core.Response;
 @Path("/")
 @Produces(MediaType.TEXT_HTML)
 @Blocking
+@UnlessBuildProfile("dev")
 public class HomeResource {
 
     @GET

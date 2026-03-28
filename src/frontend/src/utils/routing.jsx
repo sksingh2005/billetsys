@@ -62,18 +62,18 @@ export async function resolvePostRedirectPath(response, fallback) {
   return resolveRedirectPath(response, fallback);
 }
 
-export function SmartLink({ href, className, children, onClick }) {
+export function SmartLink({ href, className, children, ...props }) {
   const normalizedHref = normalizeClientPath(href);
   if (isClientRoute(normalizedHref)) {
     return (
-      <Link className={className} to={normalizedHref} onClick={onClick}>
+      <Link className={className} to={normalizedHref} {...props}>
         {children}
       </Link>
     );
   }
 
   return (
-    <a className={className} href={normalizedHref} onClick={onClick}>
+    <a className={className} href={normalizedHref} {...props}>
       {children}
     </a>
   );

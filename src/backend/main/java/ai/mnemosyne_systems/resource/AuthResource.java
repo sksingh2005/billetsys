@@ -10,6 +10,7 @@ package ai.mnemosyne_systems.resource;
 
 import ai.mnemosyne_systems.model.User;
 import ai.mnemosyne_systems.util.AuthHelper;
+import io.quarkus.arc.profile.UnlessBuildProfile;
 import io.quarkus.elytron.security.common.BcryptUtil;
 import io.smallrye.common.annotation.Blocking;
 import jakarta.ws.rs.Consumes;
@@ -31,6 +32,7 @@ import java.nio.charset.StandardCharsets;
 public class AuthResource {
 
     @GET
+    @UnlessBuildProfile("dev")
     public Response loginPage() {
         return seeOther("/").build();
     }
