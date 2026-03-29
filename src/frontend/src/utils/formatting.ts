@@ -1,3 +1,11 @@
+﻿/*
+ * Eclipse Public License - v 2.0
+ *
+ *   THE ACCOMPANYING PROGRAM IS PROVIDED UNDER THE TERMS OF THIS ECLIPSE
+ *   PUBLIC LICENSE ("AGREEMENT"). ANY USE, REPRODUCTION OR DISTRIBUTION
+ *   OF THE PROGRAM CONSTITUTES RECIPIENT'S ACCEPTANCE OF THIS AGREEMENT.
+ */
+
 import type { Id } from '../types/app';
 import type { UserReference, VersionInfo } from '../types/domain';
 
@@ -26,10 +34,10 @@ export function formatFileSize(size: number | null | undefined): string {
 
 export function formatPhone(phoneNumber?: string | null, extension?: string | null): string {
   if (!phoneNumber && !extension) {
-    return '—';
+    return 'â€”';
   }
   if (!extension) {
-    return phoneNumber || '—';
+    return phoneNumber || 'â€”';
   }
   return `${phoneNumber || ''} ext. ${extension}`.trim();
 }
@@ -82,31 +90,31 @@ export function profileInitial(fullName?: string | null, username?: string | nul
 export function levelColorMarker(color?: string | null): string {
   switch ((color || '').toLowerCase()) {
     case 'black':
-      return '⬛';
+      return 'â¬›';
     case 'silver':
     case 'white':
-      return '⬜';
+      return 'â¬œ';
     case 'gray':
-      return '◻️';
+      return 'â—»ï¸';
     case 'maroon':
     case 'red':
-      return '🟥';
+      return 'ðŸŸ¥';
     case 'purple':
     case 'fuchsia':
-      return '🟪';
+      return 'ðŸŸª';
     case 'green':
     case 'lime':
-      return '🟩';
+      return 'ðŸŸ©';
     case 'olive':
     case 'yellow':
-      return '🟨';
+      return 'ðŸŸ¨';
     case 'navy':
     case 'blue':
     case 'teal':
     case 'aqua':
-      return '🟦';
+      return 'ðŸŸ¦';
     default:
-      return '◻️';
+      return 'â—»ï¸';
   }
 }
 
@@ -129,3 +137,4 @@ export function sortEntitlementAssignments(assignments: AssignmentSummary[]): As
     return (left.levelName || '').localeCompare(right.levelName || '', undefined, { sensitivity: 'base' });
   });
 }
+

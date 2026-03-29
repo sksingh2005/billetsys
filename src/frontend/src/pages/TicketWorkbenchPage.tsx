@@ -1,3 +1,11 @@
+﻿/*
+ * Eclipse Public License - v 2.0
+ *
+ *   THE ACCOMPANYING PROGRAM IS PROVIDED UNDER THE TERMS OF THIS ECLIPSE
+ *   PUBLIC LICENSE ("AGREEMENT"). ANY USE, REPRODUCTION OR DISTRIBUTION
+ *   OF THE PROGRAM CONSTITUTES RECIPIENT'S ACCEPTANCE OF THIS AGREEMENT.
+ */
+
 import DataState from '../components/common/DataState';
 import useJson from '../hooks/useJson';
 import { SmartLink } from '../utils/routing';
@@ -35,7 +43,7 @@ export default function TicketWorkbenchPage({ sessionState }: SessionPageProps) 
                   </div>
                   <p className="tag-copy">{ticket.companyName || 'No company'}</p>
                   <p className="muted-text">
-                    {ticket.requesterName || 'No requester'} • {ticket.categoryName || 'No category'}
+                    {ticket.requesterName || 'No requester'} â€¢ {ticket.categoryName || 'No category'}
                   </p>
                   <p className="muted-text">Latest message: {ticket.lastMessageLabel || '-'}</p>
                   {ticket.externalIssueLink && (
@@ -62,3 +70,4 @@ export default function TicketWorkbenchPage({ sessionState }: SessionPageProps) 
     </section>
   );
 }
+

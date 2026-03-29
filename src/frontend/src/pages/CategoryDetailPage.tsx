@@ -1,3 +1,11 @@
+﻿/*
+ * Eclipse Public License - v 2.0
+ *
+ *   THE ACCOMPANYING PROGRAM IS PROVIDED UNDER THE TERMS OF THIS ECLIPSE
+ *   PUBLIC LICENSE ("AGREEMENT"). ANY USE, REPRODUCTION OR DISTRIBUTION
+ *   OF THE PROGRAM CONSTITUTES RECIPIENT'S ACCEPTANCE OF THIS AGREEMENT.
+ */
+
 import { useParams } from 'react-router-dom';
 import useJson from '../hooks/useJson';
 import DataState from '../components/common/DataState';
@@ -29,7 +37,7 @@ export default function CategoryDetailPage({ sessionState }: SessionPageProps) {
                 <div className="owner-form-grid ticket-detail-grid">
                   <label>
                     Name
-                    <input value={category.name || '—'} readOnly />
+                    <input value={category.name || 'â€”'} readOnly />
                   </label>
                   <label>
                     Default
@@ -37,7 +45,7 @@ export default function CategoryDetailPage({ sessionState }: SessionPageProps) {
                   </label>
                   <label className="form-span-2">
                     Description
-                    <textarea value={category.description || '—'} readOnly rows={10} />
+                    <textarea value={category.description || 'â€”'} readOnly rows={10} />
                   </label>
                   <div className="owner-detail-panel form-span-2">
                     <div className="owner-detail-panel-label">Attachments</div>
@@ -81,3 +89,4 @@ export default function CategoryDetailPage({ sessionState }: SessionPageProps) {
     </section>
   );
 }
+

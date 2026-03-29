@@ -1,3 +1,11 @@
+﻿/*
+ * Eclipse Public License - v 2.0
+ *
+ *   THE ACCOMPANYING PROGRAM IS PROVIDED UNDER THE TERMS OF THIS ECLIPSE
+ *   PUBLIC LICENSE ("AGREEMENT"). ANY USE, REPRODUCTION OR DISTRIBUTION
+ *   OF THE PROGRAM CONSTITUTES RECIPIENT'S ACCEPTANCE OF THIS AGREEMENT.
+ */
+
 import type { ReactElement, ReactNode } from 'react';
 
 export type Id = number | string;
@@ -55,3 +63,4 @@ export interface StatusPageProps extends SessionPageProps {
 }
 
 export type FormMode = 'create' | 'edit';
+

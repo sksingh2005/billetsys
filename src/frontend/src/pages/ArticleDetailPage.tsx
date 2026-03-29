@@ -1,3 +1,11 @@
+﻿/*
+ * Eclipse Public License - v 2.0
+ *
+ *   THE ACCOMPANYING PROGRAM IS PROVIDED UNDER THE TERMS OF THIS ECLIPSE
+ *   PUBLIC LICENSE ("AGREEMENT"). ANY USE, REPRODUCTION OR DISTRIBUTION
+ *   OF THE PROGRAM CONSTITUTES RECIPIENT'S ACCEPTANCE OF THIS AGREEMENT.
+ */
+
 import { useParams } from 'react-router-dom';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -64,11 +72,11 @@ export default function ArticleDetailPage({ sessionState }: SessionPageProps) {
                 <div className="owner-form-grid ticket-detail-grid">
                   <label>
                     Title
-                    <input value={article.title || '—'} readOnly />
+                    <input value={article.title || 'â€”'} readOnly />
                   </label>
                   <label>
                     Tags
-                    <input value={article.tags || '—'} readOnly />
+                    <input value={article.tags || 'â€”'} readOnly />
                   </label>
                   <div className="owner-detail-panel form-span-2">
                     <div className="owner-detail-panel-label">Body</div>
@@ -127,3 +135,4 @@ export default function ArticleDetailPage({ sessionState }: SessionPageProps) {
     </section>
   );
 }
+

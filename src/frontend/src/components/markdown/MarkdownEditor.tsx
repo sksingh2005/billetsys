@@ -1,3 +1,11 @@
+﻿/*
+ * Eclipse Public License - v 2.0
+ *
+ *   THE ACCOMPANYING PROGRAM IS PROVIDED UNDER THE TERMS OF THIS ECLIPSE
+ *   PUBLIC LICENSE ("AGREEMENT"). ANY USE, REPRODUCTION OR DISTRIBUTION
+ *   OF THE PROGRAM CONSTITUTES RECIPIENT'S ACCEPTANCE OF THIS AGREEMENT.
+ */
+
 import type { ChangeEvent, RefObject } from 'react';
 import { useRef } from 'react';
 import MarkdownContent from './MarkdownContent';
@@ -107,7 +115,7 @@ export default function MarkdownEditor({ value, onChange, inputRef, rows = 10, n
           H
         </button>
         <button type="button" onClick={() => applyAction('list')} aria-label="List">
-          •
+          â€¢
         </button>
         <button type="button" onClick={() => applyAction('quote')} aria-label="Quote">
           "
@@ -166,3 +174,4 @@ export default function MarkdownEditor({ value, onChange, inputRef, rows = 10, n
     </div>
   );
 }
+

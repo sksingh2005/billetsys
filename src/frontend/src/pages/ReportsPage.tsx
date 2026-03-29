@@ -1,3 +1,11 @@
+﻿/*
+ * Eclipse Public License - v 2.0
+ *
+ *   THE ACCOMPANYING PROGRAM IS PROVIDED UNDER THE TERMS OF THIS ECLIPSE
+ *   PUBLIC LICENSE ("AGREEMENT"). ANY USE, REPRODUCTION OR DISTRIBUTION
+ *   OF THE PROGRAM CONSTITUTES RECIPIENT'S ACCEPTANCE OF THIS AGREEMENT.
+ */
+
 import type { ReactNode } from 'react';
 import { useEffect, useRef, useState } from 'react';
 import useJson from '../hooks/useJson';
@@ -369,7 +377,7 @@ export default function ReportsPage({ sessionState }: SessionPageProps) {
                         <td>{bucket.count}</td>
                         <td>
                           {bucket.tickets.length === 0 ? (
-                            '—'
+                            'â€”'
                           ) : (
                             bucket.tickets.map((ticket: TicketListItem, index: number) => (
                               <span key={ticket.id}>
@@ -406,3 +414,4 @@ export default function ReportsPage({ sessionState }: SessionPageProps) {
     </section>
   );
 }
+

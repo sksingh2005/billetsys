@@ -1,3 +1,11 @@
+﻿/*
+ * Eclipse Public License - v 2.0
+ *
+ *   THE ACCOMPANYING PROGRAM IS PROVIDED UNDER THE TERMS OF THIS ECLIPSE
+ *   PUBLIC LICENSE ("AGREEMENT"). ANY USE, REPRODUCTION OR DISTRIBUTION
+ *   OF THE PROGRAM CONSTITUTES RECIPIENT'S ACCEPTANCE OF THIS AGREEMENT.
+ */
+
 import { useParams } from 'react-router-dom';
 import useJson from '../hooks/useJson';
 import DataState from '../components/common/DataState';
@@ -26,50 +34,50 @@ export default function CompanyDetailPage({ sessionState }: SessionPageProps) {
                 <div className="owner-form-grid ticket-detail-grid">
                   <label>
                     Name
-                    <input value={company.name || '—'} readOnly />
+                    <input value={company.name || 'â€”'} readOnly />
                   </label>
                   <label>
                     Phone
-                    <input value={company.phoneNumber || '—'} readOnly />
+                    <input value={company.phoneNumber || 'â€”'} readOnly />
                   </label>
                   <label>
                     Country
-                    <input value={company.countryName || '—'} readOnly />
+                    <input value={company.countryName || 'â€”'} readOnly />
                   </label>
                   <label>
                     Time zone
-                    <input value={company.timezoneName || '—'} readOnly />
+                    <input value={company.timezoneName || 'â€”'} readOnly />
                   </label>
                   <label>
                     Address1
-                    <input value={company.address1 || '—'} readOnly />
+                    <input value={company.address1 || 'â€”'} readOnly />
                   </label>
                   <label>
                     Address2
-                    <input value={company.address2 || '—'} readOnly />
+                    <input value={company.address2 || 'â€”'} readOnly />
                   </label>
                   <label>
                     City
-                    <input value={company.city || '—'} readOnly />
+                    <input value={company.city || 'â€”'} readOnly />
                   </label>
                   <label>
                     State
-                    <input value={company.state || '—'} readOnly />
+                    <input value={company.state || 'â€”'} readOnly />
                   </label>
                   <label>
                     Zip
-                    <input value={company.zip || '—'} readOnly />
+                    <input value={company.zip || 'â€”'} readOnly />
                   </label>
                   <div className="owner-detail-panel">
                     <div className="owner-detail-panel-label">Entitlements</div>
                     <div className="owner-detail-panel-body">
                       {sortedEntitlements.length === 0 ? (
-                        <p className="muted-text">—</p>
+                        <p className="muted-text">â€”</p>
                       ) : (
                         <ul className="plain-list">
                           {sortedEntitlements.map((entry: CompanyAssignment, index) => (
                             <li key={`${entry.entitlementId}-${entry.levelId}-${index}`}>
-                              {entry.entitlementName} • {entry.levelName}
+                              {entry.entitlementName} â€¢ {entry.levelName}
                             </li>
                           ))}
                         </ul>
@@ -112,3 +120,4 @@ export default function CompanyDetailPage({ sessionState }: SessionPageProps) {
     </section>
   );
 }
+

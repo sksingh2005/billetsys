@@ -1,3 +1,11 @@
+﻿/*
+ * Eclipse Public License - v 2.0
+ *
+ *   THE ACCOMPANYING PROGRAM IS PROVIDED UNDER THE TERMS OF THIS ECLIPSE
+ *   PUBLIC LICENSE ("AGREEMENT"). ANY USE, REPRODUCTION OR DISTRIBUTION
+ *   OF THE PROGRAM CONSTITUTES RECIPIENT'S ACCEPTANCE OF THIS AGREEMENT.
+ */
+
 import DataState from '../components/common/DataState';
 import useJson from '../hooks/useJson';
 import { SmartLink } from '../utils/routing';
@@ -35,7 +43,7 @@ export default function MessagesPage({ sessionState }: SessionPageProps) {
                   </div>
                   <p className="tag-copy">{message.preview}</p>
                   <p className="muted-text">
-                    {message.authorName || 'Unknown author'} • {message.attachmentCount} attachment(s)
+                    {message.authorName || 'Unknown author'} â€¢ {message.attachmentCount} attachment(s)
                   </p>
                 </div>
                 <SmartLink className="inline-link" href={message.editPath}>
@@ -49,3 +57,4 @@ export default function MessagesPage({ sessionState }: SessionPageProps) {
     </section>
   );
 }
+

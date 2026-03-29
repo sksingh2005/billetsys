@@ -1,3 +1,11 @@
+﻿/*
+ * Eclipse Public License - v 2.0
+ *
+ *   THE ACCOMPANYING PROGRAM IS PROVIDED UNDER THE TERMS OF THIS ECLIPSE
+ *   PUBLIC LICENSE ("AGREEMENT"). ANY USE, REPRODUCTION OR DISTRIBUTION
+ *   OF THE PROGRAM CONSTITUTES RECIPIENT'S ACCEPTANCE OF THIS AGREEMENT.
+ */
+
 import { useNavigate, useParams } from 'react-router-dom';
 import DataState from '../components/common/DataState';
 import { UserDetailCard } from '../components/users/UserProfileSections';
@@ -88,3 +96,4 @@ export default function DirectoryUserDetailPage({ sessionState, apiBase, backFal
     </section>
   );
 }
+

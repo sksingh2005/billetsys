@@ -1,3 +1,11 @@
+﻿/*
+ * Eclipse Public License - v 2.0
+ *
+ *   THE ACCOMPANYING PROGRAM IS PROVIDED UNDER THE TERMS OF THIS ECLIPSE
+ *   PUBLIC LICENSE ("AGREEMENT"). ANY USE, REPRODUCTION OR DISTRIBUTION
+ *   OF THE PROGRAM CONSTITUTES RECIPIENT'S ACCEPTANCE OF THIS AGREEMENT.
+ */
+
 import { Link } from 'react-router-dom';
 import DataState from '../components/common/DataState';
 import { LevelColorBadge } from '../components/common/LevelColorBadge';
@@ -38,10 +46,10 @@ export default function LevelsPage({ sessionState }: SessionPageProps) {
                   </div>
                   <p className="tag-copy">{level.descriptionPreview || 'No description'}</p>
                   <p className="muted-text">
-                    Level {level.level} • {level.fromLabel} - {level.toLabel}
+                    Level {level.level} â€¢ {level.fromLabel} - {level.toLabel}
                   </p>
                   <p className="muted-text">
-                    {level.countryName || 'No country'} • {level.timezoneName || 'No time zone'}
+                    {level.countryName || 'No country'} â€¢ {level.timezoneName || 'No time zone'}
                   </p>
                 </div>
               </div>
@@ -52,3 +60,4 @@ export default function LevelsPage({ sessionState }: SessionPageProps) {
     </section>
   );
 }
+

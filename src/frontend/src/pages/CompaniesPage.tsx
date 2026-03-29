@@ -1,3 +1,11 @@
+﻿/*
+ * Eclipse Public License - v 2.0
+ *
+ *   THE ACCOMPANYING PROGRAM IS PROVIDED UNDER THE TERMS OF THIS ECLIPSE
+ *   PUBLIC LICENSE ("AGREEMENT"). ANY USE, REPRODUCTION OR DISTRIBUTION
+ *   OF THE PROGRAM CONSTITUTES RECIPIENT'S ACCEPTANCE OF THIS AGREEMENT.
+ */
+
 import { Link } from 'react-router-dom';
 import useJson from '../hooks/useJson';
 import DataState from '../components/common/DataState';
@@ -33,10 +41,10 @@ export default function CompaniesPage({ sessionState }: SessionPageProps) {
                     </Link>
                   </h3>
                   <p className="muted-text">
-                    {[company.countryName, company.timezoneName].filter(Boolean).join(' • ') || 'No locale configured'}
+                    {[company.countryName, company.timezoneName].filter(Boolean).join(' â€¢ ') || 'No locale configured'}
                   </p>
                   <p className="muted-text">
-                    {company.superuserCount} superuser{company.superuserCount === 1 ? '' : 's'} • {company.userCount} users • {company.tamCount} TAMs
+                    {company.superuserCount} superuser{company.superuserCount === 1 ? '' : 's'} â€¢ {company.userCount} users â€¢ {company.tamCount} TAMs
                   </p>
                 </div>
               </div>
@@ -47,3 +55,4 @@ export default function CompaniesPage({ sessionState }: SessionPageProps) {
     </section>
   );
 }
+

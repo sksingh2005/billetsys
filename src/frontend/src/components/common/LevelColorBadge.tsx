@@ -1,3 +1,11 @@
+﻿/*
+ * Eclipse Public License - v 2.0
+ *
+ *   THE ACCOMPANYING PROGRAM IS PROVIDED UNDER THE TERMS OF THIS ECLIPSE
+ *   PUBLIC LICENSE ("AGREEMENT"). ANY USE, REPRODUCTION OR DISTRIBUTION
+ *   OF THE PROGRAM CONSTITUTES RECIPIENT'S ACCEPTANCE OF THIS AGREEMENT.
+ */
+
 interface LevelColorProps {
   color?: string | null;
   display?: string | null;
@@ -16,7 +24,8 @@ export function LevelColorFieldValue({ color, display }: LevelColorProps) {
   return (
     <div className="level-color-field-value">
       <span className="level-color-swatch" style={{ backgroundColor: color || 'transparent' }} aria-hidden="true" />
-      <span>{display || '—'}</span>
+      <span>{display || 'â€”'}</span>
     </div>
   );
 }
+

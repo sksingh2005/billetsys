@@ -1,3 +1,11 @@
+﻿/*
+ * Eclipse Public License - v 2.0
+ *
+ *   THE ACCOMPANYING PROGRAM IS PROVIDED UNDER THE TERMS OF THIS ECLIPSE
+ *   PUBLIC LICENSE ("AGREEMENT"). ANY USE, REPRODUCTION OR DISTRIBUTION
+ *   OF THE PROGRAM CONSTITUTES RECIPIENT'S ACCEPTANCE OF THIS AGREEMENT.
+ */
+
 import type { CountryOption, NamedEntity, TimezoneOption } from './common';
 import type { LevelRecord } from './content';
 import type { UserReference, DirectoryUserRecord } from './users';
@@ -75,3 +83,4 @@ export interface CompanyFormBootstrap extends NamedEntity {
     duration?: string | number;
   }>;
 }
+

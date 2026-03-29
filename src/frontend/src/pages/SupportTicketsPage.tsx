@@ -1,3 +1,11 @@
+﻿/*
+ * Eclipse Public License - v 2.0
+ *
+ *   THE ACCOMPANYING PROGRAM IS PROVIDED UNDER THE TERMS OF THIS ECLIPSE
+ *   PUBLIC LICENSE ("AGREEMENT"). ANY USE, REPRODUCTION OR DISTRIBUTION
+ *   OF THE PROGRAM CONSTITUTES RECIPIENT'S ACCEPTANCE OF THIS AGREEMENT.
+ */
+
 import DataState from '../components/common/DataState';
 import useJson from '../hooks/useJson';
 import { isWhiteColorValue, toQueryString } from '../utils/formatting';
@@ -78,7 +86,7 @@ export default function SupportTicketsPage({
                           {ticket.supportUser.displayName || ticket.supportUser.username}
                         </a>
                       ) : (
-                        '—'
+                        'â€”'
                       )}
                     </td>
                     <td>
@@ -87,7 +95,7 @@ export default function SupportTicketsPage({
                           {ticket.companyName}
                         </a>
                       ) : (
-                        ticket.companyName || '—'
+                        ticket.companyName || 'â€”'
                       )}
                     </td>
                     <td>{ticket.entitlementName || '-'}</td>
@@ -104,3 +112,4 @@ export default function SupportTicketsPage({
     </section>
   );
 }
+

@@ -1,3 +1,11 @@
+﻿/*
+ * Eclipse Public License - v 2.0
+ *
+ *   THE ACCOMPANYING PROGRAM IS PROVIDED UNDER THE TERMS OF THIS ECLIPSE
+ *   PUBLIC LICENSE ("AGREEMENT"). ANY USE, REPRODUCTION OR DISTRIBUTION
+ *   OF THE PROGRAM CONSTITUTES RECIPIENT'S ACCEPTANCE OF THIS AGREEMENT.
+ */
+
 import { lazy } from 'react';
 import { PATHS } from './paths';
 import type { AppRoute, SessionState } from '../types/app';
@@ -33,3 +41,4 @@ export function getTicketRoutes(sessionState: SessionState): AppRoute[] {
     { path: `${PATHS.superuserTickets}/:id`, element: <SupportTicketDetailPage sessionState={sessionState} apiBase="/api/superuser/tickets" backPath={PATHS.superuserTickets} titleFallback="Superuser ticket" secondaryUsersLabel="Superusers" />, requiresAuth: true, allowedRoles: ['superuser'] }
   ];
 }
+

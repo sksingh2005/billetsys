@@ -1,3 +1,11 @@
+﻿/*
+ * Eclipse Public License - v 2.0
+ *
+ *   THE ACCOMPANYING PROGRAM IS PROVIDED UNDER THE TERMS OF THIS ECLIPSE
+ *   PUBLIC LICENSE ("AGREEMENT"). ANY USE, REPRODUCTION OR DISTRIBUTION
+ *   OF THE PROGRAM CONSTITUTES RECIPIENT'S ACCEPTANCE OF THIS AGREEMENT.
+ */
+
 import { useParams } from 'react-router-dom';
 import DataState from '../components/common/DataState';
 import useJson from '../hooks/useJson';
@@ -35,15 +43,15 @@ export default function AttachmentPage({ sessionState }: SessionPageProps) {
             <section className="detail-grid">
               <div className="detail-card">
                 <h3>Type</h3>
-                <p>{attachment.mimeType || '—'}</p>
+                <p>{attachment.mimeType || 'â€”'}</p>
               </div>
               <div className="detail-card">
                 <h3>Size</h3>
-                <p>{attachment.sizeLabel || '—'}</p>
+                <p>{attachment.sizeLabel || 'â€”'}</p>
               </div>
               <div className="detail-card">
                 <h3>Ticket</h3>
-                <p>{attachment.ticketName || '—'}</p>
+                <p>{attachment.ticketName || 'â€”'}</p>
               </div>
             </section>
 
@@ -65,3 +73,4 @@ export default function AttachmentPage({ sessionState }: SessionPageProps) {
     </section>
   );
 }
+

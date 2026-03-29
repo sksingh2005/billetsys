@@ -1,3 +1,11 @@
+﻿/*
+ * Eclipse Public License - v 2.0
+ *
+ *   THE ACCOMPANYING PROGRAM IS PROVIDED UNDER THE TERMS OF THIS ECLIPSE
+ *   PUBLIC LICENSE ("AGREEMENT"). ANY USE, REPRODUCTION OR DISTRIBUTION
+ *   OF THE PROGRAM CONSTITUTES RECIPIENT'S ACCEPTANCE OF THIS AGREEMENT.
+ */
+
 import { SmartLink } from '../utils/routing';
 import type { StatusPageProps } from '../types/app';
 
@@ -20,3 +28,4 @@ export default function StatusPage({ sessionState, title, message }: StatusPageP
     </section>
   );
 }
+

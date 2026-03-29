@@ -1,3 +1,11 @@
+﻿/*
+ * Eclipse Public License - v 2.0
+ *
+ *   THE ACCOMPANYING PROGRAM IS PROVIDED UNDER THE TERMS OF THIS ECLIPSE
+ *   PUBLIC LICENSE ("AGREEMENT"). ANY USE, REPRODUCTION OR DISTRIBUTION
+ *   OF THE PROGRAM CONSTITUTES RECIPIENT'S ACCEPTANCE OF THIS AGREEMENT.
+ */
+
 import type { FormEvent } from 'react';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -42,39 +50,39 @@ export function OwnerPage({ sessionState }: SessionPageProps) {
                 <div className="owner-form-grid ticket-detail-grid">
                   <label>
                     Name
-                    <input value={owner.name || '—'} readOnly />
+                    <input value={owner.name || 'â€”'} readOnly />
                   </label>
                   <label>
                     Phone
-                    <input value={owner.phoneNumber || '—'} readOnly />
+                    <input value={owner.phoneNumber || 'â€”'} readOnly />
                   </label>
                   <label>
                     Country
-                    <input value={owner.countryName || '—'} readOnly />
+                    <input value={owner.countryName || 'â€”'} readOnly />
                   </label>
                   <label>
                     Time zone
-                    <input value={owner.timezoneName || '—'} readOnly />
+                    <input value={owner.timezoneName || 'â€”'} readOnly />
                   </label>
                   <label>
                     Address1
-                    <input value={owner.address1 || '—'} readOnly />
+                    <input value={owner.address1 || 'â€”'} readOnly />
                   </label>
                   <label>
                     Address2
-                    <input value={owner.address2 || '—'} readOnly />
+                    <input value={owner.address2 || 'â€”'} readOnly />
                   </label>
                   <label>
                     City
-                    <input value={owner.city || '—'} readOnly />
+                    <input value={owner.city || 'â€”'} readOnly />
                   </label>
                   <label>
                     State
-                    <input value={owner.state || '—'} readOnly />
+                    <input value={owner.state || 'â€”'} readOnly />
                   </label>
                   <label>
                     Zip
-                    <input value={owner.zip || '—'} readOnly />
+                    <input value={owner.zip || 'â€”'} readOnly />
                   </label>
                   <div className="detail-card-spacer" aria-hidden="true" />
                   <div className="owner-detail-panel">
@@ -291,3 +299,4 @@ export function OwnerEditPage({ sessionState }: SessionPageProps) {
 }
 
 export default OwnerPage;
+

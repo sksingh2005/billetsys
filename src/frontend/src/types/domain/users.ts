@@ -1,3 +1,11 @@
+﻿/*
+ * Eclipse Public License - v 2.0
+ *
+ *   THE ACCOMPANYING PROGRAM IS PROVIDED UNDER THE TERMS OF THIS ECLIPSE
+ *   PUBLIC LICENSE ("AGREEMENT"). ANY USE, REPRODUCTION OR DISTRIBUTION
+ *   OF THE PROGRAM CONSTITUTES RECIPIENT'S ACCEPTANCE OF THIS AGREEMENT.
+ */
+
 import type { CollectionResponse, CountryOption, NamedEntity, TimezoneOption } from './common';
 import type { Id } from '../app';
 
@@ -92,3 +100,4 @@ export interface DirectoryUserDetail extends DirectoryUserRecord {
   companyPath?: string;
   deletePath?: string;
 }
+

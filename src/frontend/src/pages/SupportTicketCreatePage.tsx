@@ -1,3 +1,11 @@
+﻿/*
+ * Eclipse Public License - v 2.0
+ *
+ *   THE ACCOMPANYING PROGRAM IS PROVIDED UNDER THE TERMS OF THIS ECLIPSE
+ *   PUBLIC LICENSE ("AGREEMENT"). ANY USE, REPRODUCTION OR DISTRIBUTION
+ *   OF THE PROGRAM CONSTITUTES RECIPIENT'S ACCEPTANCE OF THIS AGREEMENT.
+ */
+
 import type { FormEvent } from 'react';
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -191,7 +199,7 @@ export default function SupportTicketCreatePage({
                   {(bootstrap.companyEntitlements || []).map((entry: CompanyEntitlementOption) => (
                     <option key={entry.id} value={entry.id}>
                       {entry.name}
-                      {!hideEntitlementLevel && entry.levelName ? ` • ${entry.levelName}` : ''}
+                      {!hideEntitlementLevel && entry.levelName ? ` â€¢ ${entry.levelName}` : ''}
                     </option>
                   ))}
                 </select>
@@ -254,3 +262,4 @@ export default function SupportTicketCreatePage({
     </section>
   );
 }
+

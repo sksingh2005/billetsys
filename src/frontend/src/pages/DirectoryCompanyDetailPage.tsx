@@ -1,3 +1,11 @@
+﻿/*
+ * Eclipse Public License - v 2.0
+ *
+ *   THE ACCOMPANYING PROGRAM IS PROVIDED UNDER THE TERMS OF THIS ECLIPSE
+ *   PUBLIC LICENSE ("AGREEMENT"). ANY USE, REPRODUCTION OR DISTRIBUTION
+ *   OF THE PROGRAM CONSTITUTES RECIPIENT'S ACCEPTANCE OF THIS AGREEMENT.
+ */
+
 import type { MouseEvent } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import useJson from '../hooks/useJson';
@@ -69,15 +77,15 @@ export default function DirectoryCompanyDetailPage({ sessionState, apiBase, back
             <section className="detail-grid">
               <div className="detail-card">
                 <h3>Phone</h3>
-                <p>{company.phoneNumber || '—'}</p>
+                <p>{company.phoneNumber || 'â€”'}</p>
               </div>
               <div className="detail-card">
                 <h3>Country</h3>
-                <p>{company.countryName || '—'}</p>
+                <p>{company.countryName || 'â€”'}</p>
               </div>
               <div className="detail-card">
                 <h3>Time zone</h3>
-                <p>{company.timezoneName || '—'}</p>
+                <p>{company.timezoneName || 'â€”'}</p>
               </div>
             </section>
 
@@ -86,7 +94,7 @@ export default function DirectoryCompanyDetailPage({ sessionState, apiBase, back
                 <h3>Address</h3>
                 <ul className="plain-list">
                   {[company.address1, company.address2, company.city, company.state, company.zip].filter(Boolean).length === 0 ? (
-                    <li>—</li>
+                    <li>â€”</li>
                   ) : (
                     [company.address1, company.address2, company.city, company.state, company.zip]
                       .filter(Boolean)
@@ -117,3 +125,4 @@ export default function DirectoryCompanyDetailPage({ sessionState, apiBase, back
     </section>
   );
 }
+

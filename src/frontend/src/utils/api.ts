@@ -1,3 +1,11 @@
+﻿/*
+ * Eclipse Public License - v 2.0
+ *
+ *   THE ACCOMPANYING PROGRAM IS PROVIDED UNDER THE TERMS OF THIS ECLIPSE
+ *   PUBLIC LICENSE ("AGREEMENT"). ANY USE, REPRODUCTION OR DISTRIBUTION
+ *   OF THE PROGRAM CONSTITUTES RECIPIENT'S ACCEPTANCE OF THIS AGREEMENT.
+ */
+
 export type FormValue = string | number | boolean | File | null | undefined;
 export type FormEntryValue = FormValue | FormValue[];
 export type FormEntries = Array<[string, FormEntryValue]>;
@@ -89,3 +97,4 @@ function appendSearchValue(searchParams: URLSearchParams, key: string, value: Fo
   }
   searchParams.append(key, String(value));
 }
+

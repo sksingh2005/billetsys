@@ -1,3 +1,11 @@
+﻿/*
+ * Eclipse Public License - v 2.0
+ *
+ *   THE ACCOMPANYING PROGRAM IS PROVIDED UNDER THE TERMS OF THIS ECLIPSE
+ *   PUBLIC LICENSE ("AGREEMENT"). ANY USE, REPRODUCTION OR DISTRIBUTION
+ *   OF THE PROGRAM CONSTITUTES RECIPIENT'S ACCEPTANCE OF THIS AGREEMENT.
+ */
+
 import type { MouseEvent, ReactNode } from 'react';
 import { useState } from 'react';
 import type { Id } from '../../types/app';
@@ -82,9 +90,9 @@ export function UserHoverLink({ user, className, children }: UserHoverLinkProps)
               </div>
             </div>
             <div className="user-tooltip-divider" />
-            <div className="user-tooltip-meta">{user.email ? `📧 ${user.email}` : ''}</div>
-            <div className="user-tooltip-meta">{user.countryName ? `🌎 ${user.countryName}` : ''}</div>
-            <div className="user-tooltip-meta">{user.timezoneName ? `🕐 ${user.timezoneName}` : ''}</div>
+            <div className="user-tooltip-meta">{user.email ? `ðŸ“§ ${user.email}` : ''}</div>
+            <div className="user-tooltip-meta">{user.countryName ? `ðŸŒŽ ${user.countryName}` : ''}</div>
+            <div className="user-tooltip-meta">{user.timezoneName ? `ðŸ• ${user.timezoneName}` : ''}</div>
           </div>
         </div>
       )}
@@ -94,7 +102,7 @@ export function UserHoverLink({ user, className, children }: UserHoverLinkProps)
 
 export function UserReferenceList({ users }: UserCollectionProps) {
   if (!users || users.length === 0) {
-    return <p className="muted-text">—</p>;
+    return <p className="muted-text">â€”</p>;
   }
   return (
     <ul className="plain-list">
@@ -107,7 +115,7 @@ export function UserReferenceList({ users }: UserCollectionProps) {
           ) : (
             user.displayName || user.username
           )}
-          {user.email && <span className="muted-text"> — {user.email}</span>}
+          {user.email && <span className="muted-text"> â€” {user.email}</span>}
         </li>
       ))}
     </ul>
@@ -162,7 +170,7 @@ export function SelectableUserPicker({ title, users, selectedIds, onToggle }: Se
 
 export function SelectableUserSummary({ users }: UserCollectionProps) {
   if (!users || users.length === 0) {
-    return <p className="muted-text">—</p>;
+    return <p className="muted-text">â€”</p>;
   }
 
   return (
@@ -178,7 +186,7 @@ export function SelectableUserSummary({ users }: UserCollectionProps) {
 
 export function OwnerUserList({ users }: UserCollectionProps) {
   if (!users || users.length === 0) {
-    return <p className="muted-text">—</p>;
+    return <p className="muted-text">â€”</p>;
   }
 
   return (
@@ -214,3 +222,4 @@ export function OwnerSelector({ title, users, selectedIds, onToggle }: Selectabl
     </section>
   );
 }
+

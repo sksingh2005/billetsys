@@ -1,3 +1,11 @@
+﻿/*
+ * Eclipse Public License - v 2.0
+ *
+ *   THE ACCOMPANYING PROGRAM IS PROVIDED UNDER THE TERMS OF THIS ECLIPSE
+ *   PUBLIC LICENSE ("AGREEMENT"). ANY USE, REPRODUCTION OR DISTRIBUTION
+ *   OF THE PROGRAM CONSTITUTES RECIPIENT'S ACCEPTANCE OF THIS AGREEMENT.
+ */
+
 import type { NamedEntity } from './common';
 import type { UserReference } from './users';
 import type { Id } from '../app';
@@ -48,3 +56,4 @@ export interface MessageFormBootstrap {
   tickets?: NamedEntity[];
   attachments?: AttachmentReference[];
 }
+

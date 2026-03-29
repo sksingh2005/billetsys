@@ -1,3 +1,11 @@
+﻿/*
+ * Eclipse Public License - v 2.0
+ *
+ *   THE ACCOMPANYING PROGRAM IS PROVIDED UNDER THE TERMS OF THIS ECLIPSE
+ *   PUBLIC LICENSE ("AGREEMENT"). ANY USE, REPRODUCTION OR DISTRIBUTION
+ *   OF THE PROGRAM CONSTITUTES RECIPIENT'S ACCEPTANCE OF THIS AGREEMENT.
+ */
+
 import type { MouseEvent } from 'react';
 import { useEffect, useRef, useState } from 'react';
 import { useLocation } from 'react-router-dom';
@@ -103,7 +111,7 @@ export default function AuthenticatedHeader({ session }: AuthenticatedHeaderProp
                         aria-hidden={!showTicketAlarm}
                         title="SLA alarm"
                       >
-                        🚨
+                        ðŸš¨
                       </span>
                     </summary>
                     <div className="shell-nav-dropdown">
@@ -130,7 +138,7 @@ export default function AuthenticatedHeader({ session }: AuthenticatedHeaderProp
                       aria-hidden={!showTicketAlarm}
                       title="SLA alarm"
                     >
-                      🚨
+                      ðŸš¨
                     </span>
                   </SmartLink>
                 );
@@ -194,3 +202,4 @@ export default function AuthenticatedHeader({ session }: AuthenticatedHeaderProp
     </header>
   );
 }
+

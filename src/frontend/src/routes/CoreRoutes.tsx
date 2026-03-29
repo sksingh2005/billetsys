@@ -1,3 +1,11 @@
+﻿/*
+ * Eclipse Public License - v 2.0
+ *
+ *   THE ACCOMPANYING PROGRAM IS PROVIDED UNDER THE TERMS OF THIS ECLIPSE
+ *   PUBLIC LICENSE ("AGREEMENT"). ANY USE, REPRODUCTION OR DISTRIBUTION
+ *   OF THE PROGRAM CONSTITUTES RECIPIENT'S ACCEPTANCE OF THIS AGREEMENT.
+ */
+
 import HomePage from '../pages/HomePage';
 import LoginPage from '../pages/LoginPage';
 import OwnerPage, { OwnerEditPage } from '../pages/OwnerPage';
@@ -39,3 +47,4 @@ export function getCoreRoutes(sessionState: SessionState): AppRoute[] {
     { path: PATHS.ownerEdit, element: <OwnerEditPage sessionState={sessionState} />, requiresAuth: true }
   ];
 }
+

@@ -1,3 +1,11 @@
+﻿/*
+ * Eclipse Public License - v 2.0
+ *
+ *   THE ACCOMPANYING PROGRAM IS PROVIDED UNDER THE TERMS OF THIS ECLIPSE
+ *   PUBLIC LICENSE ("AGREEMENT"). ANY USE, REPRODUCTION OR DISTRIBUTION
+ *   OF THE PROGRAM CONSTITUTES RECIPIENT'S ACCEPTANCE OF THIS AGREEMENT.
+ */
+
 import type { ReactNode } from 'react';
 import { formatPhone, profileInitial } from '../../utils/formatting';
 import { SmartLink } from '../../utils/routing';
@@ -58,11 +66,11 @@ export function UserDetailCard({ user, companyHref, companyLabel = 'Company', ac
           <div className="owner-form-grid ticket-detail-grid">
             <label>
               Username
-              <input value={user.username || '—'} readOnly />
+              <input value={user.username || 'â€”'} readOnly />
             </label>
             <label>
               Full name
-              <input value={user.fullName || '—'} readOnly />
+              <input value={user.fullName || 'â€”'} readOnly />
             </label>
             <label>
               Type
@@ -70,11 +78,11 @@ export function UserDetailCard({ user, companyHref, companyLabel = 'Company', ac
             </label>
             <label>
               Email
-              <input value={user.email || '—'} readOnly />
+              <input value={user.email || 'â€”'} readOnly />
             </label>
             <label>
               Social
-              <input value={user.social || '—'} readOnly />
+              <input value={user.social || 'â€”'} readOnly />
             </label>
             <label>
               Phone
@@ -82,23 +90,23 @@ export function UserDetailCard({ user, companyHref, companyLabel = 'Company', ac
             </label>
             <label>
               Country
-              <input value={user.countryName || '—'} readOnly />
+              <input value={user.countryName || 'â€”'} readOnly />
             </label>
             <label>
               Time zone
-              <input value={user.timezoneName || '—'} readOnly />
+              <input value={user.timezoneName || 'â€”'} readOnly />
             </label>
             <label>
               {companyLabel}
               {companyHref ? (
                 <div className="readonly-link-field">
-                  <input value={user.companyName || '—'} readOnly />
+                  <input value={user.companyName || 'â€”'} readOnly />
                   <SmartLink className="readonly-link-field-link" href={companyHref}>
                     {user.companyName || 'Open company'}
                   </SmartLink>
                 </div>
               ) : (
-                <input value={hasCompany ? user.companyName : '—'} readOnly />
+                <input value={hasCompany ? user.companyName : 'â€”'} readOnly />
               )}
             </label>
             <div className="owner-detail-panel">
@@ -123,3 +131,4 @@ export function UserDetailCard({ user, companyHref, companyLabel = 'Company', ac
     </div>
   );
 }
+
