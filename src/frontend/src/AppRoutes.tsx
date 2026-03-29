@@ -1,16 +1,16 @@
 import type { ReactElement } from 'react';
 import { Suspense } from 'react';
 import { Route, Routes } from 'react-router-dom';
-import LoadingSpinner from './components/common/LoadingSpinner';
-import RouteErrorBoundary from './components/routing/RouteErrorBoundary';
-import { RequireAuth, RequireRole } from './components/routing/RouteGuards';
-import StatusPage from './pages/StatusPage';
-import { getContentRoutes } from './routes/ContentRoutes';
-import { getCoreRoutes } from './routes/CoreRoutes';
-import { getDirectoryRoutes } from './routes/DirectoryRoutes';
-import { getMessagingRoutes } from './routes/MessagingRoutes';
-import { getTicketRoutes } from './routes/TicketRoutes';
-import type { AppRoute, SessionPageProps } from './types/app';
+import LoadingSpinner from '@/components/common/LoadingSpinner';
+import RouteErrorBoundary from '@/components/routing/RouteErrorBoundary';
+import { RequireAuth, RequireRole } from '@/components/routing/RouteGuards';
+import StatusPage from '@/pages/StatusPage';
+import { getContentRoutes } from '@/routes/ContentRoutes';
+import { getCoreRoutes } from '@/routes/CoreRoutes';
+import { getDirectoryRoutes } from '@/routes/DirectoryRoutes';
+import { getMessagingRoutes } from '@/routes/MessagingRoutes';
+import { getTicketRoutes } from '@/routes/TicketRoutes';
+import type { AppRoute, SessionPageProps } from '@/types/app';
 
 function RouteFallback() {
   return (

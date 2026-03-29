@@ -1,11 +1,11 @@
 import { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
-import AppFooter from './components/layout/AppFooter';
-import AuthenticatedHeader from './components/layout/AuthenticatedHeader';
-import LoginHeader from './components/layout/LoginHeader';
-import useJson from './hooks/useJson';
-import AppRoutes from './AppRoutes';
-import type { Session } from './types/app';
+import AppRoutes from '@/AppRoutes';
+import AppFooter from '@/components/layout/AppFooter';
+import AuthenticatedHeader from '@/components/layout/AuthenticatedHeader';
+import LoginHeader from '@/components/layout/LoginHeader';
+import useJson from '@/hooks/useJson';
+import type { Session } from '@/types/app';
 
 function App() {
   const sessionState = useJson<Session>('/api/app/session');
