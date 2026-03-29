@@ -162,16 +162,10 @@ export default function EntitlementFormPage({ sessionState, mode }: EntitlementF
   return (
     <section className="panel">
       <div className="section-header">
-        <div>
-          <SmartLink className="inline-link back-link" href={isEdit && id ? `/entitlements/${id}` : '/entitlements'}>
-            Back to entitlements
-          </SmartLink>
-          <h2>{isEdit ? 'Edit entitlement' : 'New entitlement'}</h2>
-        </div>
         <div className="button-row">
           {isEdit && (
             <button type="button" className="secondary-button danger-button" onClick={deleteEntitlement} disabled={saveState.saving}>
-              Delete entitlement
+              Delete
             </button>
           )}
         </div>
@@ -221,10 +215,9 @@ export default function EntitlementFormPage({ sessionState, mode }: EntitlementF
               <div className="section-header compact-header">
                 <div>
                   <h3>Versions</h3>
-                  <p className="section-copy">At least one version is required.</p>
                 </div>
-                <button type="button" className="secondary-button" onClick={addVersion}>
-                  Add version
+                <button type="button" className="primary-button" onClick={addVersion}>
+                  Add
                 </button>
               </div>
               <div className="version-editor-list">
@@ -243,7 +236,7 @@ export default function EntitlementFormPage({ sessionState, mode }: EntitlementF
                     <div className="button-row">
                       <button
                         type="button"
-                        className="secondary-button"
+                        className="primary-button"
                         onClick={() => removeVersion(index)}
                         disabled={formState.versions.length === 1}
                       >
@@ -259,11 +252,8 @@ export default function EntitlementFormPage({ sessionState, mode }: EntitlementF
 
             <div className="button-row">
               <button type="submit" className="primary-button" disabled={saveState.saving}>
-                {saveState.saving ? 'Saving...' : isEdit ? 'Save entitlement' : 'Create entitlement'}
+                {saveState.saving ? 'Saving...' : isEdit ? 'Save' : 'Create'}
               </button>
-              <SmartLink className="secondary-button" href={isEdit && id ? `/entitlements/${id}` : '/entitlements'}>
-                Cancel
-              </SmartLink>
             </div>
           </form>
         )}

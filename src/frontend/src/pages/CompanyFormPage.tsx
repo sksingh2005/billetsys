@@ -228,17 +228,6 @@ export default function CompanyFormPage({ sessionState, mode }: CompanyFormPageP
 
   return (
     <section className="panel">
-      {!isEdit && (
-        <div className="section-header">
-          <div>
-            <SmartLink className="inline-link back-link" href={isEdit && id ? `/companies/${id}` : '/companies'}>
-              Back to companies
-            </SmartLink>
-            <h2>{isEdit ? 'Edit company' : 'New company'}</h2>
-          </div>
-        </div>
-      )}
-
       <DataState state={companyState} emptyMessage="Company not found." signInHref={sessionState.data?.homePath || '/login'}>
         {formState && company && (
           <form className="owner-form" onSubmit={submit}>
@@ -637,7 +626,7 @@ export default function CompanyFormPage({ sessionState, mode }: CompanyFormPageP
                 </SmartLink>
               )}
               <button type="submit" className="primary-button" disabled={saveState.saving}>
-                {saveState.saving ? 'Saving...' : isEdit ? 'Save' : 'Create company'}
+                {saveState.saving ? 'Saving...' : isEdit ? 'Save' : 'Create'}
               </button>
             </div>
           </form>

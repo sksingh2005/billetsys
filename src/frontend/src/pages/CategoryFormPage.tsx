@@ -88,17 +88,6 @@ export default function CategoryFormPage({ sessionState, mode }: CategoryFormPag
 
   return (
     <section className="panel">
-      {!isEdit && (
-        <div className="section-header">
-          <div>
-            <SmartLink className="inline-link back-link" href={isEdit && id ? `/categories/${id}` : '/categories'}>
-              Back to categories
-            </SmartLink>
-            <h2>{isEdit ? 'Edit category' : 'New category'}</h2>
-          </div>
-        </div>
-      )}
-
       <DataState state={categoryState} emptyMessage="Category unavailable." signInHref={sessionState.data?.homePath || '/login'}>
         {formState && (
           <form className="owner-form" onSubmit={submit}>
@@ -139,13 +128,8 @@ export default function CategoryFormPage({ sessionState, mode }: CategoryFormPag
                 </button>
               )}
               <button type="submit" className="primary-button" disabled={saveState.saving}>
-                {saveState.saving ? 'Saving...' : isEdit ? 'Save' : 'Create category'}
+                {saveState.saving ? 'Saving...' : isEdit ? 'Save' : 'Create'}
               </button>
-              {!isEdit && (
-                <SmartLink className="secondary-button" href={isEdit && id ? `/categories/${id}` : '/categories'}>
-                  Cancel
-                </SmartLink>
-              )}
             </div>
           </form>
         )}

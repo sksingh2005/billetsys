@@ -81,12 +81,6 @@ export default function MessageFormPage({ sessionState }: SessionPageProps) {
   return (
     <section className="panel">
       <div className="section-header">
-        <div>
-          <SmartLink className="inline-link back-link" href={PATHS.messages}>
-            Back to messages
-          </SmartLink>
-          <h2>{bootstrap?.title || 'Message form'}</h2>
-        </div>
         <div className="button-row">
           {id && (
             <button type="button" className="secondary-button danger-button" onClick={deleteMessage} disabled={saveState.saving}>
@@ -127,11 +121,8 @@ export default function MessageFormPage({ sessionState }: SessionPageProps) {
 
             <div className="button-row">
               <button type="submit" className="primary-button" disabled={saveState.saving}>
-                {saveState.saving ? 'Saving...' : bootstrap.edit ? 'Save message' : 'Create message'}
+                {saveState.saving ? 'Saving...' : bootstrap.edit ? 'Save' : 'Create'}
               </button>
-              <SmartLink className="secondary-button" href={bootstrap.cancelPath || PATHS.messages}>
-                Cancel
-              </SmartLink>
             </div>
           </form>
         )}
