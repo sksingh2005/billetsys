@@ -107,9 +107,6 @@ export default function TicketWorkbenchFormPage({ sessionState }: SessionPagePro
     <section className="panel">
       <div className="section-header">
         <div>
-          <SmartLink className="inline-link back-link" href="/tickets">
-            Back to tickets
-          </SmartLink>
           <h2>{bootstrap?.title || 'Ticket form'}</h2>
         </div>
         <div className="button-row">

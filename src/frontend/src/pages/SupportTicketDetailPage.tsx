@@ -120,10 +120,6 @@ export default function SupportTicketDetailPage({
 
   return (
     <section className="panel support-ticket-detail-page">
-      <SmartLink className="inline-link back-link" href={backPath}>
-        Back to tickets
-      </SmartLink>
-
       <DataState state={ticketState} emptyMessage="Ticket not found." signInHref={sessionState.data?.homePath || '/login'}>
         {ticket && formState && (
           <>

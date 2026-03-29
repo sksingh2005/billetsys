@@ -127,11 +127,6 @@ export default function SupportTicketCreatePage({
       {(!compactCreateHeader && title) || description ? (
         <div className="section-header">
           <div>
-            {!compactCreateHeader ? (
-              <SmartLink className="inline-link back-link" href={backPath}>
-                Back to tickets
-              </SmartLink>
-            ) : null}
             {title ? <h2>{title}</h2> : null}
             {description ? <p className="section-copy">{description}</p> : null}
           </div>
