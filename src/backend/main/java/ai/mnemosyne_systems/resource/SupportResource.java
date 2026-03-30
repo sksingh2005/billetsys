@@ -354,9 +354,10 @@ public class SupportResource {
     @Path("/tickets/{id}")
     @Transactional
     public Response updateTicket(@CookieParam(AuthHelper.AUTH_COOKIE) String auth,
-            @jakarta.ws.rs.PathParam("id") Long id, @FormParam("status") String status,
-            @FormParam("companyId") Long companyId, @FormParam("companyEntitlementId") Long companyEntitlementId,
-            @FormParam("categoryId") Long categoryId, @FormParam("externalIssueLink") String externalIssueLink,
+            @HeaderParam("X-Billetsys-Client") String client, @jakarta.ws.rs.PathParam("id") Long id,
+            @FormParam("status") String status, @FormParam("companyId") Long companyId,
+            @FormParam("companyEntitlementId") Long companyEntitlementId, @FormParam("categoryId") Long categoryId,
+            @FormParam("externalIssueLink") String externalIssueLink,
             @FormParam("affectsVersionId") Long affectsVersionId,
             @FormParam("resolvedVersionId") Long resolvedVersionId) {
         User user = requireSupport(auth);
@@ -402,14 +403,14 @@ public class SupportResource {
         if (!sameStatus(previousStatus, ticket.status)) {
             ticketEmailService.notifyStatusChange(ticket, previousStatus, user);
         }
-        return Response.seeOther(URI.create("/support/tickets/" + id)).build();
+        return createTicketRedirect(client, "/support/tickets/" + id);
     }
 
     @POST
     @Path("/tickets/{id}/assign")
     @Transactional
     public Response assignTicket(@CookieParam(AuthHelper.AUTH_COOKIE) String auth,
-            @jakarta.ws.rs.PathParam("id") Long id) {
+            @HeaderParam("X-Billetsys-Client") String client, @jakarta.ws.rs.PathParam("id") Long id) {
         User user = requireSupport(auth);
         Ticket ticket = Ticket.findById(id);
         if (ticket == null) {
@@ -426,7 +427,7 @@ public class SupportResource {
         if (!sameStatus(previousStatus, ticket.status)) {
             ticketEmailService.notifyStatusChange(ticket, previousStatus, user);
         }
-        return Response.seeOther(URI.create("/support/tickets/" + id)).build();
+        return createTicketRedirect(client, "/support/tickets/" + id);
     }
 
     private void assignCompanyTams(Ticket ticket) {

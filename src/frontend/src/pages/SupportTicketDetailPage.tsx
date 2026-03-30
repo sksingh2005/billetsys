@@ -104,7 +104,9 @@ export default function SupportTicketDetailPage({
         ['externalIssueLink', formState.externalIssueLink],
         ['affectsVersionId', formState.affectsVersionId],
         ['resolvedVersionId', formState.resolvedVersionId || null]
-      ]);
+      ], {
+        headers: { 'X-Billetsys-Client': 'react' }
+      });
       setRefreshNonce(current => current + 1);
     } catch (error: unknown) {
       setSaveState({ saving: false, error: error instanceof Error ? error.message : 'Unable to save ticket.' });

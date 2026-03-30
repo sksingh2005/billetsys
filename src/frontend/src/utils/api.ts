@@ -10,6 +10,10 @@ export type FormValue = string | number | boolean | File | null | undefined;
 export type FormEntryValue = FormValue | FormValue[];
 export type FormEntries = Array<[string, FormEntryValue]>;
 
+interface FormOptions {
+  headers?: HeadersInit;
+}
+
 interface MultipartOptions {
   headers?: HeadersInit;
 }
@@ -23,19 +27,22 @@ export async function fetchJson<T>(url: string): Promise<T> {
     throw new Error('You do not have access to this page.');
   }
   if (!response.ok) {
-    throw new Error((await response.text()) || `Unable to load ${url}`);
+    throw new Error(toErrorMessage(await response.text(), `Unable to load ${url}`));
   }
   return response.json() as Promise<T>;
 }
 
-export async function postForm(url: string, entries: FormEntries): Promise<Response> {
+export async function postForm(url: string, entries: FormEntries, options: FormOptions = {}): Promise<Response> {
   const body = new URLSearchParams();
   entries.forEach(([key, value]) => appendSearchValue(body, key, value));
 
   const response = await fetch(url, {
     method: 'POST',
     credentials: 'same-origin',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
+      ...options.headers
+    },
     body: body.toString()
   });
 
@@ -46,7 +53,7 @@ export async function postForm(url: string, entries: FormEntries): Promise<Respo
     throw new Error('You do not have access to this action.');
   }
   if (!response.ok) {
-    throw new Error((await response.text()) || 'Unable to save.');
+    throw new Error(toErrorMessage(await response.text(), 'Unable to save.'));
   }
 
   return response;
@@ -70,7 +77,7 @@ export async function postMultipart(url: string, entries: FormEntries, options: 
     throw new Error('You do not have access to this action.');
   }
   if (!response.ok) {
-    throw new Error((await response.text()) || 'Unable to save.');
+    throw new Error(toErrorMessage(await response.text(), 'Unable to save.'));
   }
 
   return response;
@@ -96,5 +103,16 @@ function appendSearchValue(searchParams: URLSearchParams, key: string, value: Fo
     return;
   }
   searchParams.append(key, String(value));
+}
+
+function toErrorMessage(text: string, fallback: string): string {
+  const trimmed = text.trim();
+  if (!trimmed) {
+    return fallback;
+  }
+  if (trimmed.startsWith('<!doctype html') || trimmed.startsWith('<html')) {
+    return fallback;
+  }
+  return trimmed;
 }
 
