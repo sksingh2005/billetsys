@@ -74,23 +74,19 @@ export default function DirectoryUsersPage({ sessionState, apiBase, basePath, ti
                 <div className="category-card-head">
                   <div>
                     <div className="category-title-row">
-                      <h3>{user.displayName || user.fullName || user.username || 'User'}</h3>
+                      <h3>
+                        {user.detailPath ? (
+                          <SmartLink className="inline-link" href={user.detailPath}>
+                            {user.displayName || user.fullName || user.username || 'User'}
+                          </SmartLink>
+                        ) : (
+                          user.displayName || user.fullName || user.username || 'User'
+                        )}
+                      </h3>
                       <span className="status-pill">{user.typeLabel || user.type || 'User'}</span>
                     </div>
                     <p className="tag-copy">{user.email || 'No email'}</p>
                     <p className="muted-text">@{user.username || 'unknown'}</p>
-                  </div>
-                  <div className="button-row">
-                    {user.detailPath && (
-                      <SmartLink className="inline-link" href={user.detailPath}>
-                        Open
-                      </SmartLink>
-                    )}
-                    {user.editPath && (
-                      <SmartLink className="inline-link" href={user.editPath}>
-                        Edit
-                      </SmartLink>
-                    )}
                   </div>
                 </div>
               </article>
