@@ -403,7 +403,7 @@ export default function ReportsPage({ sessionState }: SessionPageProps) {
               />
             </div>
 
-            <div className="button-row">
+            <div className="button-row button-row-end">
               <button type="button" className="action-button export-btn" onClick={exportReport} disabled={!chartScriptState.loaded}>
                 Export
               </button>
@@ -414,4 +414,3 @@ export default function ReportsPage({ sessionState }: SessionPageProps) {
     </section>
   );
 }
-
