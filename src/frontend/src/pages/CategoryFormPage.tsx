@@ -9,6 +9,7 @@
 import type { FormEvent } from 'react';
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { buildToastNavigationState, useToast } from '../components/common/ToastProvider';
 import useJson from '../hooks/useJson';
 import useSubmissionGuard from '../hooks/useSubmissionGuard';
 import DataState from '../components/common/DataState';
@@ -30,6 +31,7 @@ interface CategoryFormPageProps extends SessionPageProps {
 
 export default function CategoryFormPage({ sessionState, mode }: CategoryFormPageProps) {
   const navigate = useNavigate();
+  const { showToast } = useToast();
   const { id } = useParams();
   const categoryState = useJson<CategoryRecord>(mode === 'edit' && id ? `/api/categories/${id}` : '/api/categories/bootstrap');
   const category = categoryState.data;
@@ -70,9 +72,15 @@ export default function CategoryFormPage({ sessionState, mode }: CategoryFormPag
         ['description', formState.description],
         ['isDefault', String(formState.isDefault)]
       ]);
-      navigate(await resolvePostRedirectPath(response, isEdit && id ? `/categories/${id}` : '/categories'));
+      navigate(await resolvePostRedirectPath(response, isEdit && id ? `/categories/${id}` : '/categories'), {
+        state: buildToastNavigationState({
+          variant: 'success',
+          message: isEdit ? 'Category updated successfully.' : 'Category created successfully.'
+        })
+      });
     } catch (error: unknown) {
       setSaveState({ saving: false, error: error instanceof Error ? error.message : 'Unable to save category.' });
+      showToast({ variant: 'error', message: error instanceof Error ? error.message : 'Unable to save category.' });
       return;
     } finally {
       submissionGuard.exit();
@@ -87,9 +95,15 @@ export default function CategoryFormPage({ sessionState, mode }: CategoryFormPag
     try {
       setSaveState({ saving: true, error: '' });
       const response = await postForm(`/categories/${id}/delete`, []);
-      navigate(await resolvePostRedirectPath(response, '/categories'));
+      navigate(await resolvePostRedirectPath(response, '/categories'), {
+        state: buildToastNavigationState({
+          variant: 'danger',
+          message: 'Category deleted.'
+        })
+      });
     } catch (error: unknown) {
       setSaveState({ saving: false, error: error instanceof Error ? error.message : 'Unable to delete category.' });
+      showToast({ variant: 'error', message: error instanceof Error ? error.message : 'Unable to delete category.' });
       return;
     } finally {
       submissionGuard.exit();
@@ -128,8 +142,6 @@ export default function CategoryFormPage({ sessionState, mode }: CategoryFormPag
                   />
                 </label>
               </div>
-              {saveState.error && <p className="error-text">{saveState.error}</p>}
-
               <div className={`button-row${isEdit ? ' button-row-split' : ' button-row-end'}`}>
                 {isEdit && (
                   <button type="button" className="secondary-button danger-button" onClick={deleteCategory} disabled={saveState.saving}>

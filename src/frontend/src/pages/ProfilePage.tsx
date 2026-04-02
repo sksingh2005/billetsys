@@ -9,6 +9,7 @@
 import type { ChangeEvent, FormEvent } from 'react';
 import { useEffect, useRef, useState } from 'react';
 import { useLocation } from 'react-router-dom';
+import { useToast } from '../components/common/ToastProvider';
 import DataState from '../components/common/DataState';
 import { UserLogoPreview } from '../components/users/UserProfileSections';
 import useJson from '../hooks/useJson';
@@ -30,6 +31,7 @@ interface ProfileFormState {
 
 export default function ProfilePage({ sessionState }: SessionPageProps) {
   const location = useLocation();
+  const { showToast } = useToast();
   const profileState = useJson<ProfileRecord>('/api/profile');
   const profile = profileState.data;
   const [formState, setFormState] = useState<ProfileFormState | null>(null);
@@ -53,6 +55,12 @@ export default function ProfilePage({ sessionState }: SessionPageProps) {
       });
     }
   }, [profile]);
+
+  useEffect(() => {
+    if (routeError) {
+      showToast({ variant: 'error', message: routeError });
+    }
+  }, [routeError, showToast]);
 
   const availableTimezones =
     profile?.timezones?.filter(timezone => !formState?.countryId || String(timezone.countryId) === formState.countryId) ||
@@ -133,6 +141,7 @@ export default function ProfilePage({ sessionState }: SessionPageProps) {
           : current
       );
       setSaveState({ saving: false, error: '', saved: true });
+      showToast({ variant: 'success', message: 'Profile saved successfully.' });
     } catch (error: unknown) {
       setSaveState({ saving: false, error: error instanceof Error ? error.message : 'Unable to save profile.', saved: false });
     }
@@ -252,9 +261,6 @@ export default function ProfilePage({ sessionState }: SessionPageProps) {
                   </div>
                   <div className="detail-card-spacer" aria-hidden="true" />
                 </div>
-
-                {(saveState.error || (!saveState.saved && routeError)) && <p className="error-text">{saveState.error || routeError}</p>}
-                {saveState.saved && <p className="success-text">Profile saved.</p>}
 
                 <div className="button-row button-row-end">
                   <button type="submit" className="primary-button" disabled={saveState.saving}>

@@ -11,6 +11,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import AttachmentPicker from '../components/common/AttachmentPicker';
 import DataState from '../components/common/DataState';
+import { buildToastNavigationState, useToast } from '../components/common/ToastProvider';
 import MarkdownEditor from '../components/markdown/MarkdownEditor';
 import useJson from '../hooks/useJson';
 import useSubmissionGuard from '../hooks/useSubmissionGuard';
@@ -43,6 +44,7 @@ export default function SupportTicketCreatePage({
   hideEntitlementLevel = false
 }: SupportTicketCreatePageProps) {
   const navigate = useNavigate();
+  const { showToast } = useToast();
   const [selectedCompanyId, setSelectedCompanyId] = useState('');
   const [selectedCompanyEntitlementId, setSelectedCompanyEntitlementId] = useState('');
   const bootstrapState = useJson<SupportTicketCreateBootstrap>(
@@ -123,9 +125,15 @@ export default function SupportTicketCreatePage({
           headers: { 'X-Billetsys-Client': 'react' }
         }
       );
-      navigate(await resolvePostRedirectPath(response, navigateTo));
+      navigate(await resolvePostRedirectPath(response, navigateTo), {
+        state: buildToastNavigationState({
+          variant: 'success',
+          message: 'Support ticket created successfully.'
+        })
+      });
     } catch (error: unknown) {
       setSaveState({ saving: false, error: error instanceof Error ? error.message : 'Unable to create ticket.' });
+      showToast({ variant: 'error', message: error instanceof Error ? error.message : 'Unable to create ticket.' });
       return;
     } finally {
       submissionGuard.exit();
@@ -246,8 +254,6 @@ export default function SupportTicketCreatePage({
             </section>
 
             <AttachmentPicker files={files} onFilesChange={setFiles} />
-
-            {saveState.error && <p className="error-text">{saveState.error}</p>}
 
             <div className="button-row button-row-end">
               <button type="submit" className="primary-button" disabled={saveState.saving}>

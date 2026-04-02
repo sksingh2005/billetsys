@@ -11,6 +11,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import AttachmentPicker from '../components/common/AttachmentPicker';
 import DataState from '../components/common/DataState';
+import { buildToastNavigationState, useToast } from '../components/common/ToastProvider';
 import useJson from '../hooks/useJson';
 import useSubmissionGuard from '../hooks/useSubmissionGuard';
 import { postForm, postMultipart } from '../utils/api';
@@ -29,6 +30,7 @@ interface MessageFormState {
 
 export default function MessageFormPage({ sessionState }: SessionPageProps) {
   const navigate = useNavigate();
+  const { showToast } = useToast();
   const { id } = useParams();
   const bootstrapState = useJson<MessageFormBootstrap>(`/api/messages/bootstrap${toQueryString({ messageId: id })}`);
   const bootstrap = bootstrapState.data;
@@ -65,9 +67,15 @@ export default function MessageFormPage({ sessionState }: SessionPageProps) {
         ['ticketId', formState.ticketId],
         ['attachments', formState.files]
       ]);
-      navigate(await resolvePostRedirectPath(response, PATHS.messages));
+      navigate(await resolvePostRedirectPath(response, PATHS.messages), {
+        state: buildToastNavigationState({
+          variant: 'success',
+          message: bootstrap.edit ? 'Message updated successfully.' : 'Message created successfully.'
+        })
+      });
     } catch (error: unknown) {
       setSaveState({ saving: false, error: error instanceof Error ? error.message : 'Unable to save message.' });
+      showToast({ variant: 'error', message: error instanceof Error ? error.message : 'Unable to save message.' });
       return;
     } finally {
       submissionGuard.exit();
@@ -82,9 +90,15 @@ export default function MessageFormPage({ sessionState }: SessionPageProps) {
     try {
       setSaveState({ saving: true, error: '' });
       const response = await postForm(`/messages/${id}/delete`, []);
-      navigate(await resolvePostRedirectPath(response, PATHS.messages));
+      navigate(await resolvePostRedirectPath(response, PATHS.messages), {
+        state: buildToastNavigationState({
+          variant: 'danger',
+          message: 'Message deleted.'
+        })
+      });
     } catch (error: unknown) {
       setSaveState({ saving: false, error: error instanceof Error ? error.message : 'Unable to delete message.' });
+      showToast({ variant: 'error', message: error instanceof Error ? error.message : 'Unable to delete message.' });
       return;
     } finally {
       submissionGuard.exit();
@@ -130,8 +144,6 @@ export default function MessageFormPage({ sessionState }: SessionPageProps) {
             </div>
 
             <AttachmentPicker files={formState.files} onFilesChange={files => updateFormState('files', files)} existingAttachments={bootstrap.attachments || []} />
-
-            {saveState.error && <p className="error-text">{saveState.error}</p>}
 
             <div className="button-row">
               <button type="submit" className="primary-button" disabled={saveState.saving}>

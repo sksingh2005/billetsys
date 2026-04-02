@@ -9,6 +9,7 @@
 import type { FormEvent } from 'react';
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { buildToastNavigationState, useToast } from '../components/common/ToastProvider';
 import useJson from '../hooks/useJson';
 import useSubmissionGuard from '../hooks/useSubmissionGuard';
 import DataState from '../components/common/DataState';
@@ -52,6 +53,7 @@ const EMPTY_COMPANY_FORM_STATE: CompanyFormState = {
 
 export default function CompanyFormPage({ sessionState, mode }: CompanyFormPageProps) {
   const navigate = useNavigate();
+  const { showToast } = useToast();
   const { id } = useParams();
   const companyState = useJson<CompanyFormBootstrap>(mode === 'edit' && id ? `/api/companies/${id}` : '/api/companies/bootstrap');
   const company = companyState.data;
@@ -208,7 +210,12 @@ export default function CompanyFormPage({ sessionState, mode }: CompanyFormPageP
       }
 
       const response = await postForm(isEdit ? `/companies/${id}` : '/companies', entries);
-      navigate(await resolvePostRedirectPath(response, '/companies'));
+      navigate(await resolvePostRedirectPath(response, '/companies'), {
+        state: buildToastNavigationState({
+          variant: 'success',
+          message: isEdit ? 'Company updated successfully.' : 'Company created successfully.'
+        })
+      });
     } catch (error: unknown) {
       if (isNetworkRequestError(error)) {
         setSaveState({ saving: false, error: '' });
@@ -217,6 +224,7 @@ export default function CompanyFormPage({ sessionState, mode }: CompanyFormPageP
         return;
       }
       setSaveState({ saving: false, error: error instanceof Error ? error.message : 'Unable to save company.' });
+      showToast({ variant: 'error', message: error instanceof Error ? error.message : 'Unable to save company.' });
       return;
     } finally {
       submissionGuard.exit();
@@ -231,9 +239,15 @@ export default function CompanyFormPage({ sessionState, mode }: CompanyFormPageP
     try {
       setSaveState({ saving: true, error: '' });
       const response = await postForm(`/companies/${id}/delete`, []);
-      navigate(await resolvePostRedirectPath(response, '/companies'));
+      navigate(await resolvePostRedirectPath(response, '/companies'), {
+        state: buildToastNavigationState({
+          variant: 'danger',
+          message: 'Company deleted.'
+        })
+      });
     } catch (error: unknown) {
       setSaveState({ saving: false, error: error instanceof Error ? error.message : 'Unable to delete company.' });
+      showToast({ variant: 'error', message: error instanceof Error ? error.message : 'Unable to delete company.' });
       return;
     } finally {
       submissionGuard.exit();
@@ -638,8 +652,6 @@ export default function CompanyFormPage({ sessionState, mode }: CompanyFormPageP
                 </div>
               </div>
             )}
-
-            {saveState.error && <p className="error-text">{saveState.error}</p>}
 
             <div className={`button-row${isEdit ? ' button-row-split' : ' button-row-end'}`}>
               {isEdit ? (

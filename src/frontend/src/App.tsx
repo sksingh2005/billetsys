@@ -8,6 +8,7 @@
 
 import { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
+import { ToastProvider } from './components/common/ToastProvider';
 import AppFooter from './components/layout/AppFooter';
 import AuthenticatedHeader from './components/layout/AuthenticatedHeader';
 import LoginHeader from './components/layout/LoginHeader';
@@ -27,13 +28,15 @@ function App() {
   }, [brandName]);
 
   return (
-    <div className={isLoginRoute ? 'login-shell' : 'app-shell'}>
-      {isLoginRoute ? <LoginHeader brandName={brandName} /> : <AuthenticatedHeader session={session} />}
-      <main className={isLoginRoute ? 'login-main' : 'app-main'}>
-        <AppRoutes sessionState={sessionState} />
-      </main>
-      <AppFooter className={isLoginRoute ? 'login-footer' : 'app-footer'} />
-    </div>
+    <ToastProvider>
+      <div className={isLoginRoute ? 'login-shell' : 'app-shell'}>
+        {isLoginRoute ? <LoginHeader brandName={brandName} /> : <AuthenticatedHeader session={session} />}
+        <main className={isLoginRoute ? 'login-main' : 'app-main'}>
+          <AppRoutes sessionState={sessionState} />
+        </main>
+        <AppFooter className={isLoginRoute ? 'login-footer' : 'app-footer'} />
+      </div>
+    </ToastProvider>
   );
 }
 

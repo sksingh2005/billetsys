@@ -9,6 +9,7 @@
 import type { FormEvent } from 'react';
 import { useEffect, useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import { buildToastNavigationState, useToast } from '../components/common/ToastProvider';
 import DataState from '../components/common/DataState';
 import useJson from '../hooks/useJson';
 import useSubmissionGuard from '../hooks/useSubmissionGuard';
@@ -22,6 +23,7 @@ import { SUPPORT_TICKET_STATUSES } from '../types/tickets';
 
 export default function TicketWorkbenchFormPage({ sessionState }: SessionPageProps) {
   const navigate = useNavigate();
+  const { showToast } = useToast();
   const { id } = useParams();
   const location = useLocation();
   const query = new URLSearchParams(location.search);
@@ -92,9 +94,15 @@ export default function TicketWorkbenchFormPage({ sessionState }: SessionPagePro
         ['affectsVersionId', formState.affectsVersionId],
         ['resolvedVersionId', formState.resolvedVersionId]
       ]);
-      navigate(await resolvePostRedirectPath(response, '/tickets'));
+      navigate(await resolvePostRedirectPath(response, '/tickets'), {
+        state: buildToastNavigationState({
+          variant: 'success',
+          message: bootstrap.edit ? 'Ticket updated successfully.' : 'Ticket created successfully.'
+        })
+      });
     } catch (error: unknown) {
       setSaveState({ saving: false, error: error instanceof Error ? error.message : 'Unable to save ticket.' });
+      showToast({ variant: 'error', message: error instanceof Error ? error.message : 'Unable to save ticket.' });
       return;
     } finally {
       submissionGuard.exit();
@@ -109,9 +117,15 @@ export default function TicketWorkbenchFormPage({ sessionState }: SessionPagePro
     try {
       setSaveState({ saving: true, error: '' });
       const response = await postForm(`/tickets/${id}/delete`, []);
-      navigate(await resolvePostRedirectPath(response, '/tickets'));
+      navigate(await resolvePostRedirectPath(response, '/tickets'), {
+        state: buildToastNavigationState({
+          variant: 'danger',
+          message: 'Ticket deleted.'
+        })
+      });
     } catch (error: unknown) {
       setSaveState({ saving: false, error: error instanceof Error ? error.message : 'Unable to delete ticket.' });
+      showToast({ variant: 'error', message: error instanceof Error ? error.message : 'Unable to delete ticket.' });
       return;
     } finally {
       submissionGuard.exit();
@@ -238,8 +252,6 @@ export default function TicketWorkbenchFormPage({ sessionState }: SessionPagePro
                 </ul>
               </section>
             )}
-
-            {saveState.error && <p className="error-text">{saveState.error}</p>}
 
             <div className="button-row">
               <button type="submit" className="primary-button" disabled={saveState.saving}>

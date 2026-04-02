@@ -8,6 +8,7 @@
 
 import { useNavigate, useParams } from 'react-router-dom';
 import DataState from '../components/common/DataState';
+import { buildToastNavigationState, useToast } from '../components/common/ToastProvider';
 import { UserDetailCard } from '../components/users/UserProfileSections';
 import useJson from '../hooks/useJson';
 import useSubmissionGuard from '../hooks/useSubmissionGuard';
@@ -25,6 +26,7 @@ interface DirectoryUserDetailPageProps extends SessionPageProps {
 export default function DirectoryUserDetailPage({ sessionState, apiBase, backFallback }: DirectoryUserDetailPageProps) {
   const navigate = useNavigate();
   const { id } = useParams();
+  const { showToast } = useToast();
   const detailState = useJson<DirectoryUserDetail>(id ? `${apiBase}/${id}` : null);
   const detail = detailState.data;
   const resolvedBackHref = detail?.backPath || backFallback;
@@ -43,9 +45,17 @@ export default function DirectoryUserDetailPage({ sessionState, apiBase, backFal
     }
     try {
       const response = await postForm(detail.deletePath, []);
-      navigate(await resolvePostRedirectPath(response, resolveClientPath(detail.backPath, backFallback)));
+      navigate(await resolvePostRedirectPath(response, resolveClientPath(detail.backPath, backFallback)), {
+        state: buildToastNavigationState({
+          variant: 'danger',
+          message: 'User deleted.'
+        })
+      });
     } catch (error: unknown) {
-      window.alert(error instanceof Error ? error.message : 'Unable to delete user.');
+      showToast({
+        variant: 'error',
+        message: error instanceof Error ? error.message : 'Unable to delete user.'
+      });
     } finally {
       submissionGuard.exit();
     }

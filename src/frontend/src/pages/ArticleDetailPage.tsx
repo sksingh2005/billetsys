@@ -9,6 +9,7 @@
 import { useParams } from 'react-router-dom';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { buildToastNavigationState, useToast } from '../components/common/ToastProvider';
 import useJson from '../hooks/useJson';
 import useSubmissionGuard from '../hooks/useSubmissionGuard';
 import DataState from '../components/common/DataState';
@@ -25,6 +26,7 @@ interface DeleteArticleButtonProps {
 
 function DeleteArticleButton({ articleId, label = 'Delete article' }: DeleteArticleButtonProps) {
   const navigate = useNavigate();
+  const { showToast } = useToast();
   const [deleting, setDeleting] = useState(false);
   const [error, setError] = useState('');
   const submissionGuard = useSubmissionGuard();
@@ -37,10 +39,19 @@ function DeleteArticleButton({ articleId, label = 'Delete article' }: DeleteArti
       setDeleting(true);
       setError('');
       const response = await postForm(`/articles/${articleId}/delete`, []);
-      navigate(await resolvePostRedirectPath(response, '/articles'));
+      navigate(await resolvePostRedirectPath(response, '/articles'), {
+        state: buildToastNavigationState({
+          variant: 'danger',
+          message: 'Article deleted.'
+        })
+      });
     } catch (submitError: unknown) {
       setDeleting(false);
       setError(submitError instanceof Error ? submitError.message : 'Unable to delete article.');
+      showToast({
+        variant: 'error',
+        message: submitError instanceof Error ? submitError.message : 'Unable to delete article.'
+      });
       return;
     } finally {
       submissionGuard.exit();
@@ -53,7 +64,6 @@ function DeleteArticleButton({ articleId, label = 'Delete article' }: DeleteArti
       <button type="button" className="secondary-button danger-button" onClick={remove} disabled={deleting}>
         {deleting ? 'Deleting...' : label}
       </button>
-      {error && <p className="error-text">{error}</p>}
     </>
   );
 }

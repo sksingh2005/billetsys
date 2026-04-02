@@ -9,6 +9,7 @@
 import type { FormEvent } from 'react';
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { buildToastNavigationState, useToast } from '../components/common/ToastProvider';
 import useJson from '../hooks/useJson';
 import useSubmissionGuard from '../hooks/useSubmissionGuard';
 import DataState from '../components/common/DataState';
@@ -32,6 +33,7 @@ interface ArticleFormPageProps extends SessionPageProps {
 
 export default function ArticleFormPage({ sessionState, mode }: ArticleFormPageProps) {
   const navigate = useNavigate();
+  const { showToast } = useToast();
   const { id } = useParams();
   const articleState = useJson<ArticleRecord>(mode === 'edit' && id ? `/api/articles/${id}` : '/api/articles/bootstrap');
   const article = articleState.data;
@@ -74,9 +76,15 @@ export default function ArticleFormPage({ sessionState, mode }: ArticleFormPageP
         ['body', formState.body],
         ...files.map((file): ['attachments', File] => ['attachments', file])
       ]);
-      navigate(await resolvePostRedirectPath(response, isEdit && id ? `/articles/${id}` : '/articles'));
+      navigate(await resolvePostRedirectPath(response, isEdit && id ? `/articles/${id}` : '/articles'), {
+        state: buildToastNavigationState({
+          variant: 'success',
+          message: isEdit ? 'Article updated successfully.' : 'Article created successfully.'
+        })
+      });
     } catch (error: unknown) {
       setSaveState({ saving: false, error: error instanceof Error ? error.message : 'Unable to save article.' });
+      showToast({ variant: 'error', message: error instanceof Error ? error.message : 'Unable to save article.' });
       return;
     } finally {
       submissionGuard.exit();
@@ -113,8 +121,6 @@ export default function ArticleFormPage({ sessionState, mode }: ArticleFormPageP
               </div>
 
               <AttachmentPicker files={files} onFilesChange={setFiles} existingAttachments={article.attachments || []} />
-
-              {saveState.error && <p className="error-text">{saveState.error}</p>}
 
               <div className={`button-row${isEdit ? ' button-row-split' : ' button-row-end'}`}>
                 {isEdit && article.id && article.canDelete && <DeleteArticleButton articleId={article.id} label="Delete" />}

@@ -10,6 +10,7 @@ import type { FormEvent } from 'react';
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import DataState from '../components/common/DataState';
+import { buildToastNavigationState, useToast } from '../components/common/ToastProvider';
 import MarkdownEditor from '../components/markdown/MarkdownEditor';
 import useJson from '../hooks/useJson';
 import useSubmissionGuard from '../hooks/useSubmissionGuard';
@@ -63,6 +64,7 @@ interface LevelFormPageProps extends SessionPageProps {
 
 export default function LevelFormPage({ sessionState, mode }: LevelFormPageProps) {
   const navigate = useNavigate();
+  const { showToast } = useToast();
   const { id } = useParams();
   const levelState = useJson<LevelFormBootstrap>(mode === 'edit' && id ? `/api/levels/${id}` : '/api/levels/bootstrap');
   const level = levelState.data;
@@ -114,9 +116,15 @@ export default function LevelFormPage({ sessionState, mode }: LevelFormPageProps
         ['countryId', formState.countryId],
         ['timezoneId', formState.timezoneId]
       ]);
-      navigate(await resolvePostRedirectPath(response, PATHS.levels));
+      navigate(await resolvePostRedirectPath(response, PATHS.levels), {
+        state: buildToastNavigationState({
+          variant: 'success',
+          message: isEdit ? 'Level updated successfully.' : 'Level created successfully.'
+        })
+      });
     } catch (error: unknown) {
       setSaveState({ saving: false, error: error instanceof Error ? error.message : 'Unable to save level.' });
+      showToast({ variant: 'error', message: error instanceof Error ? error.message : 'Unable to save level.' });
       return;
     } finally {
       submissionGuard.exit();
@@ -131,9 +139,15 @@ export default function LevelFormPage({ sessionState, mode }: LevelFormPageProps
     try {
       setSaveState({ saving: true, error: '' });
       const response = await postForm(`${PATHS.levels}/${id}/delete`, []);
-      navigate(await resolvePostRedirectPath(response, PATHS.levels));
+      navigate(await resolvePostRedirectPath(response, PATHS.levels), {
+        state: buildToastNavigationState({
+          variant: 'danger',
+          message: 'Level deleted.'
+        })
+      });
     } catch (error: unknown) {
       setSaveState({ saving: false, error: error instanceof Error ? error.message : 'Unable to delete level.' });
+      showToast({ variant: 'error', message: error instanceof Error ? error.message : 'Unable to delete level.' });
       return;
     } finally {
       submissionGuard.exit();
@@ -249,8 +263,6 @@ export default function LevelFormPage({ sessionState, mode }: LevelFormPageProps
                   <MarkdownEditor value={formState.description} onChange={value => updateFormState('description', value)} rows={10} required />
                 </label>
               </div>
-
-              {saveState.error && <p className="error-text">{saveState.error}</p>}
 
               <div className={`button-row${isEdit ? ' button-row-split' : ' button-row-end'}`}>
                 {isEdit && (

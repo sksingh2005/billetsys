@@ -12,6 +12,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import MarkdownEditor from '../components/markdown/MarkdownEditor';
 import useJson from '../hooks/useJson';
 import useSubmissionGuard from '../hooks/useSubmissionGuard';
+import { buildToastNavigationState, useToast } from '../components/common/ToastProvider';
 import DataState from '../components/common/DataState';
 import { postForm } from '../utils/api';
 import { resolvePostRedirectPath } from '../utils/routing';
@@ -43,6 +44,7 @@ interface EntitlementFormBootstrap extends EntitlementRecord {
 
 export default function EntitlementEditorPage({ sessionState, mode }: EntitlementFormPageProps) {
   const navigate = useNavigate();
+  const { showToast } = useToast();
   const { id } = useParams();
   const entitlementState = useJson<EntitlementFormBootstrap>(mode === 'edit' && id ? `/api/entitlements/${id}` : '/api/entitlements/bootstrap');
   const entitlement = entitlementState.data;
@@ -147,9 +149,15 @@ export default function EntitlementEditorPage({ sessionState, mode }: Entitlemen
         ])
       ];
       const response = await postForm(isEdit ? `/entitlements/${id}` : '/entitlements', entries);
-      navigate(await resolvePostRedirectPath(response, '/entitlements'));
+      navigate(await resolvePostRedirectPath(response, '/entitlements'), {
+        state: buildToastNavigationState({
+          variant: 'success',
+          message: isEdit ? 'Entitlement updated successfully.' : 'Entitlement created successfully.'
+        })
+      });
     } catch (error: unknown) {
       setSaveState({ saving: false, error: error instanceof Error ? error.message : 'Unable to save entitlement.' });
+      showToast({ variant: 'error', message: error instanceof Error ? error.message : 'Unable to save entitlement.' });
       return;
     } finally {
       submissionGuard.exit();
@@ -164,9 +172,15 @@ export default function EntitlementEditorPage({ sessionState, mode }: Entitlemen
     try {
       setSaveState({ saving: true, error: '' });
       const response = await postForm(`/entitlements/${id}/delete`, []);
-      navigate(await resolvePostRedirectPath(response, '/entitlements'));
+      navigate(await resolvePostRedirectPath(response, '/entitlements'), {
+        state: buildToastNavigationState({
+          variant: 'danger',
+          message: 'Entitlement deleted.'
+        })
+      });
     } catch (error: unknown) {
       setSaveState({ saving: false, error: error instanceof Error ? error.message : 'Unable to delete entitlement.' });
+      showToast({ variant: 'error', message: error instanceof Error ? error.message : 'Unable to delete entitlement.' });
       return;
     } finally {
       submissionGuard.exit();
@@ -246,8 +260,6 @@ export default function EntitlementEditorPage({ sessionState, mode }: Entitlemen
                   ))}
                 </div>
               </section>
-
-              {saveState.error && <p className="error-text">{saveState.error}</p>}
 
               <div className="button-row button-row-end">
                 {isEdit && (

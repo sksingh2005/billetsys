@@ -21,6 +21,7 @@ import ai.mnemosyne_systems.model.Timezone;
 import ai.mnemosyne_systems.service.TicketEmailService;
 import ai.mnemosyne_systems.util.AttachmentHelper;
 import ai.mnemosyne_systems.util.AuthHelper;
+import io.quarkus.hibernate.orm.panache.Panache;
 import io.quarkus.elytron.security.common.BcryptUtil;
 import io.smallrye.common.annotation.Blocking;
 import jakarta.inject.Inject;
@@ -563,6 +564,10 @@ public class UserResource {
     }
 
     private void removeUserReferences(User user) {
+        if (user != null && user.id != null && hasPasswordResetTokenTable()) {
+            Panache.getEntityManager().createNativeQuery("delete from password_reset_tokens where user_id = ?1")
+                    .setParameter(1, user.id).executeUpdate();
+        }
         List<Company> companies = Company
                 .find("select distinct c from Company c left join c.users u where u = ?1", user).list();
         for (Company company : companies) {
@@ -586,6 +591,13 @@ public class UserResource {
         for (Message message : messages) {
             message.author = null;
         }
+    }
+
+    private boolean hasPasswordResetTokenTable() {
+        Number matches = (Number) Panache.getEntityManager().createNativeQuery(
+                "select count(*) from information_schema.tables where lower(table_name) = 'password_reset_tokens'")
+                .getSingleResult();
+        return matches != null && matches.longValue() > 0;
     }
 
     private void validateUserFields(String name, String email, String type, boolean requirePassword, String password) {

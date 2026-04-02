@@ -9,6 +9,7 @@
 import type { ChangeEvent, FormEvent } from 'react';
 import { useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import { buildToastNavigationState, useToast } from '../components/common/ToastProvider';
 import DataState from '../components/common/DataState';
 import MarkdownContent from '../components/markdown/MarkdownContent';
 import MarkdownEditor from '../components/markdown/MarkdownEditor';
@@ -39,6 +40,7 @@ export default function SupportTicketDetailPage({
   const { id } = useParams();
   const location = useLocation();
   const navigate = useNavigate();
+  const { showToast } = useToast();
   const [refreshNonce, setRefreshNonce] = useState(0);
   const ticketState = useJson<SupportTicketDetailRecord>(id ? `${apiBase}/${id}${toQueryString({ refresh: refreshNonce })}` : null);
   const ticket = ticketState.data;
@@ -114,12 +116,19 @@ export default function SupportTicketDetailPage({
       });
       const redirectPath = await resolvePostRedirectPath(response, ticket.actionPath || `${apiBase}/${id || ''}`);
       if (redirectPath !== location.pathname) {
-        navigate(redirectPath);
+        navigate(redirectPath, {
+          state: buildToastNavigationState({
+            variant: 'success',
+            message: 'Ticket updated successfully.'
+          })
+        });
       } else {
         setRefreshNonce(current => current + 1);
+        showToast({ variant: 'success', message: 'Ticket updated successfully.' });
       }
     } catch (error: unknown) {
       setSaveState({ saving: false, error: error instanceof Error ? error.message : 'Unable to save ticket.' });
+      showToast({ variant: 'error', message: error instanceof Error ? error.message : 'Unable to save ticket.' });
       return;
     } finally {
       submissionGuard.exit();
@@ -277,8 +286,6 @@ export default function SupportTicketDetailPage({
                     </div>
                   </label>
                 </div>
-
-                {saveState.error && <p className="error-text">{saveState.error}</p>}
 
                 {!isClosed && (canEditStatus || canEditCategory || canEditExternalIssue || canEditAffectsVersion || canEditResolvedVersion) && (
                   <div className="form-actions">

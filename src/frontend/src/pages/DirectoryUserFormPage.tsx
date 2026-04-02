@@ -9,6 +9,7 @@
 import type { FormEvent } from 'react';
 import { useEffect, useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import { buildToastNavigationState, useToast } from '../components/common/ToastProvider';
 import DataState from '../components/common/DataState';
 import useJson from '../hooks/useJson';
 import useSubmissionGuard from '../hooks/useSubmissionGuard';
@@ -32,6 +33,7 @@ interface UserTypeOption {
 
 export default function DirectoryUserFormPage({ sessionState, bootstrapBase, navigateFallback }: DirectoryUserFormPageProps) {
   const navigate = useNavigate();
+  const { showToast } = useToast();
   const { id } = useParams();
   const location = useLocation();
   const query = new URLSearchParams(location.search);
@@ -94,9 +96,15 @@ export default function DirectoryUserFormPage({ sessionState, bootstrapBase, nav
         ['companyId', formState.companyId],
         ['password', formState.password]
       ]);
-      navigate(await resolvePostRedirectPath(response, resolveClientPath(bootstrap.cancelPath, navigateFallback)));
+      navigate(await resolvePostRedirectPath(response, resolveClientPath(bootstrap.cancelPath, navigateFallback)), {
+        state: buildToastNavigationState({
+          variant: 'success',
+          message: isEdit ? 'User updated successfully.' : 'User created successfully.'
+        })
+      });
     } catch (error: unknown) {
       setSaveState({ saving: false, error: error instanceof Error ? error.message : 'Unable to save user.' });
+      showToast({ variant: 'error', message: error instanceof Error ? error.message : 'Unable to save user.' });
       return;
     } finally {
       submissionGuard.exit();
@@ -111,9 +119,15 @@ export default function DirectoryUserFormPage({ sessionState, bootstrapBase, nav
     try {
       setSaveState({ saving: true, error: '' });
       const response = await postForm(`/user/${id}/delete`, []);
-      navigate(await resolvePostRedirectPath(response, resolveClientPath(bootstrap.cancelPath, navigateFallback)));
+      navigate(await resolvePostRedirectPath(response, resolveClientPath(bootstrap.cancelPath, navigateFallback)), {
+        state: buildToastNavigationState({
+          variant: 'danger',
+          message: 'User deleted.'
+        })
+      });
     } catch (error: unknown) {
       setSaveState({ saving: false, error: error instanceof Error ? error.message : 'Unable to delete user.' });
+      showToast({ variant: 'error', message: error instanceof Error ? error.message : 'Unable to delete user.' });
       return;
     } finally {
       submissionGuard.exit();
@@ -243,8 +257,6 @@ export default function DirectoryUserFormPage({ sessionState, bootstrapBase, nav
                 </div>
               </div>
             </div>
-
-            {saveState.error && <p className="error-text">{saveState.error}</p>}
 
             <div className={`button-row${isAdminCreate ? ' button-row-end' : ''}`}>
               <button type="submit" className="primary-button" disabled={saveState.saving}>

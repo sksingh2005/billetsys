@@ -7,16 +7,24 @@
  */
 
 import type { FormEvent } from 'react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
+import { useToast } from '../components/common/ToastProvider';
 import DataState from '../components/common/DataState';
 import type { SessionPageProps } from '../types/app';
 
 export default function PasswordPage({ sessionState }: SessionPageProps) {
   const location = useLocation();
+  const { showToast } = useToast();
   const [formState, setFormState] = useState({ oldPassword: '', newPassword: '', confirmPassword: '' });
   const [saveState, setSaveState] = useState({ saving: false, error: '', saved: false });
   const routeError = new URLSearchParams(location.search).get('error') || '';
+
+  useEffect(() => {
+    if (routeError) {
+      showToast({ variant: 'error', message: routeError });
+    }
+  }, [routeError, showToast]);
 
   const submit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -33,6 +41,7 @@ export default function PasswordPage({ sessionState }: SessionPageProps) {
       }
       setFormState({ oldPassword: '', newPassword: '', confirmPassword: '' });
       setSaveState({ saving: false, error: '', saved: true });
+      showToast({ variant: 'success', message: 'Password updated successfully.' });
     } catch (error: unknown) {
       setSaveState({ saving: false, error: error instanceof Error ? error.message : 'Unable to update password.', saved: false });
     }
@@ -73,8 +82,6 @@ export default function PasswordPage({ sessionState }: SessionPageProps) {
               required
             />
           </label>
-          {(saveState.error || (!saveState.saved && routeError)) && <p className="error-text">{saveState.error || routeError}</p>}
-          {saveState.saved && <p className="success-text">Password updated.</p>}
           <div className="button-row">
             <button type="submit" className="primary-button" disabled={saveState.saving}>
               {saveState.saving ? 'Saving...' : 'Update'}
