@@ -119,7 +119,8 @@ class SuperuserAccessTest extends AccessTestSupport {
                 .get("/superuser/tickets/" + ticketId).then().statusCode(303)
                 .header("Location", Matchers.endsWith("/superuser/tickets/" + ticketId));
         RestAssured.given().cookie(AuthHelper.AUTH_COOKIE, cookie).get("/api/superuser/tickets/" + ticketId).then()
-                .statusCode(200).body("secondaryUsersLabel", Matchers.equalTo("Superusers"))
+                .statusCode(200).body("title", Matchers.equalTo(superuserTicket.displayTitle()))
+                .body("secondaryUsersLabel", Matchers.equalTo("Superusers"))
                 .body("secondaryUsers.username", Matchers.hasItem("superuser1"))
                 .body("supportUsers.username", Matchers.hasItem("support1"))
                 .body("editableResolvedVersion", Matchers.equalTo(true))
@@ -201,9 +202,9 @@ class SuperuserAccessTest extends AccessTestSupport {
         Long createdTicketId = Long.valueOf(redirectTo.substring(redirectTo.lastIndexOf('/') + 1));
 
         RestAssured.given().cookie(AuthHelper.AUTH_COOKIE, cookie).header("X-Billetsys-Client", "react")
-                .contentType(ContentType.URLENC).formParam("affectsVersionId", version.id)
-                .post("/superuser/tickets/" + createdTicketId).then().statusCode(200)
-                .body("redirectTo", Matchers.equalTo("/superuser/tickets/" + createdTicketId));
+                .contentType(ContentType.URLENC).formParam("title", "Superuser json redirect title")
+                .formParam("affectsVersionId", version.id).post("/superuser/tickets/" + createdTicketId).then()
+                .statusCode(200).body("redirectTo", Matchers.equalTo("/superuser/tickets/" + createdTicketId));
     }
 
 }

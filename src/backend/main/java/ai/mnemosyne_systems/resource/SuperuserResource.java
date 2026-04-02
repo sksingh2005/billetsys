@@ -326,13 +326,18 @@ public class SuperuserResource {
     @Transactional
     public Response updateTicket(@CookieParam(AuthHelper.AUTH_COOKIE) String auth,
             @HeaderParam("X-Billetsys-Client") String client, @PathParam("id") Long id,
-            @FormParam("affectsVersionId") Long affectsVersionId,
+            @FormParam("title") String title, @FormParam("affectsVersionId") Long affectsVersionId,
             @FormParam("resolvedVersionId") Long resolvedVersionId) {
         User user = requireSuperuser(auth);
+        String normalizedTitle = Ticket.normalizeTitle(title);
         Ticket ticket = findTicketForSuperuser(user, id);
         if (ticket == null) {
             throw new NotFoundException();
         }
+        if (normalizedTitle == null) {
+            throw new BadRequestException("Title is required");
+        }
+        ticket.title = normalizedTitle;
         ticket.affectsVersion = resolveVersionForTicket(ticket, affectsVersionId, "Affects");
         ticket.resolvedVersion = resolveOptionalVersionForTicket(ticket, resolvedVersionId, "Resolved");
         return ReactRedirectSupport.redirect(client, "/superuser/tickets/" + id);

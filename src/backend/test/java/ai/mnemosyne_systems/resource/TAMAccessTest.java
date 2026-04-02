@@ -76,6 +76,7 @@ class TAMAccessTest extends AccessTestSupport {
         User supportUser = User.find("email", "support1@mnemosyne-systems.ai").firstResult();
         RestAssured.given().cookie(AuthHelper.AUTH_COOKIE, cookie).get("/api/user/tickets/" + ticketId).then()
                 .statusCode(200).body("name", Matchers.equalTo(tamTicketName))
+                .body("title", Matchers.equalTo(tamTicket.displayTitle()))
                 .body("levelName", Matchers.equalTo("Critical")).body("secondaryUsersLabel", Matchers.equalTo("TAM"))
                 .body("supportUsers.username", Matchers.hasItem("support1"))
                 .body("editableResolvedVersion", Matchers.equalTo(true));

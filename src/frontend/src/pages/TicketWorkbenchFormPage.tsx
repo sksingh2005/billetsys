@@ -243,7 +243,7 @@ export default function TicketWorkbenchFormPage({ sessionState }: SessionPagePro
 
             <div className="button-row">
               <button type="submit" className="primary-button" disabled={saveState.saving}>
-                {saveState.saving ? 'Saving...' : bootstrap.edit ? 'Save ticket' : 'Create ticket'}
+                {saveState.saving ? 'Saving...' : bootstrap.edit ? 'Save' : 'Create'}
               </button>
               <SmartLink className="secondary-button" href="/tickets">
                 Cancel

@@ -49,6 +49,7 @@ export interface SupportTicketCreateFormState {
 }
 
 export interface SupportTicketDetailState {
+  title: string;
   status: string;
   categoryId: string;
   externalIssueLink: string;

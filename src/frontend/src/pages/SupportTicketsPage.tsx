@@ -51,6 +51,7 @@ export default function SupportTicketsPage({
             <thead>
               <tr>
                 <th>Name</th>
+                <th>Title</th>
                 <th>Date</th>
                 <th>Status</th>
                 <th>Category</th>
@@ -77,6 +78,7 @@ export default function SupportTicketsPage({
                       </SmartLink>
                       {ticket.messageDirectionArrow && <span className="ticket-direction">{ticket.messageDirectionArrow}</span>}
                     </td>
+                    <td>{ticket.title || '-'}</td>
                     <td>{ticket.messageDateLabel || '-'}</td>
                     <td>{ticket.status || '-'}</td>
                     <td>{ticket.categoryName || '-'}</td>
@@ -112,4 +114,3 @@ export default function SupportTicketsPage({
     </section>
   );
 }
-

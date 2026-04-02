@@ -386,18 +386,24 @@ public class UserResource {
     @Path("user/tickets/{id}")
     @Transactional
     public Response updateUserTicket(@CookieParam(AuthHelper.AUTH_COOKIE) String auth, @PathParam("id") Long id,
-            @HeaderParam("X-Billetsys-Client") String client, @FormParam("affectsVersionId") Long affectsVersionId,
+            @HeaderParam("X-Billetsys-Client") String client, @FormParam("title") String title,
+            @FormParam("affectsVersionId") Long affectsVersionId,
             @FormParam("resolvedVersionId") Long resolvedVersionId) {
         User user = requireUser(auth);
+        String normalizedTitle = Ticket.normalizeTitle(title);
         Ticket ticket = findTicketForUser(user, id);
         if (ticket == null) {
             throw new NotFoundException();
         }
+        if (normalizedTitle == null) {
+            throw new BadRequestException("Title is required");
+        }
+        ticket.title = normalizedTitle;
         ticket.affectsVersion = resolveVersionForTicket(ticket, affectsVersionId, "Affects");
         if (User.TYPE_TAM.equalsIgnoreCase(user.type)) {
             ticket.resolvedVersion = resolveOptionalVersionForTicket(ticket, resolvedVersionId, "Resolved");
         }
-        return ReactRedirectSupport.redirect(client, "/tickets/" + id);
+        return ReactRedirectSupport.redirect(client, "/user/tickets/" + id);
     }
 
     @GET

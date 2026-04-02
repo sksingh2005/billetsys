@@ -162,8 +162,8 @@ class SupportAccessTest extends AccessTestSupport {
         Assertions.assertTrue(ticketHasSupportUser(unassignedTicket.id, supportUser.id));
 
         RestAssured.given().redirects().follow(false).cookie(AuthHelper.AUTH_COOKIE, cookie)
-                .contentType(ContentType.URLENC).formParam("status", "Assigned")
-                .formParam("companyId", supportTicket.company.id)
+                .contentType(ContentType.URLENC).formParam("title", supportTicket.displayTitle())
+                .formParam("status", "Assigned").formParam("companyId", supportTicket.company.id)
                 .formParam("companyEntitlementId", supportTicket.companyEntitlement.id)
                 .formParam("affectsVersionId", ensureVersion(supportTicket.companyEntitlement.entitlement, "1.0.0").id)
                 .post("/support/tickets/" + ticketId).then().statusCode(303);
@@ -387,8 +387,8 @@ class SupportAccessTest extends AccessTestSupport {
         String externalIssueLink = "https://github.com/mnemosyne-systems/billetsys/issues/6";
 
         RestAssured.given().redirects().follow(false).cookie(AuthHelper.AUTH_COOKIE, cookie)
-                .contentType(ContentType.URLENC).formParam("status", "Resolved")
-                .formParam("companyId", ticket.company.id)
+                .contentType(ContentType.URLENC).formParam("title", ticket.displayTitle())
+                .formParam("status", "Resolved").formParam("companyId", ticket.company.id)
                 .formParam("companyEntitlementId", ticket.companyEntitlement.id).formParam("categoryId", bugCategory.id)
                 .formParam("externalIssueLink", externalIssueLink).formParam("affectsVersionId", affectsVersion.id)
                 .formParam("resolvedVersionId", resolvedVersion.id).post("/support/tickets/" + ticket.id).then()
@@ -495,7 +495,8 @@ class SupportAccessTest extends AccessTestSupport {
         Assertions.assertEquals(1, firstMail.getAttachments().size());
 
         RestAssured.given().redirects().follow(false).cookie(AuthHelper.AUTH_COOKIE, supportCookie)
-                .contentType(ContentType.URLENC).formParam("status", "Closed").formParam("companyId", ticket.company.id)
+                .contentType(ContentType.URLENC).formParam("title", ticket.displayTitle()).formParam("status", "Closed")
+                .formParam("companyId", ticket.company.id)
                 .formParam("companyEntitlementId", ticket.companyEntitlement.id)
                 .formParam("affectsVersionId", ensureVersion(ticket.companyEntitlement.entitlement, "1.0.0").id)
                 .post("/support/tickets/" + ticket.id).then().statusCode(303);
@@ -868,7 +869,8 @@ class SupportAccessTest extends AccessTestSupport {
         Assertions.assertNotNull(createdTicket);
 
         RestAssured.given().cookie(AuthHelper.AUTH_COOKIE, cookie).header("X-Billetsys-Client", "react")
-                .contentType(ContentType.URLENC).formParam("status", "Assigned").formParam("companyId", company.id)
+                .contentType(ContentType.URLENC).formParam("title", createdTicket.displayTitle())
+                .formParam("status", "Assigned").formParam("companyId", company.id)
                 .formParam("companyEntitlementId", entry.id).formParam("categoryId", Category.findDefault().id)
                 .formParam("affectsVersionId", version.id).post("/support/tickets/" + createdTicket.id).then()
                 .statusCode(200).body("redirectTo", Matchers.equalTo("/support/tickets/" + createdTicket.id));

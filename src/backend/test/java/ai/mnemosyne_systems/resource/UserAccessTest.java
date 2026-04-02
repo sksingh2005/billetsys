@@ -107,6 +107,7 @@ class UserAccessTest extends AccessTestSupport {
                 .header("Location", Matchers.endsWith("/user/tickets/" + ticketId));
         RestAssured.given().cookie(AuthHelper.AUTH_COOKIE, cookie).get("/api/user/tickets/" + ticketId).then()
                 .statusCode(200).body("name", Matchers.equalTo(userTicketName))
+                .body("title", Matchers.equalTo(userTicket.displayTitle()))
                 .body("supportUsers.username", Matchers.hasItem("support1"))
                 .body("secondaryUsersLabel", Matchers.equalTo("TAM")).body("editableStatus", Matchers.equalTo(false))
                 .body("editableResolvedVersion", Matchers.equalTo(false))
@@ -233,9 +234,9 @@ class UserAccessTest extends AccessTestSupport {
         Long createdTicketId = Long.valueOf(redirectTo.substring(redirectTo.lastIndexOf('/') + 1));
 
         RestAssured.given().cookie(AuthHelper.AUTH_COOKIE, cookie).header("X-Billetsys-Client", "react")
-                .contentType(ContentType.URLENC).formParam("affectsVersionId", version.id)
-                .post("/user/tickets/" + createdTicketId).then().statusCode(200)
-                .body("redirectTo", Matchers.equalTo("/tickets/" + createdTicketId));
+                .contentType(ContentType.URLENC).formParam("title", "User json redirect title")
+                .formParam("affectsVersionId", version.id).post("/user/tickets/" + createdTicketId).then()
+                .statusCode(200).body("redirectTo", Matchers.equalTo("/user/tickets/" + createdTicketId));
     }
 
 }

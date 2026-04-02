@@ -360,15 +360,19 @@ public class SupportResource {
     @Transactional
     public Response updateTicket(@CookieParam(AuthHelper.AUTH_COOKIE) String auth,
             @HeaderParam("X-Billetsys-Client") String client, @jakarta.ws.rs.PathParam("id") Long id,
-            @FormParam("status") String status, @FormParam("companyId") Long companyId,
-            @FormParam("companyEntitlementId") Long companyEntitlementId, @FormParam("categoryId") Long categoryId,
-            @FormParam("externalIssueLink") String externalIssueLink,
+            @FormParam("title") String title, @FormParam("status") String status,
+            @FormParam("companyId") Long companyId, @FormParam("companyEntitlementId") Long companyEntitlementId,
+            @FormParam("categoryId") Long categoryId, @FormParam("externalIssueLink") String externalIssueLink,
             @FormParam("affectsVersionId") Long affectsVersionId,
             @FormParam("resolvedVersionId") Long resolvedVersionId) {
         User user = requireSupport(auth);
+        String normalizedTitle = Ticket.normalizeTitle(title);
         Ticket ticket = Ticket.findById(id);
         if (ticket == null) {
             throw new NotFoundException();
+        }
+        if (normalizedTitle == null) {
+            throw new BadRequestException("Title is required");
         }
         if (status == null || status.isBlank()) {
             throw new BadRequestException("Status is required");
@@ -389,6 +393,7 @@ public class SupportResource {
             throw new BadRequestException("Entitlement is required");
         }
         String previousStatus = ticketEmailService.computeEffectiveStatus(ticket, ticket.status);
+        ticket.title = normalizedTitle;
         ticket.status = status;
         ticket.company = company;
         ticket.companyEntitlement = entitlement;

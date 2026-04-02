@@ -147,9 +147,9 @@ public class SupportTicketApiResource {
 
     private SupportTicketSummary toSummary(Ticket ticket, SupportTicketViewSupport.SupportTicketData data) {
         User assignedSupport = data.supportAssignmentUsers().get(ticket.id);
-        return new SupportTicketSummary(ticket.id, ticket.name, ticket.status, data.messageDateLabels().get(ticket.id),
-                data.messageDirectionArrows().get(ticket.id), data.slaColors().get(ticket.id),
-                ticket.category == null ? null : ticket.category.name,
+        return new SupportTicketSummary(ticket.id, ticket.name, ticket.displayTitle(), ticket.status,
+                data.messageDateLabels().get(ticket.id), data.messageDirectionArrows().get(ticket.id),
+                data.slaColors().get(ticket.id), ticket.category == null ? null : ticket.category.name,
                 assignedSupport == null ? null : toUserReference(assignedSupport),
                 ticket.company == null ? null : ticket.company.id, ticket.company == null ? null : ticket.company.name,
                 ticket.companyEntitlement == null || ticket.companyEntitlement.entitlement == null ? null
@@ -285,7 +285,7 @@ public class SupportTicketApiResource {
             String createPath, List<SupportTicketSummary> items) {
     }
 
-    public record SupportTicketSummary(Long id, String name, String status, String messageDateLabel,
+    public record SupportTicketSummary(Long id, String name, String title, String status, String messageDateLabel,
             String messageDirectionArrow, String slaColor, String categoryName, UserReference supportUser,
             Long companyId, String companyName, String entitlementName, String levelName, String affectsVersionName,
             String resolvedVersionName, String detailPath, String companyPath) {

@@ -65,6 +65,7 @@ export default function SupportTicketDetailPage({
       return;
     }
     setFormState({
+      title: ticket.title || '',
       status: ticket.displayStatus || 'Open',
       categoryId: ticket.categoryId ? String(ticket.categoryId) : '',
       externalIssueLink: ticket.externalIssueLink || '',
@@ -100,6 +101,7 @@ export default function SupportTicketDetailPage({
     try {
       setSaveState({ saving: true, error: '' });
       const response = await postForm(ticket.actionPath || `${apiBase}/${id || ''}`, [
+        ['title', formState.title],
         ['status', formState.status],
         ['companyId', ticket.companyId],
         ['companyEntitlementId', ticket.companyEntitlementId],
@@ -148,12 +150,12 @@ export default function SupportTicketDetailPage({
               <form className="owner-form ticket-detail-form" onSubmit={saveTicket}>
                 <div className="owner-form-grid ticket-detail-grid">
                   <label>
-                    Ticket
-                    <input value={ticket.name || ''} readOnly />
-                  </label>
-                  <label>
                     Title
-                    <input value={ticket.title || ticket.name || ''} readOnly />
+                    {isClosed ? (
+                      <input value={formState.title || ticket.title || ticket.name || ''} readOnly />
+                    ) : (
+                      <input value={formState.title} onChange={event => updateFormState('title', event.target.value)} required />
+                    )}
                   </label>
                   <label>
                     Company
@@ -281,7 +283,7 @@ export default function SupportTicketDetailPage({
                 {!isClosed && (canEditStatus || canEditCategory || canEditExternalIssue || canEditAffectsVersion || canEditResolvedVersion) && (
                   <div className="form-actions">
                     <button type="submit" className="action-button" disabled={saveState.saving}>
-                      {saveState.saving ? 'Saving...' : 'Save ticket'}
+                      {saveState.saving ? 'Saving...' : 'Save'}
                     </button>
                   </div>
                 )}

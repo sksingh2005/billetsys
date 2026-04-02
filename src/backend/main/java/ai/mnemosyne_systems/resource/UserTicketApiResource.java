@@ -151,8 +151,8 @@ public class UserTicketApiResource {
     private SupportTicketApiResource.SupportTicketSummary toSummary(Ticket ticket, UserResource.SupportTicketData data,
             User currentUser) {
         User assignedSupport = data.supportAssignmentUsers.get(ticket.id);
-        return new SupportTicketApiResource.SupportTicketSummary(ticket.id, ticket.name, ticket.status,
-                data.messageDateLabels.get(ticket.id), data.messageDirectionArrows.get(ticket.id),
+        return new SupportTicketApiResource.SupportTicketSummary(ticket.id, ticket.name, ticket.displayTitle(),
+                ticket.status, data.messageDateLabels.get(ticket.id), data.messageDirectionArrows.get(ticket.id),
                 data.slaColors.get(ticket.id), ticket.category == null ? null : ticket.category.name,
                 assignedSupport == null ? null : toUserReference(assignedSupport),
                 ticket.company == null ? null : ticket.company.id, ticket.company == null ? null : ticket.company.name,
