@@ -80,4 +80,15 @@ mvn -Pmanual-docs generate-resources
 Generated files:
 
 - `target/billetsys-en.html`
-- `target/billetsys-en.pdf`
+- `target/billetsys-en.pdf**
+
+## Makefile
+
+The targets are
+
+* `all` - Clean, format, build and run (Default)
+* `clean` - Clean
+* `format` - Format the source code
+* `run` - Run in development mode
+* `test` - Run test cases
+* `docs` - Generate documentation

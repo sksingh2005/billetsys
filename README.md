@@ -16,6 +16,7 @@ navigate and get their work done quicker.
 * [Maven](https://maven.apache.org/)
 * [Quarkus](https://quarkus.io/)
 * [PostgreSQL](https://www.postgresql.org)
+* [make](https://www.gnu.org/software/make/)
 * [Vite](https://vitejs.dev/)
 * [React](https://react.dev/)
 * [TypeScript](https://www.typescriptlang.org/)
@@ -28,10 +29,13 @@ See the developer documentation for setup and workflow details:
 * [Build and run guide](./doc/BUILDING.md)
 * [Frontend guide](./src/frontend/README.md)
 
-For the most common frontend validation commands from the repository root:
+To build and run `billetsys`
 
-* `npm run frontend:fix`
-* `npm run frontend:check`
+```sh
+git clone https://github.com/mnemosyne-systems/billetsys.git
+cd billetsys
+make
+```
 
 The users defined for testing are
 

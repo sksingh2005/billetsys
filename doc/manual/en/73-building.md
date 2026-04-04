@@ -55,3 +55,14 @@ frontend assets under `target/quinoa/build`.
 
 Browser routes such as `/profile` and `/users/...` continue to be handled through the backend
 shell handoff while static frontend assets remain under `/app`.
+
+## Makefile
+
+The targets are
+
+* `all` - Clean, format, build and run (Default)
+* `clean` - Clean
+* `format` - Format the source code
+* `run` - Run in development mode
+* `test` - Run test cases
+* `docs` - Generate documentation
