@@ -112,22 +112,18 @@ export function UserDetailCard({
               Time zone
               <input value={user.timezoneName || "—"} readOnly />
             </label>
-            <label>
-              {companyLabel}
-              {companyHref ? (
-                <div className="readonly-link-field">
-                  <input value={user.companyName || "—"} readOnly />
-                  <SmartLink
-                    className="readonly-link-field-link"
-                    href={companyHref}
-                  >
+            <div className="owner-detail-panel">
+              <div className="owner-detail-panel-label">{companyLabel}</div>
+              <div className="owner-detail-panel-body company-detail-panel">
+                {companyHref ? (
+                  <SmartLink className="owner-detail-link" href={companyHref}>
                     {user.companyName || "Open company"}
                   </SmartLink>
-                </div>
-              ) : (
-                <input value={hasCompany ? user.companyName : "—"} readOnly />
-              )}
-            </label>
+                ) : (
+                  <span>{hasCompany ? user.companyName : "—"}</span>
+                )}
+              </div>
+            </div>
             <div className="owner-detail-panel">
               <div className="owner-detail-panel-label">Logo</div>
               <div className="owner-detail-panel-body profile-logo-panel">

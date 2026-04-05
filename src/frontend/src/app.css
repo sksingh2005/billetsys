@@ -742,12 +742,24 @@ pre code {
   font-weight: 400;
 }
 
+.company-detail-panel {
+  min-height: 88px;
+  display: flex;
+  align-items: flex-start;
+}
+
 .owner-detail-panel-body .plain-list {
   margin: 0;
 }
 
 .owner-detail-panel-body .muted-text {
   margin: 0;
+}
+
+.owner-detail-link {
+  color: var(--body-text);
+  text-decoration: underline;
+  overflow-wrap: anywhere;
 }
 
 .markdown-card {
@@ -1456,22 +1468,30 @@ pre code {
 
 .readonly-link-field {
   position: relative;
+  min-height: 38px;
+  padding: 8px 10px;
+  border: 1px solid var(--card-border);
+  border-radius: 4px;
+  background: #fff;
+  box-sizing: border-box;
 }
 
 .readonly-link-field input {
-  width: 100%;
-  color: transparent;
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  pointer-events: none;
 }
 
 .readonly-link-field-link {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  padding: 8px 10px;
-  z-index: 2;
+  position: relative;
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
   color: var(--body-text);
   text-decoration: underline;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
 }
 
 .inline-link-field {

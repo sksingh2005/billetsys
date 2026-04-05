@@ -436,17 +436,19 @@ export default function SupportTicketDetailPage({
                   </label>
                   <label>
                     Company
-                    <div className="readonly-link-field">
-                      <input value={ticket.companyName || ""} readOnly />
-                      {ticket.companyId ? (
+                    {ticket.companyId ? (
+                      <div className="readonly-link-field">
+                        <input value={ticket.companyName || ""} readOnly />
                         <a
                           className="readonly-link-field-link"
                           href={`/support/companies/${ticket.companyId}`}
                         >
                           {ticket.companyName || "-"}
                         </a>
-                      ) : null}
-                    </div>
+                      </div>
+                    ) : (
+                      <input value={ticket.companyName || "-"} readOnly />
+                    )}
                   </label>
                   <label>
                     Category
