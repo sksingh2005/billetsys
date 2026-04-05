@@ -22,7 +22,7 @@ import {
 } from "../components/users/UserComponents";
 import useJson from "../hooks/useJson";
 import useSubmissionGuard from "../hooks/useSubmissionGuard";
-import { postForm } from "../utils/api";
+import { postForm, postMultipart } from "../utils/api";
 import {
   formatFileSize,
   toQueryString,
@@ -66,7 +66,7 @@ export default function SupportTicketDetailPage({
   );
   const [saveState, setSaveState] = useState({ saving: false, error: "" });
   const submissionGuard = useSubmissionGuard();
-  const [replyState] = useState({ saving: false, error: "" });
+  const [replyState, setReplyState] = useState({ saving: false, error: "" });
   const [replyBody, setReplyBody] = useState("");
   const [files, setFiles] = useState<File[]>([]);
   const replyInputRef = useRef<HTMLTextAreaElement | null>(null);
@@ -205,6 +205,69 @@ export default function SupportTicketDetailPage({
     setFiles((current) =>
       current.filter((_, fileIndex) => fileIndex !== index),
     );
+  };
+
+  const submitReply = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (!ticket || !ticket.messageActionPath || !submissionGuard.tryEnter()) {
+      return;
+    }
+
+    try {
+      setReplyState({ saving: true, error: "" });
+
+      const response = await postMultipart(
+        ticket.messageActionPath,
+        [
+          ["body", replyBody],
+          ...files.map((file): [string, File] => ["attachments", file]),
+        ],
+        {
+          headers: { "X-Billetsys-Client": "react" },
+        },
+      );
+
+      const redirectPath = await resolvePostRedirectPath(
+        response,
+        location.pathname,
+      );
+
+      if (redirectPath !== location.pathname) {
+        navigate(redirectPath, {
+          state: buildToastNavigationState({
+            variant: "success",
+            message: "Reply added successfully.",
+          }),
+        });
+      } else {
+        setRefreshNonce((current) => current + 1);
+        setReplyBody("");
+        setFiles([]);
+        if (fileInputRef.current) {
+          fileInputRef.current.value = "";
+        }
+        setScrollToMessages(true);
+        showToast({
+          variant: "success",
+          message: "Reply added successfully.",
+        });
+      }
+    } catch (error: unknown) {
+      setReplyState({
+        saving: false,
+        error: error instanceof Error ? error.message : "Unable to add reply.",
+      });
+      showToast({
+        variant: "error",
+        message:
+          error instanceof Error ? error.message : "Unable to add reply.",
+      });
+      return;
+    } finally {
+      submissionGuard.exit();
+    }
+
+    setReplyState({ saving: false, error: "" });
   };
 
   return (
@@ -531,12 +594,7 @@ export default function SupportTicketDetailPage({
             {!isClosed ? (
               <>
                 <h2>Reply</h2>
-                <form
-                  className="ticket-reply-form"
-                  action={ticket.messageActionPath}
-                  method="post"
-                  encType="multipart/form-data"
-                >
+                <form className="ticket-reply-form" onSubmit={submitReply}>
                   <MarkdownEditor
                     value={replyBody}
                     onChange={setReplyBody}
