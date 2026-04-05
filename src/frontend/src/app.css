@@ -708,6 +708,21 @@ pre code {
   justify-content: flex-end;
 }
 
+.attachment-detail-actions {
+  align-items: center;
+}
+
+.attachment-content {
+  margin: 0;
+  white-space: pre-wrap;
+}
+
+.attachment-meta-line {
+  text-align: right;
+  color: var(--muted-text);
+  font-weight: 600;
+}
+
 .admin-detail-actions {
   margin-top: 0;
 }

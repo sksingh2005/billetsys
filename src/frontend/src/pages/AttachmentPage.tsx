@@ -11,7 +11,7 @@ import DataState from "../components/common/DataState";
 import useJson from "../hooks/useJson";
 import { SmartLink } from "../utils/routing";
 import type { SessionPageProps } from "../types/app";
-import type { AttachmentDetail, AttachmentLine } from "../types/domain";
+import type { AttachmentDetail } from "../types/domain";
 
 export default function AttachmentPage({ sessionState }: SessionPageProps) {
   const { id } = useParams();
@@ -19,33 +19,22 @@ export default function AttachmentPage({ sessionState }: SessionPageProps) {
     id ? `/api/attachments/${id}` : null,
   );
   const attachment = attachmentState.data;
+  const attachmentTitle = attachment?.ticketName
+    ? `${attachment.ticketName}: ${attachment.name || "Attachment"}`
+    : attachment?.name || "Attachment";
+  const actionRowClassName = `button-row${
+    attachment?.backPath && attachment?.downloadPath
+      ? " button-row-split"
+      : attachment?.downloadPath
+        ? " button-row-end"
+        : ""
+  } attachment-detail-actions`;
 
   return (
     <section className="panel">
       <div className="section-header">
         <div>
-          <SmartLink
-            className="inline-link back-link"
-            href={attachment?.backPath || "/"}
-          >
-            Back
-          </SmartLink>
-          <h2>{attachment?.name || "Attachment"}</h2>
-          <p className="section-copy">
-            {attachment?.mimeType || "Attachment preview"}
-          </p>
-        </div>
-        <div className="button-row">
-          {attachment?.downloadPath && (
-            <a
-              className="primary-button"
-              href={attachment.downloadPath}
-              target="_blank"
-              rel="noreferrer"
-            >
-              Open raw file
-            </a>
-          )}
+          <h2>{attachmentTitle}</h2>
         </div>
       </div>
 
@@ -56,21 +45,6 @@ export default function AttachmentPage({ sessionState }: SessionPageProps) {
       >
         {attachment && (
           <div className="article-detail">
-            <section className="detail-grid">
-              <div className="detail-card">
-                <h3>Type</h3>
-                <p>{attachment.mimeType || "—"}</p>
-              </div>
-              <div className="detail-card">
-                <h3>Size</h3>
-                <p>{attachment.sizeLabel || "—"}</p>
-              </div>
-              <div className="detail-card">
-                <h3>Ticket</h3>
-                <p>{attachment.ticketName || "—"}</p>
-              </div>
-            </section>
-
             {attachment.image ? (
               <div className="markdown-card">
                 <img
@@ -80,19 +54,43 @@ export default function AttachmentPage({ sessionState }: SessionPageProps) {
                 />
               </div>
             ) : (
-              <section className="detail-card">
-                <h3>Contents</h3>
-                <pre className="markdown-card">
-                  {(attachment.lines || [])
-                    .map(
-                      (line: AttachmentLine) =>
-                        `${line.number}. ${line.content}`,
-                    )
-                    .join("\n") ||
-                    attachment.messageBody ||
-                    ""}
-                </pre>
-              </section>
+              <pre className="markdown-card attachment-content">
+                {(attachment.lines || [])
+                  .map((line) => line.content)
+                  .join("\n") ||
+                  attachment.messageBody ||
+                  ""}
+              </pre>
+            )}
+
+            <div className="attachment-meta-line">
+              {attachment.mimeType || "—"}
+              {attachment.sizeLabel ? ` (${attachment.sizeLabel})` : ""}
+            </div>
+
+            {(attachment.backPath || attachment.downloadPath) && (
+              <div className={actionRowClassName}>
+                {attachment.backPath ? (
+                  <SmartLink
+                    className="secondary-button danger-button"
+                    href={attachment.backPath}
+                  >
+                    Ticket
+                  </SmartLink>
+                ) : (
+                  <span aria-hidden="true" />
+                )}
+                {attachment.downloadPath && (
+                  <a
+                    className="primary-button"
+                    href={attachment.downloadPath}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    Open
+                  </a>
+                )}
+              </div>
             )}
           </div>
         )}
