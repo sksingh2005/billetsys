@@ -1554,6 +1554,7 @@ pre code {
 
 .message-attachments td {
   padding: 0;
+  overflow: visible;
 }
 
 .attachment-footer {
@@ -1563,6 +1564,8 @@ pre code {
   padding: 6px 10px;
   background: rgba(176, 0, 32, 0.06);
   border-top: 1px solid var(--table-border);
+  position: relative;
+  overflow: visible;
 }
 
 .attachment-summary {
@@ -1599,18 +1602,19 @@ pre code {
 
 .attachment-preview-hover {
   position: relative;
-  display: inline-block;
+  display: block;
   width: 100%;
 }
 
 .attachment-preview-popover {
   position: absolute;
-  top: calc(100% + 6px);
+  top: 100%;
   left: 0;
   z-index: 20;
   opacity: 0;
   visibility: hidden;
   pointer-events: none;
+  transform: translateY(6px);
   transition:
     opacity 0.15s ease,
     visibility 0.15s ease;
@@ -1621,6 +1625,11 @@ pre code {
   opacity: 1;
   visibility: visible;
   pointer-events: auto;
+}
+
+.attachment-preview-hover:hover,
+.attachment-preview-hover:focus-within {
+  z-index: 30;
 }
 
 .attachment-preview-window {

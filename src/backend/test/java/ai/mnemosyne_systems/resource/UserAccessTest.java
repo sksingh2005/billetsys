@@ -24,6 +24,11 @@ import ai.mnemosyne_systems.model.Version;
 import ai.mnemosyne_systems.service.MailboxPollingService;
 import ai.mnemosyne_systems.service.TicketEmailService;
 import ai.mnemosyne_systems.util.AuthHelper;
+import com.lowagie.text.Document;
+import com.lowagie.text.Paragraph;
+import com.lowagie.text.pdf.PdfReader;
+import com.lowagie.text.pdf.PdfWriter;
+import com.lowagie.text.pdf.parser.PdfTextExtractor;
 import io.quarkus.elytron.security.common.BcryptUtil;
 import io.quarkus.hibernate.orm.panache.Panache;
 import io.quarkus.mailer.Mail;
@@ -38,10 +43,14 @@ import jakarta.mail.internet.MimeBodyPart;
 import jakarta.mail.internet.MimeMessage;
 import jakarta.mail.internet.MimeMultipart;
 import jakarta.transaction.Transactional;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import javax.imageio.ImageIO;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -187,8 +196,64 @@ class UserAccessTest extends AccessTestSupport {
     }
 
     @Test
+    void userTicketPdfExportIncludesAttachmentTitlesAndContent() throws Exception {
+        ensureUser("user", "user@mnemosyne-systems.ai", User.TYPE_USER, "user");
+        ensureUser("support1", "support1@mnemosyne-systems.ai", User.TYPE_SUPPORT, "support1");
+        ensureUser("tam1", "tam1@mnemosyne-systems.ai", User.TYPE_TAM, "tam1");
+        ensureDefaultCategories();
+        Long companyId = ensureCompany("PDF Export Co");
+        ensureCompanyUsers(companyId, "user@mnemosyne-systems.ai", "tam1@mnemosyne-systems.ai");
+        Ticket ticket = ensureTicket(companyId);
+        Message message = ensureMessageWithBody(ticket, "Export this ticket");
+        ensureAttachment(message, "notes.txt", "text/plain",
+                "Attachment line one\nAttachment line two".getBytes(StandardCharsets.UTF_8));
+        ensureAttachment(message, "diagram.png", "image/png", smallPngBytes());
+        ensureAttachment(message, "embedded.pdf", "application/pdf", simplePdfBytes("Embedded PDF body"));
+
+        String cookie = login("user", "user");
+        byte[] pdfBytes = RestAssured.given().cookie(AuthHelper.AUTH_COOKIE, cookie).get("/tickets/export/" + ticket.id)
+                .then().statusCode(200).contentType("application/pdf").extract().asByteArray();
+
+        try (PdfReader reader = new PdfReader(pdfBytes)) {
+            PdfTextExtractor extractor = new PdfTextExtractor(reader);
+            StringBuilder allText = new StringBuilder();
+            for (int page = 1; page <= reader.getNumberOfPages(); page++) {
+                allText.append(extractor.getTextFromPage(page));
+            }
+            String exportText = allText.toString();
+            Assertions.assertTrue(exportText.contains("notes.txt"));
+            Assertions.assertTrue(exportText.contains("Attachment line one"));
+            Assertions.assertTrue(exportText.contains("diagram.png"));
+            Assertions.assertTrue(exportText.contains("embedded.pdf"));
+        }
+    }
+
+    @Test
     void reactArticlesApiRequiresLogin() {
         RestAssured.given().get("/api/articles").then().statusCode(401);
+    }
+
+    private byte[] simplePdfBytes(String text) throws Exception {
+        try (ByteArrayOutputStream output = new ByteArrayOutputStream()) {
+            Document document = new Document();
+            PdfWriter.getInstance(document, output);
+            document.open();
+            document.add(new Paragraph(text));
+            document.close();
+            return output.toByteArray();
+        }
+    }
+
+    private byte[] smallPngBytes() throws IOException {
+        BufferedImage image = new BufferedImage(2, 2, BufferedImage.TYPE_INT_RGB);
+        image.setRGB(0, 0, 0xCC0000);
+        image.setRGB(1, 0, 0xFFFFFF);
+        image.setRGB(0, 1, 0xFFFFFF);
+        image.setRGB(1, 1, 0xCC0000);
+        try (ByteArrayOutputStream output = new ByteArrayOutputStream()) {
+            ImageIO.write(image, "png", output);
+            return output.toByteArray();
+        }
     }
 
     @Test

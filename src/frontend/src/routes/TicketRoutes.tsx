@@ -143,6 +143,7 @@ export function getTicketRoutes(sessionState: SessionState): AppRoute[] {
           backPath={PATHS.userTickets}
           titleFallback="Ticket"
           secondaryUsersLabel="TAM"
+          enableAttachmentPreviews
         />
       ),
       requiresAuth: true,
@@ -211,6 +212,7 @@ export function getTicketRoutes(sessionState: SessionState): AppRoute[] {
           backPath={PATHS.superuserTickets}
           titleFallback="Superuser ticket"
           secondaryUsersLabel="Superusers"
+          enableAttachmentPreviews
         />
       ),
       requiresAuth: true,

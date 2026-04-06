@@ -5,6 +5,7 @@ import com.lowagie.text.*;
 import com.lowagie.text.Font;
 import com.lowagie.text.Image;
 import com.lowagie.text.pdf.PdfPCell;
+import com.lowagie.text.pdf.PdfReader;
 import com.lowagie.text.pdf.PdfPTable;
 import com.lowagie.text.pdf.PdfWriter;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -15,6 +16,8 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -29,7 +32,7 @@ public class PdfService {
     public byte[] generateTicketPdf(Ticket ticket) {
         try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
             Document document = new Document();
-            PdfWriter.getInstance(document, outputStream);
+            PdfWriter writer = PdfWriter.getInstance(document, outputStream);
             document.open();
             Color color = getTicketColor(ticket);
             Font titleFont = FontFactory.getFont(FontFactory.COURIER_BOLD, 16);
@@ -55,35 +58,7 @@ public class PdfService {
 
             // Reason for SLA
             Message lastMessage = getLastMessage(ticket.messages);
-            Long overDue = getOverdue(ticket.companyEntitlement.supportLevel, lastMessage);
-            String lastMessageText = "minutes ago";
-            if (overDue < 0) {
-                lastMessageText = String.format("Last message: %s | Expires in: %s minutes",
-                        lastMessage.date.format(formatter), overDue * -1);
-            } else {
-                // more than an hour
-                if (overDue > 60) {
-                    overDue = overDue / 60;
-                    lastMessageText = "hour(s) ago";
-                    // more than a day
-                    if (overDue > 24) {
-                        overDue = overDue / 24;
-                        lastMessageText = "day(s) ago";
-                        // more than month
-                        if (overDue > 30) {
-                            lastMessageText = "month(s) ago";
-                            overDue = overDue / 30;
-                            // more than a year
-                            if (overDue > 365) {
-                                overDue = overDue / 365;
-                                lastMessageText = "year(s) ago";
-                            }
-                        }
-                    }
-                }
-                lastMessageText = String.format("Last message: %s | Expired %s ", lastMessage.date.format(formatter),
-                        overDue) + lastMessageText;
-            }
+            String lastMessageText = buildLastMessageText(ticket, lastMessage);
             Paragraph lastMessageSubTitle = new Paragraph(lastMessageText);
             lastMessageSubTitle.setAlignment(Paragraph.ALIGN_LEFT);
             document.add(lastMessageSubTitle);
@@ -108,7 +83,7 @@ public class PdfService {
             messagesSubTitle.setSpacingAfter(20);
             document.add(messagesSubTitle);
             // messages and attachments details
-            PdfPTable messagesTable = generateMessages(ticket.messages);
+            PdfPTable messagesTable = generateMessages(ticket.messages, writer);
             document.add(messagesTable);
             document.add(Chunk.NEWLINE);
             document.close();
@@ -325,17 +300,19 @@ public class PdfService {
         PdfPTable ticketTable = new PdfPTable(2);
         ticketTable.setWidthPercentage(100);
         ticketTable.addCell(createCell("Company", red, Color.WHITE));
-        ticketTable.addCell(ticket.company.name);
+        ticketTable.addCell(ticket.company != null && ticket.company.name != null ? ticket.company.name : "-");
         ticketTable.addCell(createCell("Category", red, Color.WHITE));
-        ticketTable.addCell(ticket.category.name);
+        ticketTable.addCell(ticket.category != null && ticket.category.name != null ? ticket.category.name : "-");
         ticketTable.addCell(createCell("Entitlement", red, Color.WHITE));
-        ticketTable.addCell(ticket.companyEntitlement.entitlement.name);
+        ticketTable.addCell(ticket.companyEntitlement != null && ticket.companyEntitlement.entitlement != null
+                && ticket.companyEntitlement.entitlement.name != null ? ticket.companyEntitlement.entitlement.name
+                        : "-");
         ticketTable.addCell(createCell("Level", red, Color.WHITE));
         ticketTable.addCell(ticket.companyEntitlement != null && ticket.companyEntitlement.supportLevel != null
                 ? ticket.companyEntitlement.supportLevel.name
                 : "-");
         ticketTable.addCell(createCell("Status", red, Color.WHITE));
-        ticketTable.addCell(ticket.status);
+        ticketTable.addCell(ticket.status == null ? "-" : ticket.status);
         ticketTable.addCell(createCell("External Issue", red, Color.WHITE));
         ticketTable.addCell(ticket.externalIssueLink == null ? "-" : ticket.externalIssueLink);
         ticketTable.addCell(createCell("Affects", red, Color.WHITE));
@@ -346,32 +323,42 @@ public class PdfService {
     }
 
     private PdfPTable generateUsersTable(List<User> tams, List<User> supports) {
+        List<User> safeTams = tams == null ? Collections.emptyList() : tams;
+        List<User> safeSupports = supports == null ? Collections.emptyList() : supports;
         PdfPTable usersTable = new PdfPTable(2);
         usersTable.setWidthPercentage(100);
         usersTable.addCell(createCell("Support", red, Color.WHITE));
         usersTable.addCell(createCell("TAM", red, Color.WHITE));
-        for (int i = 0, j = 0; i < supports.size() || j < tams.size(); i++, j++) {
-            if (i >= supports.size()) {
+        for (int i = 0, j = 0; i < safeSupports.size() || j < safeTams.size(); i++, j++) {
+            if (i >= safeSupports.size()) {
                 usersTable.addCell("-");
             } else {
-                usersTable.addCell(supports.get(i).email);
+                usersTable.addCell(safeSupports.get(i).email);
             }
-            if (j >= tams.size()) {
+            if (j >= safeTams.size()) {
                 usersTable.addCell("-");
             } else {
-                usersTable.addCell(tams.get(j).email);
+                usersTable.addCell(safeTams.get(j).email);
             }
         }
         return usersTable;
     }
 
-    private PdfPTable generateMessages(List<Message> messages) {
+    private PdfPTable generateMessages(List<Message> messages, PdfWriter writer) throws IOException {
         PdfPTable messageTable = new PdfPTable(2);
         messageTable.setWidthPercentage(100);
-        messages.sort(Comparator.reverseOrder());
-        for (Message message : messages) {
+        List<Message> safeMessages = messages == null ? new ArrayList<>() : new ArrayList<>(messages);
+        safeMessages.sort(Comparator.reverseOrder());
+        if (safeMessages.isEmpty()) {
+            PdfPCell emptyCell = new PdfPCell(new Phrase("No messages"));
+            emptyCell.setColspan(2);
+            emptyCell.setPadding(8f);
+            messageTable.addCell(emptyCell);
+            return messageTable;
+        }
+        for (Message message : safeMessages) {
             messageTable.addCell(createCell(message.date.format(formatter), red, Color.WHITE));
-            messageTable.addCell(createCell(message.author.email, red, Color.WHITE));
+            messageTable.addCell(createCell(message.author == null ? "-" : message.author.email, red, Color.WHITE));
 
             PdfPTable attachmentTable = new PdfPTable(1);
             attachmentTable.setWidthPercentage(100);
@@ -379,29 +366,90 @@ public class PdfService {
                 attachmentTable.addCell(createCell("-", lightRed, lightRedFontColor));
             } else {
                 for (Attachment attachment : message.attachments) {
-                    if (attachment.isImage()) {
-                        try {
-                            Image img = Image.getInstance(attachment.data);
-                            attachmentTable.addCell(img);
-                        } catch (IOException e) {
-                            attachmentTable.addCell("Failed to obtain image");
-                        }
-                    } else if (attachment.isVideo()) {
-                        attachmentTable.addCell(createCell(attachment.name, lightRed, lightRedFontColor));
-                    } else {
-                        attachmentTable.addCell(createCell(new String(attachment.data, StandardCharsets.UTF_8),
-                                lightRed, lightRedFontColor));
-                    }
+                    addAttachmentContent(attachmentTable, attachment, writer);
                 }
             }
             PdfPCell mergedCell = new PdfPCell();
             mergedCell.setColspan(2);
-            mergedCell.addElement(new Paragraph(message.body));
+            mergedCell.addElement(new Paragraph(message.body == null ? "" : message.body));
             mergedCell.addElement(new Paragraph(" "));
             mergedCell.addElement(attachmentTable);
             messageTable.addCell(mergedCell);
         }
         return messageTable;
+    }
+
+    private void addAttachmentContent(PdfPTable attachmentTable, Attachment attachment, PdfWriter writer)
+            throws IOException {
+        attachmentTable.addCell(createCell(attachment.name == null ? "Attachment" : attachment.name, red, Color.WHITE));
+
+        PdfPCell contentCell = new PdfPCell();
+        contentCell.setBackgroundColor(lightRed);
+        contentCell.setPadding(8f);
+
+        if (attachment.isImage()) {
+            addImageAttachment(contentCell, attachment);
+        } else if (isPdfAttachment(attachment)) {
+            addPdfAttachment(contentCell, attachment, writer);
+        } else if (isTextAttachment(attachment)) {
+            addTextAttachment(contentCell, attachment);
+        } else {
+            contentCell.addElement(new Paragraph("Attachment content could not be rendered in this PDF.",
+                    FontFactory.getFont(FontFactory.COURIER, 12, lightRedFontColor)));
+        }
+
+        attachmentTable.addCell(contentCell);
+    }
+
+    private void addImageAttachment(PdfPCell contentCell, Attachment attachment) {
+        try {
+            Image img = Image.getInstance(attachment.data);
+            img.scaleToFit(460f, 320f);
+            img.setAlignment(Image.ALIGN_LEFT);
+            contentCell.addElement(img);
+        } catch (IOException e) {
+            contentCell.addElement(new Paragraph("Failed to obtain image",
+                    FontFactory.getFont(FontFactory.COURIER, 12, lightRedFontColor)));
+        }
+    }
+
+    private void addPdfAttachment(PdfPCell contentCell, Attachment attachment, PdfWriter writer) throws IOException {
+        try (PdfReader reader = new PdfReader(attachment.data)) {
+            for (int page = 1; page <= reader.getNumberOfPages(); page++) {
+                Image pageImage = Image.getInstance(writer.getImportedPage(reader, page));
+                pageImage.scaleToFit(460f, 640f);
+                pageImage.setAlignment(Image.ALIGN_LEFT);
+                contentCell.addElement(pageImage);
+                if (page < reader.getNumberOfPages()) {
+                    contentCell.addElement(Chunk.NEWLINE);
+                }
+            }
+        }
+    }
+
+    private void addTextAttachment(PdfPCell contentCell, Attachment attachment) {
+        Paragraph paragraph = new Paragraph(
+                new String(attachment.data == null ? new byte[0] : attachment.data, StandardCharsets.UTF_8),
+                FontFactory.getFont(FontFactory.COURIER, 12, lightRedFontColor));
+        paragraph.setLeading(14f);
+        contentCell.addElement(paragraph);
+    }
+
+    private boolean isPdfAttachment(Attachment attachment) {
+        if (attachment == null) {
+            return false;
+        }
+        String mimeType = attachment.mimeType == null ? "" : attachment.mimeType.toLowerCase();
+        String name = attachment.name == null ? "" : attachment.name.toLowerCase();
+        return "application/pdf".equals(mimeType) || name.endsWith(".pdf");
+    }
+
+    private boolean isTextAttachment(Attachment attachment) {
+        if (attachment == null) {
+            return false;
+        }
+        String mimeType = attachment.mimeType == null ? "" : attachment.mimeType.toLowerCase();
+        return mimeType.startsWith("text/");
     }
 
     private PdfPCell createCell(String txt, Color color, Color fontColor) {
@@ -413,6 +461,9 @@ public class PdfService {
     }
 
     private Message getLastMessage(List<Message> messages) {
+        if (messages == null || messages.isEmpty()) {
+            return null;
+        }
         Message lastMessage = messages.getFirst();
         for (Message message : messages) {
             if (isAfter(message.date, lastMessage.date)) {
@@ -433,6 +484,39 @@ public class PdfService {
             return java.time.Duration.between(timeToExpire, LocalDateTime.now()).toMinutes();
         }
         return java.time.Duration.between(timeToExpire, LocalDateTime.now()).toMinutes();
+    }
+
+    private String buildLastMessageText(Ticket ticket, Message lastMessage) {
+        if (lastMessage == null || lastMessage.date == null) {
+            return "Last message: -";
+        }
+        if (ticket.companyEntitlement == null || ticket.companyEntitlement.supportLevel == null) {
+            return String.format("Last message: %s", lastMessage.date.format(formatter));
+        }
+        Long overDue = getOverdue(ticket.companyEntitlement.supportLevel, lastMessage);
+        String lastMessageText = "minutes ago";
+        if (overDue < 0) {
+            return String.format("Last message: %s | Expires in: %s minutes", lastMessage.date.format(formatter),
+                    overDue * -1);
+        }
+        if (overDue > 60) {
+            overDue = overDue / 60;
+            lastMessageText = "hour(s) ago";
+            if (overDue > 24) {
+                overDue = overDue / 24;
+                lastMessageText = "day(s) ago";
+                if (overDue > 30) {
+                    lastMessageText = "month(s) ago";
+                    overDue = overDue / 30;
+                    if (overDue > 365) {
+                        overDue = overDue / 365;
+                        lastMessageText = "year(s) ago";
+                    }
+                }
+            }
+        }
+        return String.format("Last message: %s | Expired %s ", lastMessage.date.format(formatter), overDue)
+                + lastMessageText;
     }
 
     private Installation getOwner() {

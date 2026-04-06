@@ -202,6 +202,22 @@ abstract class AccessTestSupport {
     }
 
     @Transactional
+    Attachment ensureAttachment(Message message, String name, String mimeType, byte[] data) {
+        Attachment attachment = Attachment.find("message = ?1 and name = ?2", message, name).firstResult();
+        if (attachment == null) {
+            attachment = new Attachment();
+            attachment.message = message;
+            attachment.name = name;
+        }
+        attachment.mimeType = mimeType;
+        attachment.data = data;
+        if (!attachment.isPersistent()) {
+            attachment.persist();
+        }
+        return attachment;
+    }
+
+    @Transactional
     void ensureCompanyUsers(Long companyId, String... emails) {
         ai.mnemosyne_systems.model.Company company = ai.mnemosyne_systems.model.Company.findById(companyId);
         if (company == null) {
