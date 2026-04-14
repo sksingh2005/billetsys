@@ -1,8 +1,7 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
-@import "@fontsource-variable/inter";
-@import "@fontsource-variable/noto-sans";
+@import "@fontsource/red-hat-text";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -86,8 +85,10 @@
 }
 
 @theme inline {
-  --font-sans: "Charlie Text", sans-serif;
-  --font-heading: "Charlie Text", sans-serif;
+  --font-sans:
+    "Red Hat Text", "Charlie Text", sans-serif;
+  --font-heading:
+    "Red Hat Text", "Charlie Text", sans-serif;
 
   --color-header-bg: var(--header-bg);
   --color-header-text: var(--header-text);

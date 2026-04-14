@@ -23,8 +23,7 @@
     ]
   },
   "dependencies": {
-    "@fontsource-variable/inter": "^5.2.8",
-    "@fontsource-variable/noto-sans": "^5.2.10",
+    "@fontsource/red-hat-text": "^5.2.8",
     "@lexical/code": "^0.43.0",
     "@lexical/code-prism": "^0.43.0",
     "@lexical/code-shiki": "^0.43.0",
