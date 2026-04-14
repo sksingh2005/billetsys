@@ -124,7 +124,7 @@ export default function ArticleFormPage({
   };
 
   return (
-    <section className="w-full max-w-5xl mx-auto mt-4">
+    <section className="w-full mt-4">
       <DataState
         state={articleState}
         emptyMessage="Article unavailable."

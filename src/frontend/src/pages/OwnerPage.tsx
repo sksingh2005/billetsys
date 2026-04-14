@@ -57,7 +57,7 @@ export function OwnerPage({ sessionState }: SessionPageProps) {
   const owner = ownerState.data;
 
   return (
-    <section className="w-full max-w-5xl mx-auto mt-4">
+    <section className="w-full mt-4">
       <DataState
         state={ownerState}
         emptyMessage="Owner company not found."
@@ -121,12 +121,9 @@ export function OwnerPage({ sessionState }: SessionPageProps) {
             </Card>
 
             <div className="flex items-center justify-end space-x-3 pt-4 border-t">
-              <SmartLink
-                className="inline-flex h-10 items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
-                href="/owner/edit"
-              >
-                Edit
-              </SmartLink>
+              <Button asChild>
+                <SmartLink href="/owner/edit">Edit</SmartLink>
+              </Button>
             </div>
           </div>
         )}
@@ -235,7 +232,7 @@ export function OwnerEditPage({ sessionState }: SessionPageProps) {
   };
 
   return (
-    <section className="w-full max-w-5xl mx-auto mt-4">
+    <section className="w-full mt-4">
       <DataState
         state={ownerState}
         emptyMessage="Owner company not found."

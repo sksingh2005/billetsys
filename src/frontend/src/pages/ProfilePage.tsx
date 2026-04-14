@@ -199,7 +199,7 @@ export default function ProfilePage({ sessionState }: SessionPageProps) {
   };
 
   return (
-    <section className="w-full max-w-5xl mx-auto mt-4">
+    <section className="w-full mt-4">
       <div className="flex items-center justify-between pb-6 px-1">
         <h2 className="text-3xl font-bold tracking-tight">Profile</h2>
       </div>

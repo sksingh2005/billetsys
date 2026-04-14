@@ -39,7 +39,7 @@ export default function HomePage({ sessionState }: SessionPageProps) {
 
   if (sessionState.loading) {
     return (
-      <Card className="w-full max-w-5xl mx-auto mt-4">
+      <Card className="w-full mt-4">
         <CardContent className="p-6 flex items-center gap-2 text-muted-foreground">
           <Spinner />
           <span className="text-sm font-medium">Loading session...</span>
@@ -50,7 +50,7 @@ export default function HomePage({ sessionState }: SessionPageProps) {
 
   if (sessionState.error) {
     return (
-      <Card className="w-full max-w-5xl mx-auto mt-4">
+      <Card className="w-full mt-4">
         <CardContent className="p-6">
           <p className="text-destructive font-semibold">{sessionState.error}</p>
         </CardContent>
@@ -109,7 +109,7 @@ export default function HomePage({ sessionState }: SessionPageProps) {
   }
 
   return (
-    <div className="w-full max-w-6xl mx-auto mt-2 pb-12">
+    <div className="w-full mt-2 pb-12">
       <div className="mb-8 px-2 border-b pb-4">
         <h1 className="text-2xl font-semibold tracking-tight text-foreground">
           System Administration

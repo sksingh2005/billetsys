@@ -36,7 +36,7 @@ export default function CompanyDetailPage({ sessionState }: SessionPageProps) {
   const sortedTams = sortUsersByName(company?.selectedTams || []);
 
   return (
-    <section className="w-full max-w-5xl mx-auto mt-4">
+    <section className="w-full mt-4">
       <DataState
         state={companyState}
         emptyMessage="Company not found."

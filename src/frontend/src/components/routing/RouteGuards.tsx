@@ -15,7 +15,7 @@ import type { Role, SessionPageProps } from "../../types/app";
 
 function GuardLoading() {
   return (
-    <section className="w-full max-w-5xl mx-auto mt-6 text-center text-muted-foreground py-10 border rounded-lg bg-card">
+    <section className="w-full mt-6 text-center text-muted-foreground py-10 border rounded-lg bg-card">
       <LoadingSpinner label="Loading session..." />
     </section>
   );

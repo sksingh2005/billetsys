@@ -328,7 +328,7 @@ export default function ReportsPage({ sessionState }: SessionPageProps) {
 
   if (!supportsReports) {
     return (
-      <section className="w-full max-w-7xl mx-auto mt-4">
+      <section className="w-full mt-4">
         <div className="pb-6 px-1">
           <h2 className="text-3xl font-bold tracking-tight">Reports</h2>
           <p className="text-muted-foreground mt-2">
@@ -340,7 +340,7 @@ export default function ReportsPage({ sessionState }: SessionPageProps) {
   }
 
   return (
-    <section className="w-full max-w-7xl mx-auto mt-4">
+    <section className="w-full mt-4">
       <div className="pb-6 px-1 flex flex-col md:flex-row md:items-end justify-between">
         <div>
           <h2 className="text-3xl font-bold tracking-tight">Reports</h2>

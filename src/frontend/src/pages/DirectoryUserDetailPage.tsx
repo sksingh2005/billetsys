@@ -75,7 +75,7 @@ export default function DirectoryUserDetailPage({
   };
 
   return (
-    <section className="w-full max-w-5xl mx-auto mt-4">
+    <section className="w-full mt-4">
       <div className="flex items-center gap-4 pb-6 px-1">
         <h2 className="text-3xl font-bold tracking-tight">
           {detail?.displayName ||

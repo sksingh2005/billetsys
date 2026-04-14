@@ -194,7 +194,7 @@ export default function SupportTicketCreatePage({
   };
 
   return (
-    <section className="w-full max-w-5xl mx-auto mt-4">
+    <section className="w-full mt-4">
       {bootstrap?.ticketName || title || description ? (
         <div className="flex flex-col pb-6 px-1">
           <h2 className="text-3xl font-bold tracking-tight">

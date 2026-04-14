@@ -20,7 +20,7 @@ export default function CompaniesPage({ sessionState }: SessionPageProps) {
     useJson<CollectionResponse<CompanyRecord>>("/api/companies");
 
   return (
-    <section className="w-full max-w-5xl mx-auto mt-4">
+    <section className="w-full mt-4">
       <div className="flex flex-row items-center justify-between pb-6 px-1">
         <h2 className="text-3xl font-bold tracking-tight">Companies</h2>
         <div>

@@ -22,7 +22,7 @@ import type { AppRoute, SessionPageProps } from "./types/app";
 
 function RouteFallback() {
   return (
-    <section className="w-full max-w-5xl mx-auto mt-12 text-center space-y-4">
+    <section className="w-full mt-12 text-center space-y-4">
       <LoadingSpinner label="Loading page..." />
     </section>
   );

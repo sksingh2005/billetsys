@@ -33,7 +33,7 @@ export default function EntitlementDetailPage({
   const supportLevels = (entitlement?.supportLevels || []) as LevelRecord[];
 
   return (
-    <section className="w-full max-w-5xl mx-auto mt-4">
+    <section className="w-full mt-4">
       <DataState
         state={entitlementState}
         emptyMessage="Entitlement not found."

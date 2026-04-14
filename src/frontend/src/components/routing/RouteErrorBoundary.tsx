@@ -38,7 +38,7 @@ export default class RouteErrorBoundary extends Component<
   render() {
     if (this.state.error) {
       return (
-        <section className="w-full max-w-5xl mx-auto mt-6">
+        <section className="w-full mt-6">
           <div className="flex flex-col items-center justify-center p-12 text-center border rounded-lg bg-card text-card-foreground">
             <h1 className="text-4xl font-bold tracking-tight mb-4 text-destructive">
               Error

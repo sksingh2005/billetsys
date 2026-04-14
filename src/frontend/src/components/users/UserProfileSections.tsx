@@ -79,7 +79,7 @@ export function UserDetailCard({
   const hasCompany = user.companyName || companyHref;
 
   return (
-    <div className="w-full max-w-5xl mx-auto space-y-6">
+    <div className="w-full space-y-6">
       <Card>
         <CardContent className="grid gap-6 md:grid-cols-2 p-6">
           <Field>

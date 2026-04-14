@@ -25,7 +25,7 @@ export default function AttachmentPage({ sessionState }: SessionPageProps) {
     ? `${attachment.ticketName}: ${attachment.name || "Attachment"}`
     : attachment?.name || "Attachment";
   return (
-    <section className="w-full max-w-5xl mx-auto mt-4">
+    <section className="w-full mt-4">
       <div className="pb-6 px-1 border-b mb-6">
         <h2 className="text-3xl font-bold tracking-tight">{attachmentTitle}</h2>
       </div>

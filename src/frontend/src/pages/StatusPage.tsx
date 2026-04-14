@@ -24,7 +24,7 @@ export default function StatusPage({
   const homeHref = sessionState.data?.homePath || "/login";
 
   return (
-    <Card className="w-full max-w-2xl mx-auto mt-12 bg-card">
+    <Card className="w-full mt-12 bg-card">
       <CardHeader className="space-y-1">
         <CardTitle className="text-2xl font-bold">{title}</CardTitle>
         <p className="text-muted-foreground">{message}</p>

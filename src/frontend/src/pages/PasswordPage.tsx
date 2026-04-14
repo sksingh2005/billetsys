@@ -72,7 +72,7 @@ export default function PasswordPage({ sessionState }: SessionPageProps) {
   };
 
   return (
-    <section className="w-full max-w-md mx-auto mt-12 px-4">
+    <section className="w-full mt-12 px-4">
       <DataState
         state={{
           loading: false,

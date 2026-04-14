@@ -39,7 +39,7 @@ export default function EntitlementsListPage({
     useJson<CollectionResponse<EntitlementRecord>>("/api/entitlements");
 
   return (
-    <section className="w-full max-w-5xl mx-auto mt-4">
+    <section className="w-full mt-4">
       <div className="flex flex-row items-center justify-between pb-6 px-1">
         <h2 className="text-3xl font-bold tracking-tight">Entitlements</h2>
         <div>
