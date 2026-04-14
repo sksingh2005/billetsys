@@ -11,7 +11,7 @@
 all: clean format run
 
 frontend:
-	@cd src/frontend && npm install
+	@cd src/frontend && npm ci
 
 format:
 	@npm run frontend:fix -q
