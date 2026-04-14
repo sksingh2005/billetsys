@@ -227,18 +227,11 @@ export default function MessageFormPage(props: SessionPageProps) {
               </CardContent>
             </Card>
 
-            <Card>
-              <CardHeader>
-                <CardTitle>Attachments</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <AttachmentPicker
-                  files={formState.files}
-                  onFilesChange={(files) => updateFormState("files", files)}
-                  existingAttachments={bootstrap.attachments || []}
-                />
-              </CardContent>
-            </Card>
+            <AttachmentPicker
+              files={formState.files}
+              onFilesChange={(files) => updateFormState("files", files)}
+              existingAttachments={bootstrap.attachments || []}
+            />
 
             <div className="flex items-center justify-end space-x-3 pt-4 border-t">
               {id && (

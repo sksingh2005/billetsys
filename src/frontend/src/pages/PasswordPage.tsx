@@ -11,13 +11,9 @@ import { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { toast } from "sonner";
 import DataState from "../components/common/DataState";
+import PageHeader from "../components/layout/PageHeader";
 import type { SessionPageProps } from "../types/app";
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardContent,
-} from "../components/ui/card";
+import { Card, CardContent } from "../components/ui/card";
 import { Button } from "../components/ui/button";
 import { Field, FieldLabel } from "../components/ui/field";
 import { Input } from "../components/ui/input";
@@ -72,7 +68,7 @@ export default function PasswordPage({ sessionState }: SessionPageProps) {
   };
 
   return (
-    <section className="w-full mt-12 px-4">
+    <section className="w-full mt-4">
       <DataState
         state={{
           loading: false,
@@ -84,10 +80,8 @@ export default function PasswordPage({ sessionState }: SessionPageProps) {
         }}
         emptyMessage=""
       >
+        <PageHeader title="Change password" />
         <Card>
-          <CardHeader>
-            <CardTitle>Change Password</CardTitle>
-          </CardHeader>
           <CardContent>
             <form className="space-y-6" onSubmit={submit}>
               <Field>
@@ -133,13 +127,9 @@ export default function PasswordPage({ sessionState }: SessionPageProps) {
                 />
               </Field>
 
-              <div className="pt-2">
-                <Button
-                  type="submit"
-                  className="w-full"
-                  disabled={saveState.saving}
-                >
-                  {saveState.saving ? "Saving..." : "Update Password"}
+              <div className="pt-2 flex justify-end">
+                <Button type="submit" disabled={saveState.saving}>
+                  {saveState.saving ? "Saving..." : "Update"}
                 </Button>
               </div>
             </form>

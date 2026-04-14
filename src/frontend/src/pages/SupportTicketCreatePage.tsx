@@ -28,12 +28,7 @@ import type {
 } from "../types/domain";
 import type { SupportTicketCreateFormState } from "../types/forms";
 import type { FormEntries } from "../utils/api";
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardContent,
-} from "../components/ui/card";
+import { Card, CardContent } from "../components/ui/card";
 import { Button } from "../components/ui/button";
 import { Field, FieldLabel } from "../components/ui/field";
 import { Input } from "../components/ui/input";
@@ -383,14 +378,7 @@ export default function SupportTicketCreatePage({
               </CardContent>
             </Card>
 
-            <Card>
-              <CardHeader>
-                <CardTitle>Attachments</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <AttachmentPicker files={files} onFilesChange={setFiles} />
-              </CardContent>
-            </Card>
+            <AttachmentPicker files={files} onFilesChange={setFiles} />
 
             <div className="flex items-center justify-end space-x-3 pt-4 border-t">
               <Button type="submit" disabled={saveState.saving}>

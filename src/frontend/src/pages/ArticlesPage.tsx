@@ -58,7 +58,7 @@ export default function ArticlesPage(props: SessionPageProps) {
                   <TableRow key={article.id}>
                     <TableCell className="py-3 px-4 font-medium">
                       <SmartLink
-                        className="font-semibold text-primary hover:underline"
+                        className="font-semibold text-[#b00020] hover:text-[#b00020] hover:underline transition-colors"
                         href={`/articles/${article.id}`}
                       >
                         {article.title}

@@ -8,8 +8,8 @@
 
 import type { ChangeEvent } from "react";
 import type { AttachmentReference } from "../../types/domain";
-import { Card, CardHeader, CardTitle, CardContent } from "../ui/card";
 import { Input } from "../ui/input";
+import { Field, FieldLabel } from "../ui/field";
 
 interface AttachmentPickerProps {
   files: File[];
@@ -23,70 +23,89 @@ export default function AttachmentPicker({
   existingAttachments,
 }: AttachmentPickerProps) {
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Attachments</CardTitle>
-      </CardHeader>
-      <CardContent className="grid gap-4">
+    <Field className="w-full">
+      <FieldLabel className="text-muted-foreground">Attachments</FieldLabel>
+      <div className="grid gap-4 mt-2">
         <Input
           type="file"
           multiple
+          className="bg-background shadow-sm"
           onChange={(event: ChangeEvent<HTMLInputElement>) =>
             onFilesChange(Array.from(event.target.files || []))
           }
         />
-        <div className="grid gap-2">
-          {files.map((file) => (
-            <div
-              key={`${file.name}-${file.size}`}
-              className="flex items-center justify-between text-sm p-2 rounded-md bg-muted/50 border border-border"
-            >
-              <strong className="font-medium truncate">{file.name}</strong>
-              <span className="text-muted-foreground shrink-0 ml-4">
-                {file.type || "application/octet-stream"}
-              </span>
-            </div>
-          ))}
-          {files.length === 0 && (
-            <p className="text-muted-foreground text-sm">
-              No new attachments selected.
-            </p>
-          )}
-        </div>
-        {!!existingAttachments?.length && (
-          <div className="mt-2">
-            <h4 className="font-semibold mb-3 text-sm">Existing attachments</h4>
-            <div className="w-full text-sm rounded-md border border-border overflow-hidden">
-              <div className="grid grid-cols-[minmax(0,1fr)_120px_80px] gap-4 p-2.5 bg-muted font-semibold text-muted-foreground">
-                <span>Name</span>
-                <span>Type</span>
-                <span>Size</span>
+
+        {files.length > 0 && (
+          <div className="grid gap-2">
+            {files.map((file) => (
+              <div
+                key={`${file.name}-${file.size}`}
+                className="flex items-center justify-between text-sm p-3 rounded-lg bg-muted/30 border border-border/60 shadow-[0_1px_2px_rgba(0,0,0,0.02)]"
+              >
+                <strong className="font-medium truncate text-foreground/90">
+                  {file.name}
+                </strong>
+                <span className="text-muted-foreground/80 shrink-0 ml-4 uppercase tracking-wider text-xs font-medium">
+                  {file.type ? file.type.split("/").pop() : "FILE"}
+                </span>
               </div>
+            ))}
+          </div>
+        )}
+        {files.length === 0 && (
+          <p className="text-muted-foreground text-sm italic">
+            No new attachments selected.
+          </p>
+        )}
+
+        {!!existingAttachments?.length && (
+          <div className="mt-4">
+            <h4 className="font-medium text-muted-foreground mb-3 text-sm">
+              Existing Attachments
+            </h4>
+            <div className="flex flex-wrap gap-3">
               {existingAttachments.map((attachment) => (
-                <div
+                <a
                   key={attachment.id}
-                  className="grid grid-cols-[minmax(0,1fr)_120px_80px] gap-4 p-2.5 border-t border-border hover:bg-muted/50 transition-colors"
+                  href={attachment.downloadPath}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="group relative flex flex-col justify-center gap-1.5 p-3.5 pr-8 rounded-xl border border-border/60 bg-muted/20 hover:bg-muted/50 transition-all w-72 shadow-[0_1px_2px_rgba(0,0,0,0.02)] hover:shadow-sm"
                 >
-                  <a
-                    href={attachment.downloadPath}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="text-primary hover:underline truncate"
-                  >
+                  <div className="font-medium text-sm text-foreground truncate group-hover:text-primary transition-colors">
                     {attachment.name}
-                  </a>
-                  <span className="text-muted-foreground truncate">
-                    {attachment.mimeType}
-                  </span>
-                  <span className="text-muted-foreground tabular-nums whitespace-nowrap">
-                    {attachment.sizeLabel}
-                  </span>
-                </div>
+                  </div>
+                  <div className="flex items-center gap-2 text-xs text-muted-foreground/80 font-medium">
+                    <span className="uppercase tracking-wider">
+                      {attachment.mimeType?.split("/").pop() || "FILE"}
+                    </span>
+                    <span>•</span>
+                    <span>{attachment.sizeLabel}</span>
+                  </div>
+                  <div className="absolute right-3 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="16"
+                      height="16"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      className="text-primary"
+                    >
+                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                      <polyline points="7 10 12 15 17 10" />
+                      <line x1="12" x2="12" y1="15" y2="3" />
+                    </svg>
+                  </div>
+                </a>
               ))}
             </div>
           </div>
         )}
-      </CardContent>
-    </Card>
+      </div>
+    </Field>
   );
 }

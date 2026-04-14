@@ -21,7 +21,6 @@ import { resolvePostRedirectPath } from "../utils/routing";
 import { DeleteArticleButton } from "./ArticleDetailPage";
 import type { FormMode, SessionPageProps } from "../types/app";
 import type { ArticleRecord } from "../types/domain";
-import { Card, CardContent, CardFooter } from "../components/ui/card";
 import { Button } from "../components/ui/button";
 import { Field, FieldLabel } from "../components/ui/field";
 import { Input } from "../components/ui/input";
@@ -121,49 +120,59 @@ export default function ArticleFormPage({ mode }: ArticleFormPageProps) {
         {formState && article && article.canEdit && (
           <>
             <PageHeader title={isEdit ? formState.title || "Edit" : "Create"} />
-            <Card>
+            <div className="w-full">
               <form onSubmit={submit}>
-                <CardContent className="grid gap-6 md:grid-cols-2 pb-6 pt-6">
+                <div className="grid gap-6 md:grid-cols-2 pb-6 pt-2">
                   <Field>
-                    <FieldLabel>Title</FieldLabel>
+                    <FieldLabel className="text-muted-foreground">
+                      Title
+                    </FieldLabel>
                     <Input
                       value={formState.title}
                       onChange={(event) =>
                         updateFormState("title", event.target.value)
                       }
+                      className="bg-background shadow-sm"
                       required
                     />
                   </Field>
                   <Field>
-                    <FieldLabel>Tags</FieldLabel>
+                    <FieldLabel className="text-muted-foreground">
+                      Tags
+                    </FieldLabel>
                     <Input
                       value={formState.tags}
                       onChange={(event) =>
                         updateFormState("tags", event.target.value)
                       }
+                      className="bg-background shadow-sm"
                     />
                   </Field>
-                  <Field className="md:col-span-2">
-                    <FieldLabel>Body</FieldLabel>
-                    <LexicalEditor
-                      value={formState.body}
-                      onChange={(value) => updateFormState("body", value)}
-                      inputRef={bodyInputRef}
-                      rows={12}
-                      required
-                    />
+                  <Field className="md:col-span-2 mt-2">
+                    <FieldLabel className="text-muted-foreground">
+                      Body
+                    </FieldLabel>
+                    <div className="mt-2">
+                      <LexicalEditor
+                        value={formState.body}
+                        onChange={(value) => updateFormState("body", value)}
+                        inputRef={bodyInputRef}
+                        rows={16}
+                        required
+                      />
+                    </div>
                   </Field>
 
-                  <div className="md:col-span-2 mt-4">
+                  <div className="md:col-span-2 mt-2">
                     <AttachmentPicker
                       files={files}
                       onFilesChange={setFiles}
                       existingAttachments={article.attachments || []}
                     />
                   </div>
-                </CardContent>
+                </div>
 
-                <CardFooter className="flex items-center justify-between pt-6 border-t mt-4 bg-muted/20">
+                <div className="flex items-center justify-between py-6 mt-4">
                   <div>
                     {isEdit && article.id && article.canDelete && (
                       <DeleteArticleButton
@@ -172,16 +181,20 @@ export default function ArticleFormPage({ mode }: ArticleFormPageProps) {
                       />
                     )}
                   </div>
-                  <Button type="submit" disabled={saveState.saving}>
+                  <Button
+                    type="submit"
+                    disabled={saveState.saving}
+                    className="px-8"
+                  >
                     {saveState.saving
                       ? "Saving..."
                       : isEdit
                         ? "Save"
                         : "Create"}
                   </Button>
-                </CardFooter>
+                </div>
               </form>
-            </Card>
+            </div>
           </>
         )}
       </DataState>
