@@ -32,7 +32,9 @@ export default function PageHeader({
             <div className="mt-2 text-muted-foreground">{subtitle}</div>
           ) : null}
         </div>
-        {actions ? <div className="flex items-center gap-3">{actions}</div> : null}
+        {actions ? (
+          <div className="flex items-center gap-3">{actions}</div>
+        ) : null}
       </div>
     </div>
   );
