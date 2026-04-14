@@ -9,6 +9,7 @@
 import { Link } from "react-router-dom";
 import DataState from "../components/common/DataState";
 import { LevelColorBadge } from "../components/common/LevelColorBadge";
+import PageHeader from "../components/layout/PageHeader";
 import useJson from "../hooks/useJson";
 import { SmartLink } from "../utils/routing";
 import type { SessionPageProps } from "../types/app";
@@ -21,14 +22,14 @@ export default function LevelsPage({ sessionState }: SessionPageProps) {
 
   return (
     <section className="w-full mt-4">
-      <div className="flex flex-row items-center justify-between pb-6 px-1">
-        <h2 className="text-3xl font-bold tracking-tight">Support levels</h2>
-        <div>
+      <PageHeader
+        title="Support levels"
+        actions={
           <Button asChild>
             <SmartLink href="/levels/new">Create</SmartLink>
           </Button>
-        </div>
-      </div>
+        }
+      />
 
       <DataState
         state={levelsState}

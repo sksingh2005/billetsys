@@ -10,6 +10,7 @@ import { Navigate } from "react-router-dom";
 import { SmartLink, normalizeClientPath } from "../utils/routing";
 import { orderedNavigation } from "../utils/navigation";
 import type { SessionPageProps } from "../types/app";
+import PageHeader from "../components/layout/PageHeader";
 import { Card, CardContent } from "../components/ui/card";
 import { Spinner } from "../components/ui/spinner";
 import {
@@ -110,11 +111,7 @@ export default function HomePage({ sessionState }: SessionPageProps) {
 
   return (
     <div className="w-full mt-2 pb-12">
-      <div className="mb-8 px-2 border-b pb-4">
-        <h1 className="text-2xl font-semibold tracking-tight text-foreground">
-          System Administration
-        </h1>
-      </div>
+      <PageHeader title="Administration" />
 
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 px-2">
         {adminLinks.map((link) => (

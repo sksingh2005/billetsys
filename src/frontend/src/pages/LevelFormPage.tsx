@@ -11,6 +11,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import DataState from "../components/common/DataState";
 import { toast } from "sonner";
+import PageHeader from "../components/layout/PageHeader";
 import LexicalEditor from "../components/editor/LexicalEditor";
 import useJson from "../hooks/useJson";
 import useSubmissionGuard from "../hooks/useSubmissionGuard";
@@ -216,263 +217,280 @@ export default function LevelFormPage({
 
   return (
     <section className="w-full mt-4">
-      <div className="flex items-center justify-between pb-6 px-1">
-        <h2 className="text-3xl font-bold tracking-tight">
-          {isEdit && level ? level.name || "Edit level" : "Create level"}
-        </h2>
-      </div>
-
       <DataState
         state={levelState}
         emptyMessage="Level not found."
         signInHref={sessionState.data?.homePath || "/login"}
       >
         {formState && level && (
-          <Card>
-            <form onSubmit={submit}>
-              <CardContent className="grid gap-6 md:grid-cols-2 pt-6 pb-6">
-                <Field>
-                  <FieldLabel>Name</FieldLabel>
-                  <Input
-                    value={formState.name}
-                    onChange={(event) =>
-                      updateFormState("name", event.target.value)
-                    }
-                    required
-                  />
-                </Field>
-                <Field>
-                  <FieldLabel>Level</FieldLabel>
-                  <Input
-                    type="number"
-                    min="0"
-                    value={formState.level}
-                    onChange={(event) =>
-                      updateFormState("level", event.target.value)
-                    }
-                    required
-                  />
-                </Field>
-                <Field>
-                  <FieldLabel>Color</FieldLabel>
-                  <Select
-                    value={formState.color || undefined}
-                    onValueChange={(value) => updateFormState("color", value)}
-                  >
-                    <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Select color" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {(level.colorOptions || []).map((option: LevelOption) => (
-                        <SelectItem
-                          key={option.value}
-                          value={String(option.value ?? "")}
-                        >
-                          {`${levelColorMarker(String(option.value ?? ""))} ${option.display || `(${option.value ?? ""})`}`}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </Field>
-                <Field>
-                  <FieldLabel>Country</FieldLabel>
-                  <CountryDropdown
-                    defaultValue={
-                      countries.all.find(
-                        (c) =>
-                          c.name ===
-                          (level.countries || []).find(
-                            (lc: CountryOption) =>
-                              String(lc.id) === formState.countryId,
-                          )?.name,
-                      )?.alpha2 || ""
-                    }
-                    onChange={(country) => {
-                      const matched = (level.countries || []).find(
-                        (c: CountryOption) => c.name === country.name,
-                      );
-                      const nextCountryId = matched ? String(matched.id) : "";
-                      const timezoneStillValid = availableTimezones.some(
-                        (timezone) =>
-                          String(timezone.id) === formState.timezoneId,
-                      );
-                      setFormState((current) =>
-                        current
-                          ? {
-                              ...current,
-                              countryId: nextCountryId,
-                              timezoneId: timezoneStillValid
-                                ? current.timezoneId
-                                : "",
-                            }
-                          : current,
-                      );
-                    }}
-                  />
-                </Field>
-                <Field>
-                  <FieldLabel>From day</FieldLabel>
-                  <Select
-                    value={formState.fromDay || undefined}
-                    onValueChange={(value) => updateFormState("fromDay", value)}
-                  >
-                    <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Select day" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {(level.dayOptions || []).map((option: LevelOption) => (
-                        <SelectItem
-                          key={option.value}
-                          value={String(option.value)}
-                        >
-                          {option.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </Field>
-                <Field>
-                  <FieldLabel>To day</FieldLabel>
-                  <Select
-                    value={formState.toDay || undefined}
-                    onValueChange={(value) => updateFormState("toDay", value)}
-                  >
-                    <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Select day" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {(level.dayOptions || []).map((option: LevelOption) => (
-                        <SelectItem
-                          key={option.value}
-                          value={String(option.value)}
-                        >
-                          {option.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </Field>
-                <Field>
-                  <FieldLabel>Time zone</FieldLabel>
-                  <Select
-                    value={formState.timezoneId || undefined}
-                    onValueChange={(value) =>
-                      updateFormState("timezoneId", value)
-                    }
-                  >
-                    <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Select a time zone" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {availableTimezones.map((timezone: TimezoneOption) => (
-                        <SelectItem
-                          key={timezone.id}
-                          value={String(timezone.id)}
-                        >
-                          {timezone.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </Field>
-                <div className="hidden md:block" aria-hidden="true" />
-                <Field>
-                  <FieldLabel>From time</FieldLabel>
-                  <Select
-                    value={formState.fromTime || undefined}
-                    onValueChange={(value) =>
-                      updateFormState("fromTime", value)
-                    }
-                  >
-                    <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Select time" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {(level.hourOptions || []).map((option: LevelOption) => (
-                        <SelectItem
-                          key={option.value}
-                          value={String(option.value)}
-                        >
-                          {option.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </Field>
-                <Field>
-                  <FieldLabel>To time</FieldLabel>
-                  <Select
-                    value={formState.toTime || undefined}
-                    onValueChange={(value) => updateFormState("toTime", value)}
-                  >
-                    <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Select time" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {(level.hourOptions || []).map((option: LevelOption) => (
-                        <SelectItem
-                          key={option.value}
-                          value={String(option.value)}
-                        >
-                          {option.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </Field>
-                <Field className="md:col-span-2">
-                  <FieldLabel>Description</FieldLabel>
-                  <LexicalEditor
-                    value={formState.description}
-                    onChange={(value) => updateFormState("description", value)}
-                    rows={10}
-                    required
-                  />
-                </Field>
-              </CardContent>
+          <>
+            <PageHeader
+              title={
+                isEdit && level ? level.name || "Edit level" : "Create level"
+              }
+            />
+            <Card>
+              <form onSubmit={submit}>
+                <CardContent className="grid gap-6 md:grid-cols-2 pt-6 pb-6">
+                  <Field>
+                    <FieldLabel>Name</FieldLabel>
+                    <Input
+                      value={formState.name}
+                      onChange={(event) =>
+                        updateFormState("name", event.target.value)
+                      }
+                      required
+                    />
+                  </Field>
+                  <Field>
+                    <FieldLabel>Level</FieldLabel>
+                    <Input
+                      type="number"
+                      min="0"
+                      value={formState.level}
+                      onChange={(event) =>
+                        updateFormState("level", event.target.value)
+                      }
+                      required
+                    />
+                  </Field>
+                  <Field>
+                    <FieldLabel>Color</FieldLabel>
+                    <Select
+                      value={formState.color || undefined}
+                      onValueChange={(value) => updateFormState("color", value)}
+                    >
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Select color" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {(level.colorOptions || []).map(
+                          (option: LevelOption) => (
+                            <SelectItem
+                              key={option.value}
+                              value={String(option.value ?? "")}
+                            >
+                              {`${levelColorMarker(String(option.value ?? ""))} ${option.display || `(${option.value ?? ""})`}`}
+                            </SelectItem>
+                          ),
+                        )}
+                      </SelectContent>
+                    </Select>
+                  </Field>
+                  <Field>
+                    <FieldLabel>Country</FieldLabel>
+                    <CountryDropdown
+                      defaultValue={
+                        countries.all.find(
+                          (c) =>
+                            c.name ===
+                            (level.countries || []).find(
+                              (lc: CountryOption) =>
+                                String(lc.id) === formState.countryId,
+                            )?.name,
+                        )?.alpha2 || ""
+                      }
+                      onChange={(country) => {
+                        const matched = (level.countries || []).find(
+                          (c: CountryOption) => c.name === country.name,
+                        );
+                        const nextCountryId = matched ? String(matched.id) : "";
+                        const timezoneStillValid = availableTimezones.some(
+                          (timezone) =>
+                            String(timezone.id) === formState.timezoneId,
+                        );
+                        setFormState((current) =>
+                          current
+                            ? {
+                                ...current,
+                                countryId: nextCountryId,
+                                timezoneId: timezoneStillValid
+                                  ? current.timezoneId
+                                  : "",
+                              }
+                            : current,
+                        );
+                      }}
+                    />
+                  </Field>
+                  <Field>
+                    <FieldLabel>From day</FieldLabel>
+                    <Select
+                      value={formState.fromDay || undefined}
+                      onValueChange={(value) =>
+                        updateFormState("fromDay", value)
+                      }
+                    >
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Select day" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {(level.dayOptions || []).map((option: LevelOption) => (
+                          <SelectItem
+                            key={option.value}
+                            value={String(option.value)}
+                          >
+                            {option.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </Field>
+                  <Field>
+                    <FieldLabel>To day</FieldLabel>
+                    <Select
+                      value={formState.toDay || undefined}
+                      onValueChange={(value) => updateFormState("toDay", value)}
+                    >
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Select day" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {(level.dayOptions || []).map((option: LevelOption) => (
+                          <SelectItem
+                            key={option.value}
+                            value={String(option.value)}
+                          >
+                            {option.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </Field>
+                  <Field>
+                    <FieldLabel>Time zone</FieldLabel>
+                    <Select
+                      value={formState.timezoneId || undefined}
+                      onValueChange={(value) =>
+                        updateFormState("timezoneId", value)
+                      }
+                    >
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Select a time zone" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {availableTimezones.map((timezone: TimezoneOption) => (
+                          <SelectItem
+                            key={timezone.id}
+                            value={String(timezone.id)}
+                          >
+                            {timezone.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </Field>
+                  <div className="hidden md:block" aria-hidden="true" />
+                  <Field>
+                    <FieldLabel>From time</FieldLabel>
+                    <Select
+                      value={formState.fromTime || undefined}
+                      onValueChange={(value) =>
+                        updateFormState("fromTime", value)
+                      }
+                    >
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Select time" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {(level.hourOptions || []).map(
+                          (option: LevelOption) => (
+                            <SelectItem
+                              key={option.value}
+                              value={String(option.value)}
+                            >
+                              {option.label}
+                            </SelectItem>
+                          ),
+                        )}
+                      </SelectContent>
+                    </Select>
+                  </Field>
+                  <Field>
+                    <FieldLabel>To time</FieldLabel>
+                    <Select
+                      value={formState.toTime || undefined}
+                      onValueChange={(value) =>
+                        updateFormState("toTime", value)
+                      }
+                    >
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Select time" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {(level.hourOptions || []).map(
+                          (option: LevelOption) => (
+                            <SelectItem
+                              key={option.value}
+                              value={String(option.value)}
+                            >
+                              {option.label}
+                            </SelectItem>
+                          ),
+                        )}
+                      </SelectContent>
+                    </Select>
+                  </Field>
+                  <Field className="md:col-span-2">
+                    <FieldLabel>Description</FieldLabel>
+                    <LexicalEditor
+                      value={formState.description}
+                      onChange={(value) =>
+                        updateFormState("description", value)
+                      }
+                      rows={10}
+                      required
+                    />
+                  </Field>
+                </CardContent>
 
-              <CardFooter
-                className={`flex items-center pt-6 border-t mt-4 bg-muted/20 ${isEdit ? "justify-between" : "justify-end"}`}
-              >
-                <div>
-                  {isEdit && (
-                    <AlertDialog>
-                      <AlertDialogTrigger asChild>
-                        <Button
-                          type="button"
-                          variant="destructive"
-                          disabled={saveState.saving}
-                        >
-                          Delete
-                        </Button>
-                      </AlertDialogTrigger>
-                      <AlertDialogContent>
-                        <AlertDialogHeader>
-                          <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-                          <AlertDialogDescription>
-                            This action cannot be undone. This will permanently
-                            delete this level.
-                          </AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <AlertDialogFooter>
-                          <AlertDialogCancel>Cancel</AlertDialogCancel>
-                          <AlertDialogAction
-                            onClick={deleteLevel}
-                            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                <CardFooter
+                  className={`flex items-center pt-6 border-t mt-4 bg-muted/20 ${isEdit ? "justify-between" : "justify-end"}`}
+                >
+                  <div>
+                    {isEdit && (
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <Button
+                            type="button"
+                            variant="destructive"
+                            disabled={saveState.saving}
                           >
                             Delete
-                          </AlertDialogAction>
-                        </AlertDialogFooter>
-                      </AlertDialogContent>
-                    </AlertDialog>
-                  )}
-                </div>
-                <Button type="submit" disabled={saveState.saving}>
-                  {saveState.saving ? "Saving..." : isEdit ? "Save" : "Create"}
-                </Button>
-              </CardFooter>
-            </form>
-          </Card>
+                          </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                            <AlertDialogDescription>
+                              This action cannot be undone. This will
+                              permanently delete this level.
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                            <AlertDialogAction
+                              onClick={deleteLevel}
+                              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                            >
+                              Delete
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
+                    )}
+                  </div>
+                  <Button type="submit" disabled={saveState.saving}>
+                    {saveState.saving
+                      ? "Saving..."
+                      : isEdit
+                        ? "Save"
+                        : "Create"}
+                  </Button>
+                </CardFooter>
+              </form>
+            </Card>
+          </>
         )}
       </DataState>
     </section>

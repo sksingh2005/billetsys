@@ -8,6 +8,7 @@
 
 import { useNavigate, useParams } from "react-router-dom";
 import DataState from "../components/common/DataState";
+import PageHeader from "../components/layout/PageHeader";
 import { toast } from "sonner";
 import { UserDetailCard } from "../components/users/UserProfileSections";
 import useJson from "../hooks/useJson";
@@ -76,14 +77,11 @@ export default function DirectoryUserDetailPage({
 
   return (
     <section className="w-full mt-4">
-      <div className="flex items-center gap-4 pb-6 px-1">
-        <h2 className="text-3xl font-bold tracking-tight">
-          {detail?.displayName ||
-            detail?.fullName ||
-            detail?.username ||
-            "User details"}
-        </h2>
-      </div>
+      <PageHeader
+        title={
+          detail?.displayName || detail?.fullName || detail?.username || "User"
+        }
+      />
 
       <DataState
         state={detailState}

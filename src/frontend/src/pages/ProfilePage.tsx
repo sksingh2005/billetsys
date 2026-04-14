@@ -11,6 +11,7 @@ import { useEffect, useRef, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { toast } from "sonner";
 import DataState from "../components/common/DataState";
+import PageHeader from "../components/layout/PageHeader";
 import { UserLogoPreview } from "../components/users/UserProfileSections";
 import useJson from "../hooks/useJson";
 import type { SessionPageProps } from "../types/app";
@@ -200,9 +201,7 @@ export default function ProfilePage({ sessionState }: SessionPageProps) {
 
   return (
     <section className="w-full mt-4">
-      <div className="flex items-center justify-between pb-6 px-1">
-        <h2 className="text-3xl font-bold tracking-tight">Profile</h2>
-      </div>
+      <PageHeader title="Profile" />
 
       <DataState
         state={profileState}

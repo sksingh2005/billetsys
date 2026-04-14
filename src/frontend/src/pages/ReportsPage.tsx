@@ -11,6 +11,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import useJson from "../hooks/useJson";
 import useExternalScript from "../hooks/useExternalScript";
 import DataState from "../components/common/DataState";
+import PageHeader from "../components/layout/PageHeader";
 import { toQueryString } from "../utils/formatting";
 import {
   Card,
@@ -329,23 +330,17 @@ export default function ReportsPage({ sessionState }: SessionPageProps) {
   if (!supportsReports) {
     return (
       <section className="w-full mt-4">
-        <div className="pb-6 px-1">
-          <h2 className="text-3xl font-bold tracking-tight">Reports</h2>
-          <p className="text-muted-foreground mt-2">
-            Reports are available for admin, TAM, and superuser roles.
-          </p>
-        </div>
+        <PageHeader
+          title="Reports"
+          subtitle="Reports are available for admin, TAM, and superuser roles."
+        />
       </section>
     );
   }
 
   return (
     <section className="w-full mt-4">
-      <div className="pb-6 px-1 flex flex-col md:flex-row md:items-end justify-between">
-        <div>
-          <h2 className="text-3xl font-bold tracking-tight">Reports</h2>
-        </div>
-      </div>
+      <PageHeader title="Reports" />
 
       <DataState
         state={reportsState}

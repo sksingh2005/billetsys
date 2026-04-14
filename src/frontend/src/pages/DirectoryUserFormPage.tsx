@@ -11,6 +11,7 @@ import { useEffect, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { toast } from "sonner";
 import DataState from "../components/common/DataState";
+import PageHeader from "../components/layout/PageHeader";
 import useJson from "../hooks/useJson";
 import useSubmissionGuard from "../hooks/useSubmissionGuard";
 import { postForm } from "../utils/api";
@@ -220,12 +221,10 @@ export default function DirectoryUserFormPage({
   return (
     <section className="w-full mt-4">
       {!isAdminCreate && (
-        <div className="flex items-center justify-between pb-6 px-1">
-          <h2 className="text-3xl font-bold tracking-tight">
-            {bootstrap?.title || (isEdit ? "Edit user" : "New user")}
-          </h2>
-          <div className="flex items-center">
-            {isEdit && bootstrap?.submitPath?.startsWith("/user/") && (
+        <PageHeader
+          title={bootstrap?.title || (isEdit ? "Edit user" : "New user")}
+          actions={
+            isEdit && bootstrap?.submitPath?.startsWith("/user/") ? (
               <AlertDialog>
                 <AlertDialogTrigger asChild>
                   <Button
@@ -255,9 +254,9 @@ export default function DirectoryUserFormPage({
                   </AlertDialogFooter>
                 </AlertDialogContent>
               </AlertDialog>
-            )}
-          </div>
-        </div>
+            ) : null
+          }
+        />
       )}
 
       <DataState

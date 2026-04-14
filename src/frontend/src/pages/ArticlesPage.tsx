@@ -8,6 +8,7 @@
 
 import useJson from "../hooks/useJson";
 import DataState from "../components/common/DataState";
+import PageHeader from "../components/layout/PageHeader";
 import { SmartLink } from "../utils/routing";
 import type { SessionPageProps } from "../types/app";
 import type { ArticleRecord, CollectionResponse } from "../types/domain";
@@ -27,14 +28,16 @@ export default function ArticlesPage({ sessionState }: SessionPageProps) {
 
   return (
     <div className="w-full mx-auto mt-2">
-      <div className="flex items-center justify-between pb-4">
-        <h1 className="text-3xl font-bold tracking-tight">Articles</h1>
-        {articlesState.data?.canCreate && (
-          <Button asChild>
-            <SmartLink href={articlesState.data.createPath}>Create</SmartLink>
-          </Button>
-        )}
-      </div>
+      <PageHeader
+        title="Articles"
+        actions={
+          articlesState.data?.canCreate ? (
+            <Button asChild>
+              <SmartLink href={articlesState.data.createPath}>Create</SmartLink>
+            </Button>
+          ) : null
+        }
+      />
 
       <div className="w-full">
         <DataState

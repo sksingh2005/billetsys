@@ -24,6 +24,7 @@ import {
   CardTitle,
   CardContent,
 } from "../components/ui/card";
+import PageHeader from "../components/layout/PageHeader";
 import { Button } from "../components/ui/button";
 import { Field, FieldLabel } from "../components/ui/field";
 import { Input } from "../components/ui/input";
@@ -58,6 +59,7 @@ export function OwnerPage({ sessionState }: SessionPageProps) {
 
   return (
     <section className="w-full mt-4">
+      <PageHeader title="Owner" />
       <DataState
         state={ownerState}
         emptyMessage="Owner company not found."
@@ -66,12 +68,9 @@ export function OwnerPage({ sessionState }: SessionPageProps) {
         {owner && (
           <div className="space-y-6 pb-20">
             <Card>
-              <CardHeader>
-                <CardTitle>Owner Details</CardTitle>
-              </CardHeader>
               <CardContent className="grid gap-6 md:grid-cols-2">
                 <Field>
-                  <FieldLabel>Owner</FieldLabel>
+                  <FieldLabel>Name</FieldLabel>
                   <Input value={owner.name || "—"} readOnly />
                 </Field>
                 <Field>
@@ -240,6 +239,7 @@ export function OwnerEditPage({ sessionState }: SessionPageProps) {
       >
         {formState && owner && (
           <form className="space-y-6 pb-20" onSubmit={submit}>
+            <PageHeader title="Edit Owner" />
             <Card>
               <CardHeader>
                 <CardTitle>Edit Owner Details</CardTitle>

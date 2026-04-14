@@ -9,6 +9,7 @@
 import { useParams } from "react-router-dom";
 import useJson from "../hooks/useJson";
 import DataState from "../components/common/DataState";
+import PageHeader from "../components/layout/PageHeader";
 import { SmartLink } from "../utils/routing";
 import type { SessionPageProps } from "../types/app";
 import type { CategoryRecord } from "../types/domain";
@@ -28,18 +29,18 @@ export default function CategoryDetailPage({ sessionState }: SessionPageProps) {
 
   return (
     <section className="w-full mt-4">
-      <div className="flex items-center justify-between pb-6 px-1">
-        <div className="flex items-center gap-3">
-          <h2 className="text-3xl font-bold tracking-tight">
-            {category?.name || "Category details"}
-          </h2>
-          {category?.isDefault && (
-            <Badge variant="secondary" className="font-normal translate-y-px">
-              Default
-            </Badge>
-          )}
-        </div>
-      </div>
+      <PageHeader
+        title={
+          <span className="flex items-center gap-3">
+            <span>{category?.name || "Category"}</span>
+            {category?.isDefault && (
+              <Badge variant="secondary" className="font-normal">
+                Default
+              </Badge>
+            )}
+          </span>
+        }
+      />
 
       <DataState
         state={categoryState}

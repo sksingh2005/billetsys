@@ -13,6 +13,7 @@ import { toast } from "sonner";
 import useJson from "../hooks/useJson";
 import useSubmissionGuard from "../hooks/useSubmissionGuard";
 import DataState from "../components/common/DataState";
+import PageHeader from "../components/layout/PageHeader";
 import LexicalEditor from "../components/editor/LexicalEditor";
 import { postForm, postMultipart } from "../utils/api";
 import { resolvePostRedirectPath } from "../utils/routing";
@@ -163,102 +164,109 @@ export default function CategoryFormPage({
 
   return (
     <section className="w-full mt-4">
-      <div className="flex items-center justify-between pb-6 px-1">
-        <h2 className="text-3xl font-bold tracking-tight">
-          {isEdit && category
-            ? category.name || "Edit category"
-            : "Create category"}
-        </h2>
-      </div>
-
       <DataState
         state={categoryState}
         emptyMessage="Category unavailable."
         signInHref={sessionState.data?.homePath || "/login"}
       >
         {formState && (
-          <Card>
-            <form onSubmit={submit}>
-              <CardContent className="grid gap-6 md:grid-cols-2 pt-6 pb-6">
-                <Field>
-                  <FieldLabel>Name</FieldLabel>
-                  <Input
-                    value={formState.name}
-                    onChange={(event) =>
-                      updateFormState("name", event.target.value)
-                    }
-                    required
-                  />
-                </Field>
-                <Field>
-                  <FieldLabel>Default</FieldLabel>
-                  <Select
-                    value={String(formState.isDefault)}
-                    onValueChange={(value) =>
-                      updateFormState("isDefault", value === "true")
-                    }
-                  >
-                    <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Select option" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="false">No</SelectItem>
-                      <SelectItem value="true">Yes</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </Field>
-                <Field className="md:col-span-2">
-                  <FieldLabel>Description</FieldLabel>
-                  <LexicalEditor
-                    value={formState.description}
-                    onChange={(value) => updateFormState("description", value)}
-                    inputRef={descriptionInputRef}
-                    rows={10}
-                  />
-                </Field>
-              </CardContent>
-              <CardFooter
-                className={`flex items-center pt-6 border-t mt-4 bg-muted/20 ${isEdit ? "justify-between" : "justify-end"}`}
-              >
-                <div>
-                  {isEdit && (
-                    <AlertDialog>
-                      <AlertDialogTrigger asChild>
-                        <Button
-                          type="button"
-                          variant="destructive"
-                          disabled={saveState.saving}
-                        >
-                          Delete
-                        </Button>
-                      </AlertDialogTrigger>
-                      <AlertDialogContent>
-                        <AlertDialogHeader>
-                          <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-                          <AlertDialogDescription>
-                            This action cannot be undone. This will permanently
-                            delete this category.
-                          </AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <AlertDialogFooter>
-                          <AlertDialogCancel>Cancel</AlertDialogCancel>
-                          <AlertDialogAction
-                            onClick={deleteCategory}
-                            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+          <>
+            <PageHeader
+              title={
+                isEdit && category
+                  ? category.name || "Edit category"
+                  : "Create category"
+              }
+            />
+            <Card>
+              <form onSubmit={submit}>
+                <CardContent className="grid gap-6 md:grid-cols-2 pt-6 pb-6">
+                  <Field>
+                    <FieldLabel>Name</FieldLabel>
+                    <Input
+                      value={formState.name}
+                      onChange={(event) =>
+                        updateFormState("name", event.target.value)
+                      }
+                      required
+                    />
+                  </Field>
+                  <Field>
+                    <FieldLabel>Default</FieldLabel>
+                    <Select
+                      value={String(formState.isDefault)}
+                      onValueChange={(value) =>
+                        updateFormState("isDefault", value === "true")
+                      }
+                    >
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Select option" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="false">No</SelectItem>
+                        <SelectItem value="true">Yes</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </Field>
+                  <Field className="md:col-span-2">
+                    <FieldLabel>Description</FieldLabel>
+                    <LexicalEditor
+                      value={formState.description}
+                      onChange={(value) =>
+                        updateFormState("description", value)
+                      }
+                      inputRef={descriptionInputRef}
+                      rows={10}
+                    />
+                  </Field>
+                </CardContent>
+                <CardFooter
+                  className={`flex items-center pt-6 border-t mt-4 bg-muted/20 ${isEdit ? "justify-between" : "justify-end"}`}
+                >
+                  <div>
+                    {isEdit && (
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <Button
+                            type="button"
+                            variant="destructive"
+                            disabled={saveState.saving}
                           >
                             Delete
-                          </AlertDialogAction>
-                        </AlertDialogFooter>
-                      </AlertDialogContent>
-                    </AlertDialog>
-                  )}
-                </div>
-                <Button type="submit" disabled={saveState.saving}>
-                  {saveState.saving ? "Saving..." : isEdit ? "Save" : "Create"}
-                </Button>
-              </CardFooter>
-            </form>
-          </Card>
+                          </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                            <AlertDialogDescription>
+                              This action cannot be undone. This will
+                              permanently delete this category.
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                            <AlertDialogAction
+                              onClick={deleteCategory}
+                              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                            >
+                              Delete
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
+                    )}
+                  </div>
+                  <Button type="submit" disabled={saveState.saving}>
+                    {saveState.saving
+                      ? "Saving..."
+                      : isEdit
+                        ? "Save"
+                        : "Create"}
+                  </Button>
+                </CardFooter>
+              </form>
+            </Card>
+          </>
         )}
       </DataState>
     </section>

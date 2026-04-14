@@ -8,6 +8,7 @@
 
 import { useLocation, useNavigate } from "react-router-dom";
 import DataState from "../components/common/DataState";
+import PageHeader from "../components/layout/PageHeader";
 import useJson from "../hooks/useJson";
 import { toQueryString } from "../utils/formatting";
 import { SmartLink } from "../utils/routing";
@@ -57,25 +58,17 @@ export default function DirectoryUsersPage({
 
   return (
     <section className="w-full mt-4">
-      <div className="flex flex-row items-center justify-between pb-6 px-1">
-        <div>
-          <h2 className="text-3xl font-bold tracking-tight">
-            {directory?.title || titleFallback}
-          </h2>
-          {directory?.description || description ? (
-            <p className="text-muted-foreground mt-1">
-              {directory?.description || description}
-            </p>
-          ) : null}
-        </div>
-        <div>
-          {directory?.createPath && (
+      <PageHeader
+        title={directory?.title || titleFallback}
+        subtitle={directory?.description || description}
+        actions={
+          directory?.createPath ? (
             <Button asChild>
               <SmartLink href={directory.createPath}>Create</SmartLink>
             </Button>
-          )}
-        </div>
-      </div>
+          ) : null
+        }
+      />
 
       <DataState
         state={dataState}

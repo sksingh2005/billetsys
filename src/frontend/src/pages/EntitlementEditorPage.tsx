@@ -10,6 +10,7 @@ import type { FormEvent } from "react";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import LexicalEditor from "../components/editor/LexicalEditor";
+import PageHeader from "../components/layout/PageHeader";
 import useJson from "../hooks/useJson";
 import useSubmissionGuard from "../hooks/useSubmissionGuard";
 import { toast } from "sonner";
@@ -254,14 +255,6 @@ export default function EntitlementEditorPage({
 
   return (
     <section className="w-full mt-4">
-      <div className="flex items-center justify-between pb-6 px-1">
-        <h2 className="text-3xl font-bold tracking-tight">
-          {isEdit && entitlement
-            ? entitlement.name || "Edit Entitlement"
-            : "Create Entitlement"}
-        </h2>
-      </div>
-
       <DataState
         state={entitlementState}
         emptyMessage="Entitlement not found."
@@ -269,6 +262,13 @@ export default function EntitlementEditorPage({
       >
         {formState && entitlement && (
           <form className="space-y-6 pb-20" onSubmit={submit}>
+            <PageHeader
+              title={
+                isEdit && entitlement
+                  ? entitlement.name || "Edit Entitlement"
+                  : "Create Entitlement"
+              }
+            />
             {/* ENTITLEMENT DETAILS SECTION */}
             <Card>
               <CardHeader>

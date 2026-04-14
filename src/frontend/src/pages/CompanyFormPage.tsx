@@ -13,6 +13,7 @@ import { toast } from "sonner";
 import useJson from "../hooks/useJson";
 import useSubmissionGuard from "../hooks/useSubmissionGuard";
 import DataState from "../components/common/DataState";
+import PageHeader from "../components/layout/PageHeader";
 import { resolvePostRedirectPath } from "../utils/routing";
 import { postForm } from "../utils/api";
 import { isNetworkRequestError, submitBrowserForm } from "../utils/forms";
@@ -352,14 +353,6 @@ export default function CompanyFormPage({
 
   return (
     <section className="w-full mt-4">
-      <div className="flex items-center justify-between pb-6 px-1">
-        <h2 className="text-3xl font-bold tracking-tight">
-          {isEdit && company
-            ? company.name || "Edit company"
-            : "Create company"}
-        </h2>
-      </div>
-
       <DataState
         state={companyState}
         emptyMessage="Company not found."
@@ -367,6 +360,13 @@ export default function CompanyFormPage({
       >
         {formState && company && (
           <form className="space-y-6 pb-20" onSubmit={submit}>
+            <PageHeader
+              title={
+                isEdit && company
+                  ? company.name || "Edit company"
+                  : "Create company"
+              }
+            />
             {/* COMPANY DETAILS SECTION */}
             <Card>
               <CardHeader>

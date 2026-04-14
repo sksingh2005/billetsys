@@ -9,6 +9,7 @@
 import { useParams } from "react-router-dom";
 import DataState from "../components/common/DataState";
 import { LevelColorFieldValue } from "../components/common/LevelColorBadge";
+import PageHeader from "../components/layout/PageHeader";
 import useJson from "../hooks/useJson";
 import { SmartLink } from "../utils/routing";
 import type { SessionPageProps } from "../types/app";
@@ -26,11 +27,7 @@ export default function LevelDetailPage({ sessionState }: SessionPageProps) {
 
   return (
     <section className="w-full mt-4">
-      <div className="flex items-center justify-between pb-6 px-1">
-        <h2 className="text-3xl font-bold tracking-tight">
-          {level?.name || "Level details"}
-        </h2>
-      </div>
+      <PageHeader title={level?.name || "Support level"} />
 
       <DataState
         state={levelState}

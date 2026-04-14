@@ -9,6 +9,7 @@
 import { useParams } from "react-router-dom";
 import useJson from "../hooks/useJson";
 import DataState from "../components/common/DataState";
+import PageHeader from "../components/layout/PageHeader";
 import { SmartLink } from "../utils/routing";
 import { SelectableUserSummary } from "../components/users/UserComponents";
 import {
@@ -43,104 +44,107 @@ export default function CompanyDetailPage({ sessionState }: SessionPageProps) {
         signInHref={sessionState.data?.homePath || "/login"}
       >
         {company && (
-          <Card>
-            <CardContent className="pt-6">
-              <div className="grid gap-6 md:grid-cols-2">
-                <Field>
-                  <FieldLabel>Name</FieldLabel>
-                  <Input value={company.name || "—"} readOnly />
-                </Field>
-                <Field>
-                  <FieldLabel>Phone</FieldLabel>
-                  <Input value={company.phoneNumber || "—"} readOnly />
-                </Field>
-                <Field>
-                  <FieldLabel>Country</FieldLabel>
-                  <Input value={company.countryName || "—"} readOnly />
-                </Field>
-                <Field>
-                  <FieldLabel>Time zone</FieldLabel>
-                  <Input value={company.timezoneName || "—"} readOnly />
-                </Field>
-                <Field>
-                  <FieldLabel>Address1</FieldLabel>
-                  <Input value={company.address1 || "—"} readOnly />
-                </Field>
-                <Field>
-                  <FieldLabel>Address2</FieldLabel>
-                  <Input value={company.address2 || "—"} readOnly />
-                </Field>
-                <Field>
-                  <FieldLabel>City</FieldLabel>
-                  <Input value={company.city || "—"} readOnly />
-                </Field>
-                <Field>
-                  <FieldLabel>State</FieldLabel>
-                  <Input value={company.state || "—"} readOnly />
-                </Field>
-                <Field>
-                  <FieldLabel>Zip</FieldLabel>
-                  <Input value={company.zip || "—"} readOnly />
-                </Field>
+          <>
+            <PageHeader title={company.name || "Company"} />
+            <Card>
+              <CardContent className="pt-6">
+                <div className="grid gap-6 md:grid-cols-2">
+                  <Field>
+                    <FieldLabel>Name</FieldLabel>
+                    <Input value={company.name || "—"} readOnly />
+                  </Field>
+                  <Field>
+                    <FieldLabel>Phone</FieldLabel>
+                    <Input value={company.phoneNumber || "—"} readOnly />
+                  </Field>
+                  <Field>
+                    <FieldLabel>Country</FieldLabel>
+                    <Input value={company.countryName || "—"} readOnly />
+                  </Field>
+                  <Field>
+                    <FieldLabel>Time zone</FieldLabel>
+                    <Input value={company.timezoneName || "—"} readOnly />
+                  </Field>
+                  <Field>
+                    <FieldLabel>Address1</FieldLabel>
+                    <Input value={company.address1 || "—"} readOnly />
+                  </Field>
+                  <Field>
+                    <FieldLabel>Address2</FieldLabel>
+                    <Input value={company.address2 || "—"} readOnly />
+                  </Field>
+                  <Field>
+                    <FieldLabel>City</FieldLabel>
+                    <Input value={company.city || "—"} readOnly />
+                  </Field>
+                  <Field>
+                    <FieldLabel>State</FieldLabel>
+                    <Input value={company.state || "—"} readOnly />
+                  </Field>
+                  <Field>
+                    <FieldLabel>Zip</FieldLabel>
+                    <Input value={company.zip || "—"} readOnly />
+                  </Field>
 
-                <div className="md:col-span-2 bg-muted/30 p-5 rounded-lg border border-border">
-                  <h3 className="font-semibold text-sm mb-3">Entitlements</h3>
-                  <div>
-                    {sortedEntitlements.length === 0 ? (
-                      <p className="text-sm text-muted-foreground">—</p>
-                    ) : (
-                      <ul className="space-y-1 list-disc list-inside text-sm">
-                        {sortedEntitlements.map(
-                          (entry: CompanyAssignment, index) => (
-                            <li
-                              key={`${entry.entitlementId}-${entry.levelId}-${index}`}
-                            >
-                              {entry.entitlementName}{" "}
-                              <span className="text-muted-foreground mx-1">
-                                •
-                              </span>{" "}
-                              {entry.levelName}
-                            </li>
-                          ),
-                        )}
-                      </ul>
-                    )}
+                  <div className="md:col-span-2 bg-muted/30 p-5 rounded-lg border border-border">
+                    <h3 className="font-semibold text-sm mb-3">Entitlements</h3>
+                    <div>
+                      {sortedEntitlements.length === 0 ? (
+                        <p className="text-sm text-muted-foreground">—</p>
+                      ) : (
+                        <ul className="space-y-1 list-disc list-inside text-sm">
+                          {sortedEntitlements.map(
+                            (entry: CompanyAssignment, index) => (
+                              <li
+                                key={`${entry.entitlementId}-${entry.levelId}-${index}`}
+                              >
+                                {entry.entitlementName}{" "}
+                                <span className="text-muted-foreground mx-1">
+                                  •
+                                </span>{" "}
+                                {entry.levelName}
+                              </li>
+                            ),
+                          )}
+                        </ul>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="bg-muted/30 p-5 rounded-lg border border-border">
+                    <h3 className="font-semibold text-sm mb-3">Superusers</h3>
+                    <div className="text-sm">
+                      <SelectableUserSummary users={sortedSuperusers} />
+                    </div>
+                  </div>
+
+                  <div className="bg-muted/30 p-5 rounded-lg border border-border">
+                    <h3 className="font-semibold text-sm mb-3">Users</h3>
+                    <div className="text-sm">
+                      <SelectableUserSummary users={sortedUsers} />
+                    </div>
+                  </div>
+
+                  <div className="bg-muted/30 p-5 rounded-lg border border-border">
+                    <h3 className="font-semibold text-sm mb-3">TAMs</h3>
+                    <div className="text-sm">
+                      <SelectableUserSummary users={sortedTams} />
+                    </div>
                   </div>
                 </div>
+              </CardContent>
 
-                <div className="bg-muted/30 p-5 rounded-lg border border-border">
-                  <h3 className="font-semibold text-sm mb-3">Superusers</h3>
-                  <div className="text-sm">
-                    <SelectableUserSummary users={sortedSuperusers} />
-                  </div>
-                </div>
-
-                <div className="bg-muted/30 p-5 rounded-lg border border-border">
-                  <h3 className="font-semibold text-sm mb-3">Users</h3>
-                  <div className="text-sm">
-                    <SelectableUserSummary users={sortedUsers} />
-                  </div>
-                </div>
-
-                <div className="bg-muted/30 p-5 rounded-lg border border-border">
-                  <h3 className="font-semibold text-sm mb-3">TAMs</h3>
-                  <div className="text-sm">
-                    <SelectableUserSummary users={sortedTams} />
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-
-            {company.id && (
-              <CardFooter className="flex justify-end pt-6 border-t bg-muted/20">
-                <Button asChild>
-                  <SmartLink href={`/companies/${company.id}/edit`}>
-                    Edit
-                  </SmartLink>
-                </Button>
-              </CardFooter>
-            )}
-          </Card>
+              {company.id && (
+                <CardFooter className="flex justify-end pt-6 border-t bg-muted/20">
+                  <Button asChild>
+                    <SmartLink href={`/companies/${company.id}/edit`}>
+                      Edit
+                    </SmartLink>
+                  </Button>
+                </CardFooter>
+              )}
+            </Card>
+          </>
         )}
       </DataState>
     </section>
