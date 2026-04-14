@@ -7,9 +7,16 @@
  */
 
 import { Navigate } from "react-router-dom";
+import useJson from "../hooks/useJson";
 import { SmartLink, normalizeClientPath } from "../utils/routing";
 import { orderedNavigation } from "../utils/navigation";
 import type { SessionPageProps } from "../types/app";
+import type {
+  CollectionResponse,
+  DirectoryUsersResponse,
+  NamedEntity,
+  OwnerCompany,
+} from "../types/domain";
 import PageHeader from "../components/layout/PageHeader";
 import { Card, CardContent } from "../components/ui/card";
 import { Spinner } from "../components/ui/spinner";
@@ -27,6 +34,8 @@ import {
 
 export default function HomePage({ sessionState }: SessionPageProps) {
   const session = sessionState.data;
+  const homePath = normalizeClientPath(session?.homePath) || "/";
+  const isAdminDashboard = session?.authenticated && homePath === "/";
   const adminLinks = orderedNavigation(session?.navigation, [
     "Owner",
     "Companies",
@@ -37,6 +46,27 @@ export default function HomePage({ sessionState }: SessionPageProps) {
     "Articles",
     "Reports",
   ]);
+  const ownerState = useJson<OwnerCompany>(
+    isAdminDashboard ? "/api/owner" : null,
+  );
+  const companiesState = useJson<CollectionResponse<NamedEntity>>(
+    isAdminDashboard ? "/api/companies" : null,
+  );
+  const usersState = useJson<DirectoryUsersResponse>(
+    isAdminDashboard ? "/api/admin/users" : null,
+  );
+  const entitlementsState = useJson<CollectionResponse<NamedEntity>>(
+    isAdminDashboard ? "/api/entitlements" : null,
+  );
+  const levelsState = useJson<CollectionResponse<NamedEntity>>(
+    isAdminDashboard ? "/api/levels" : null,
+  );
+  const categoriesState = useJson<CollectionResponse<NamedEntity>>(
+    isAdminDashboard ? "/api/categories" : null,
+  );
+  const articlesState = useJson<CollectionResponse<NamedEntity>>(
+    isAdminDashboard ? "/api/articles" : null,
+  );
 
   if (sessionState.loading) {
     return (
@@ -67,44 +97,67 @@ export default function HomePage({ sessionState }: SessionPageProps) {
     switch (label.toLowerCase()) {
       case "owner":
         return (
-          <Shield className="w-6 h-6 text-muted-foreground mb-3 group-hover:text-foreground transition-colors" />
+          <Shield className="h-6 w-6 shrink-0 text-muted-foreground transition-colors group-hover:text-foreground" />
         );
       case "companies":
         return (
-          <Building2 className="w-6 h-6 text-muted-foreground mb-3 group-hover:text-foreground transition-colors" />
+          <Building2 className="h-6 w-6 shrink-0 text-muted-foreground transition-colors group-hover:text-foreground" />
         );
       case "users":
         return (
-          <Users className="w-6 h-6 text-muted-foreground mb-3 group-hover:text-foreground transition-colors" />
+          <Users className="h-6 w-6 shrink-0 text-muted-foreground transition-colors group-hover:text-foreground" />
         );
       case "entitlements":
         return (
-          <Key className="w-6 h-6 text-muted-foreground mb-3 group-hover:text-foreground transition-colors" />
+          <Key className="h-6 w-6 shrink-0 text-muted-foreground transition-colors group-hover:text-foreground" />
         );
       case "levels":
         return (
-          <Layers className="w-6 h-6 text-muted-foreground mb-3 group-hover:text-foreground transition-colors" />
+          <Layers className="h-6 w-6 shrink-0 text-muted-foreground transition-colors group-hover:text-foreground" />
         );
       case "categories":
         return (
-          <Tags className="w-6 h-6 text-muted-foreground mb-3 group-hover:text-foreground transition-colors" />
+          <Tags className="h-6 w-6 shrink-0 text-muted-foreground transition-colors group-hover:text-foreground" />
         );
       case "articles":
         return (
-          <BookOpen className="w-6 h-6 text-muted-foreground mb-3 group-hover:text-foreground transition-colors" />
+          <BookOpen className="h-6 w-6 shrink-0 text-muted-foreground transition-colors group-hover:text-foreground" />
         );
       case "reports":
         return (
-          <BarChart3 className="w-6 h-6 text-muted-foreground mb-3 group-hover:text-foreground transition-colors" />
+          <BarChart3 className="h-6 w-6 shrink-0 text-muted-foreground transition-colors group-hover:text-foreground" />
         );
       default:
         return (
-          <Settings className="w-6 h-6 text-muted-foreground mb-3 group-hover:text-foreground transition-colors" />
+          <Settings className="h-6 w-6 shrink-0 text-muted-foreground transition-colors group-hover:text-foreground" />
         );
     }
   };
 
-  const homePath = normalizeClientPath(session.homePath) || "/";
+  const countLabel = (items?: unknown[]) =>
+    Array.isArray(items) ? String(items.length) : "";
+
+  const summaryForLabel = (label: string) => {
+    switch (label.toLowerCase()) {
+      case "owner":
+        return ownerState.data?.name || session?.installationCompanyName || "";
+      case "companies":
+        return countLabel(companiesState.data?.items);
+      case "users":
+        return countLabel(usersState.data?.items);
+      case "entitlements":
+        return countLabel(entitlementsState.data?.items);
+      case "levels":
+        return countLabel(levelsState.data?.items);
+      case "categories":
+        return countLabel(categoriesState.data?.items);
+      case "articles":
+        return countLabel(articlesState.data?.items);
+      default:
+        return "";
+    }
+  };
+
   if (homePath !== "/") {
     return <Navigate replace to={homePath} />;
   }
@@ -120,12 +173,19 @@ export default function HomePage({ sessionState }: SessionPageProps) {
             href={link.href}
             className="group flex flex-col p-5 h-36 rounded-sm bg-card border shadow-sm hover:border-foreground/30 transition-all overflow-hidden"
           >
-            <div className="relative z-10 flex flex-col h-full">
-              {getIconForLabel(link.label)}
+            <div className="relative z-10 flex h-full flex-col justify-between gap-4">
+              <div className="flex items-center gap-3">
+                {getIconForLabel(link.label)}
+                <h3 className="min-w-0 flex-1 text-[15px] font-medium tracking-tight text-foreground/90 transition-colors group-hover:text-foreground">
+                  {link.label}
+                </h3>
+              </div>
 
-              <h3 className="mt-auto text-[15px] font-medium tracking-tight text-foreground/90 group-hover:text-foreground transition-colors">
-                {link.label}
-              </h3>
+              {summaryForLabel(link.label) ? (
+                <p className="line-clamp-2 text-sm text-muted-foreground">
+                  {summaryForLabel(link.label)}
+                </p>
+              ) : null}
             </div>
           </SmartLink>
         ))}
