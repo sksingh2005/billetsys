@@ -85,10 +85,8 @@
 }
 
 @theme inline {
-  --font-sans:
-    "Red Hat Text", "Charlie Text", sans-serif;
-  --font-heading:
-    "Red Hat Text", "Charlie Text", sans-serif;
+  --font-sans: "Red Hat Text", "Charlie Text", sans-serif;
+  --font-heading: "Red Hat Text", "Charlie Text", sans-serif;
 
   --color-header-bg: var(--header-bg);
   --color-header-text: var(--header-text);
