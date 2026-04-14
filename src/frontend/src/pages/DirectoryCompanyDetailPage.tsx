@@ -22,6 +22,7 @@ import {
   CardTitle,
   CardContent,
 } from "../components/ui/card";
+import { Button } from "../components/ui/button";
 
 interface DirectoryUserReferenceListProps {
   users?: DirectoryUserRecord[];
@@ -90,13 +91,11 @@ export default function DirectoryCompanyDetailPage({
   return (
     <section className="w-full max-w-5xl mx-auto mt-4">
       <div className="flex items-center gap-4 pb-6 px-1">
-        <SmartLink
-          className="text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1 text-sm font-medium"
-          href={resolvedBackHref}
-          onClick={handleBackClick}
-        >
-          ← Back
-        </SmartLink>
+        <Button asChild size="sm">
+          <SmartLink href={resolvedBackHref} onClick={handleBackClick}>
+            ← Back
+          </SmartLink>
+        </Button>
         <h2 className="text-3xl font-bold tracking-tight">
           {company?.name || "Company details"}
         </h2>

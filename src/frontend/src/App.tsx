@@ -47,7 +47,7 @@ function App() {
         <main
           className={
             isLoginRoute
-              ? "flex-1 flex items-center justify-center p-6 bg-body-bg text-body-text"
+              ? "flex-1 flex items-center justify-center p-6 bg-header-bg text-header-text"
               : "flex-1 p-5"
           }
         >

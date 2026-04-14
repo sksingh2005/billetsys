@@ -147,6 +147,35 @@
   }
 }
 
+@layer utilities {
+  .editor-shell button,
+  .editor-shell [data-slot="button"],
+  .editor-shell [data-slot="select-trigger"] {
+    background: #fff !important;
+    background-color: #fff !important;
+    color: #1a1a1a !important;
+    border-color: var(--color-border) !important;
+    background-image: none !important;
+  }
+
+  .editor-shell button:hover,
+  .editor-shell [data-slot="button"]:hover,
+  .editor-shell [data-slot="button"][aria-expanded="true"],
+  .editor-shell [data-slot="select-trigger"]:hover,
+  .editor-shell [data-slot="select-trigger"][aria-expanded="true"] {
+    background: #f5f6f8 !important;
+    background-color: #f5f6f8 !important;
+    color: #1a1a1a !important;
+  }
+
+  .editor-shell button *,
+  .editor-shell [data-slot="button"] a,
+  .editor-shell [data-slot="button"] svg,
+  .editor-shell [data-slot="select-trigger"] * {
+    color: inherit !important;
+  }
+}
+
 @keyframes ticket-alarm-blink {
   50% {
     opacity: 0.2;

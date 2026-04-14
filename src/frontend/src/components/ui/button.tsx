@@ -9,16 +9,17 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default: "bg-primary text-primary-foreground [a]:hover:bg-primary/80",
+        default:
+          "bg-[var(--color-header-bg)] text-white hover:bg-[var(--color-primary-dark)] [a]:text-white [a]:hover:text-white",
         outline:
-          "border-border bg-background hover:bg-muted hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground dark:border-input dark:bg-input/30 dark:hover:bg-input/50",
+          "border-[var(--color-header-bg)] bg-[var(--color-header-bg)] text-white hover:bg-[var(--color-primary-dark)] hover:text-white aria-expanded:bg-[var(--color-primary-dark)] aria-expanded:text-white [a]:text-white [a]:hover:text-white",
         secondary:
-          "bg-secondary text-secondary-foreground hover:bg-secondary/80 aria-expanded:bg-secondary aria-expanded:text-secondary-foreground",
+          "bg-[var(--color-header-bg)] text-white hover:bg-[var(--color-primary-dark)] aria-expanded:bg-[var(--color-primary-dark)] aria-expanded:text-white [a]:text-white [a]:hover:text-white",
         ghost:
-          "hover:bg-muted hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground dark:hover:bg-muted/50",
+          "bg-[var(--color-header-bg)] text-white hover:bg-[var(--color-primary-dark)] hover:text-white aria-expanded:bg-[var(--color-primary-dark)] aria-expanded:text-white [a]:text-white [a]:hover:text-white",
         destructive:
-          "bg-destructive/10 text-destructive hover:bg-destructive/20 focus-visible:border-destructive/40 focus-visible:ring-destructive/20 dark:bg-destructive/20 dark:hover:bg-destructive/30 dark:focus-visible:ring-destructive/40",
-        link: "text-primary underline-offset-4 hover:underline",
+          "bg-[var(--color-header-bg)] text-white hover:bg-[var(--color-primary-dark)] focus-visible:border-[var(--color-header-bg)] focus-visible:ring-[var(--color-header-bg)] [a]:text-white [a]:hover:text-white",
+        link: "bg-[var(--color-header-bg)] text-white hover:bg-[var(--color-primary-dark)] no-underline [a]:text-white [a]:hover:text-white",
       },
       size: {
         default: "h-10 px-4 py-2",

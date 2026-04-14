@@ -189,10 +189,9 @@ export function MinimalMultiStep<T>({
 
         {options?.showBackBtn && currentStep > 0 && (
           <Button
-            variant="ghost"
             size="sm"
             onClick={prev}
-            className="text-muted-foreground hover:text-foreground mb-2 -ml-2"
+            className="mb-2"
             disabled={isProcessing}
           >
             <ArrowLeft

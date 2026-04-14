@@ -71,7 +71,7 @@ export default function AttachmentPage({ sessionState }: SessionPageProps) {
             {(attachment.backPath || attachment.downloadPath) && (
               <div className="flex items-center justify-between pt-4 border-t">
                 {attachment.backPath ? (
-                  <Button variant="outline" asChild>
+                  <Button asChild>
                     <SmartLink href={attachment.backPath}>
                       Back to Ticket
                     </SmartLink>

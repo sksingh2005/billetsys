@@ -58,6 +58,14 @@ export default function AppBreadcrumbs() {
   // is their home page -- hide breadcrumbs when on home
   if (segments.length === 0) return null;
   if (hasRolePrefix && segments.length === 1) return null;
+  if (
+    rolePrefix === "support" &&
+    segments[0] === "tickets" &&
+    segments.length === 2 &&
+    !["open", "closed", "assigned", "new"].includes(segments[1])
+  ) {
+    return null;
+  }
 
   // Build the base path prefix for href generation
   const basePath = rolePrefix ? `/${rolePrefix}` : "";
