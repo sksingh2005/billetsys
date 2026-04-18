@@ -36,6 +36,14 @@ import type {
   ReportHistogramBucket,
 } from "../types/reports";
 import { SUPPORT_TICKET_STATUSES } from "../types/tickets";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "../components/ui/table";
 
 const REPORT_STATUS_COLORS: Partial<
   Record<(typeof SUPPORT_TICKET_STATUSES)[number], string>
@@ -504,34 +512,25 @@ export default function ReportsPage({ sessionState }: SessionPageProps) {
                   />
                 </div>
                 <div className="overflow-x-auto">
-                  <table className="w-full text-sm text-left border-collapse">
-                    <thead className="bg-muted/50 text-muted-foreground uppercase text-xs">
-                      <tr>
-                        <th className="px-4 py-3 font-medium border-b">
-                          Duration
-                        </th>
-                        <th className="px-4 py-3 font-medium border-b text-right">
-                          Count
-                        </th>
-                        <th className="px-4 py-3 font-medium border-b">
-                          Tickets
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody>
+                  <Table className="text-sm">
+                    <TableHeader>
+                      <TableRow className="bg-muted/50 hover:bg-muted/50">
+                        <TableHead>Duration</TableHead>
+                        <TableHead className="text-right">Count</TableHead>
+                        <TableHead>Tickets</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
                       {(reports.histogram || []).map(
                         (bucket: ReportHistogramBucket) => (
-                          <tr
-                            key={bucket.label}
-                            className="border-b last:border-0 hover:bg-muted/20"
-                          >
-                            <td className="px-4 py-3 whitespace-nowrap">
+                          <TableRow key={bucket.label}>
+                            <TableCell className="whitespace-nowrap">
                               {bucket.label}
-                            </td>
-                            <td className="px-4 py-3 text-right">
+                            </TableCell>
+                            <TableCell className="text-right">
                               {bucket.count}
-                            </td>
-                            <td className="px-4 py-3">
+                            </TableCell>
+                            <TableCell>
                               {bucket.tickets.length === 0
                                 ? "—"
                                 : bucket.tickets.map(
@@ -549,12 +548,12 @@ export default function ReportsPage({ sessionState }: SessionPageProps) {
                                       </span>
                                     ),
                                   )}
-                            </td>
-                          </tr>
+                            </TableCell>
+                          </TableRow>
                         ),
                       )}
-                    </tbody>
-                  </table>
+                    </TableBody>
+                  </Table>
                 </div>
               </CardContent>
             </Card>
