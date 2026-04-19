@@ -9,7 +9,6 @@
 import { useParams } from "react-router-dom";
 import DataState from "../components/common/DataState";
 import useJson from "../hooks/useJson";
-import { SmartLink } from "../utils/routing";
 import type { SessionPageProps } from "../types/app";
 import type { AttachmentDetail } from "../types/domain";
 import { Card, CardContent } from "../components/ui/card";
@@ -64,17 +63,8 @@ export default function AttachmentPage(props: SessionPageProps) {
               {attachment.sizeLabel && <span>{attachment.sizeLabel}</span>}
             </div>
 
-            {(attachment.backPath || attachment.downloadPath) && (
-              <div className="flex items-center justify-between pt-4 border-t">
-                {attachment.backPath ? (
-                  <Button asChild>
-                    <SmartLink href={attachment.backPath}>
-                      Back to Ticket
-                    </SmartLink>
-                  </Button>
-                ) : (
-                  <span aria-hidden="true" />
-                )}
+            {attachment.downloadPath && (
+              <div className="flex items-center justify-end pt-4 border-t">
                 {attachment.downloadPath && (
                   <Button asChild>
                     <a
@@ -82,7 +72,7 @@ export default function AttachmentPage(props: SessionPageProps) {
                       target="_blank"
                       rel="noreferrer"
                     >
-                      Download File
+                      Download
                     </a>
                   </Button>
                 )}
