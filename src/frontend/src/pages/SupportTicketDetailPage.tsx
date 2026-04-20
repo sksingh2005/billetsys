@@ -796,105 +796,101 @@ export default function SupportTicketDetailPage({
                 <h2 className="px-1 text-3xl font-bold tracking-tight">
                   Reply
                 </h2>
-                <Card className="border-border/80 shadow-sm">
-                  <CardContent className="p-6 md:p-8">
-                    <form className="space-y-6" onSubmit={submitReply}>
-                      <LexicalEditor
-                        value={replyBody}
-                        onChange={setReplyBody}
-                        inputRef={replyInputRef}
-                        name="body"
-                        rows={6}
-                        required
-                      />
+                <form className="space-y-6" onSubmit={submitReply}>
+                  <LexicalEditor
+                    value={replyBody}
+                    onChange={setReplyBody}
+                    inputRef={replyInputRef}
+                    name="body"
+                    rows={6}
+                    required
+                  />
 
-                      <div className="space-y-3">
-                        <label className="text-sm font-semibold leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-                          Attachments
-                        </label>
-                        <div className="overflow-hidden rounded-md border">
-                          <Table>
-                            <TableHeader>
-                              <TableRow className="bg-muted/50 hover:bg-muted/50">
-                                <TableHead>Name</TableHead>
-                                <TableHead>Type</TableHead>
-                                <TableHead>Size</TableHead>
-                                <TableHead className="w-[100px]"></TableHead>
-                              </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                              {files.map((file, index) => (
-                                <TableRow
-                                  key={`${file.name}-${file.size}-${index}`}
+                  <div className="space-y-3">
+                    <label className="text-sm font-semibold leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                      Attachments
+                    </label>
+                    <div className="overflow-hidden rounded-md border">
+                      <Table>
+                        <TableHeader>
+                          <TableRow className="bg-muted/50 hover:bg-muted/50">
+                            <TableHead>Name</TableHead>
+                            <TableHead>Type</TableHead>
+                            <TableHead>Size</TableHead>
+                            <TableHead className="w-[100px]"></TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {files.map((file, index) => (
+                            <TableRow
+                              key={`${file.name}-${file.size}-${index}`}
+                            >
+                              <TableCell className="font-medium">
+                                {file.name}
+                              </TableCell>
+                              <TableCell className="text-muted-foreground">
+                                {file.type || "application/octet-stream"}
+                              </TableCell>
+                              <TableCell className="text-muted-foreground">
+                                {formatFileSize(file.size)}
+                              </TableCell>
+                              <TableCell className="text-right">
+                                <Button
+                                  type="button"
+                                  variant="ghost"
+                                  size="sm"
+                                  className="h-8 px-2 text-destructive hover:bg-destructive/10 hover:text-destructive"
+                                  onClick={() => removeReplyFile(index)}
                                 >
-                                  <TableCell className="font-medium">
-                                    {file.name}
-                                  </TableCell>
-                                  <TableCell className="text-muted-foreground">
-                                    {file.type || "application/octet-stream"}
-                                  </TableCell>
-                                  <TableCell className="text-muted-foreground">
-                                    {formatFileSize(file.size)}
-                                  </TableCell>
-                                  <TableCell className="text-right">
-                                    <Button
-                                      type="button"
-                                      variant="ghost"
-                                      size="sm"
-                                      className="h-8 px-2 text-destructive hover:bg-destructive/10 hover:text-destructive"
-                                      onClick={() => removeReplyFile(index)}
-                                    >
-                                      Remove
-                                    </Button>
-                                  </TableCell>
-                                </TableRow>
-                              ))}
-                              {files.length === 0 && (
-                                <TableRow>
-                                  <TableCell
-                                    colSpan={4}
-                                    className="h-24 text-center text-muted-foreground"
-                                  >
-                                    No attachments selected.
-                                  </TableCell>
-                                </TableRow>
-                              )}
-                            </TableBody>
-                          </Table>
-                        </div>
-                        <div className="pt-2">
-                          <Input
-                            ref={fileInputRef}
-                            type="file"
-                            name="attachments"
-                            multiple
-                            className="max-w-xs cursor-pointer"
-                            onChange={addReplyFiles}
-                          />
-                        </div>
-                      </div>
-
-                      {replyState.error && (
-                        <p className="text-sm font-medium text-destructive">
-                          {replyState.error}
-                        </p>
-                      )}
-
-                      <div className="mt-8 flex items-center justify-between border-t pt-6">
-                        <div>
-                          {ticket.exportPath && (
-                            <Button variant="outline" asChild>
-                              <a href={ticket.exportPath}>Export</a>
-                            </Button>
+                                  Remove
+                                </Button>
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                          {files.length === 0 && (
+                            <TableRow>
+                              <TableCell
+                                colSpan={4}
+                                className="h-24 text-center text-muted-foreground"
+                              >
+                                No attachments selected.
+                              </TableCell>
+                            </TableRow>
                           )}
-                        </div>
-                        <Button type="submit" disabled={replyState.saving}>
-                          {replyState.saving ? "Adding..." : "Add"}
+                        </TableBody>
+                      </Table>
+                    </div>
+                    <div className="pt-2">
+                      <Input
+                        ref={fileInputRef}
+                        type="file"
+                        name="attachments"
+                        multiple
+                        className="max-w-xs cursor-pointer"
+                        onChange={addReplyFiles}
+                      />
+                    </div>
+                  </div>
+
+                  {replyState.error && (
+                    <p className="text-sm font-medium text-destructive">
+                      {replyState.error}
+                    </p>
+                  )}
+
+                  <div className="mt-8 flex items-center justify-between border-t pt-6">
+                    <div>
+                      {ticket.exportPath && (
+                        <Button variant="outline" asChild>
+                          <a href={ticket.exportPath}>Export</a>
                         </Button>
-                      </div>
-                    </form>
-                  </CardContent>
-                </Card>
+                      )}
+                    </div>
+                    <Button type="submit" disabled={replyState.saving}>
+                      {replyState.saving ? "Adding..." : "Add"}
+                    </Button>
+                  </div>
+                </form>
               </div>
             ) : (
               ticket.exportPath && (
