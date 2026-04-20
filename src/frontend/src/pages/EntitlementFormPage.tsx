@@ -346,7 +346,7 @@ export default function EntitlementFormPage({
                   size="sm"
                   onClick={addVersion}
                 >
-                  Add Version
+                  Add
                 </Button>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -408,7 +408,7 @@ export default function EntitlementFormPage({
                       disabled={saveState.saving}
                       className="mr-auto"
                     >
-                      Delete entitlement
+                      Delete
                     </Button>
                   </AlertDialogTrigger>
                   <AlertDialogContent>

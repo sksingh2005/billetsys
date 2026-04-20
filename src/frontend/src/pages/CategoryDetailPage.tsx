@@ -13,7 +13,6 @@ import PageHeader from "../components/layout/PageHeader";
 import { SmartLink } from "../utils/routing";
 import type { SessionPageProps } from "../types/app";
 import type { CategoryRecord } from "../types/domain";
-import { Card, CardContent, CardFooter } from "../components/ui/card";
 import { Button } from "../components/ui/button";
 import { Field, FieldLabel } from "../components/ui/field";
 import { Input } from "../components/ui/input";
@@ -45,37 +44,35 @@ export default function CategoryDetailPage(props: SessionPageProps) {
 
       <DataState state={categoryState} emptyMessage="Category not found.">
         {category && (
-          <Card>
-            <CardContent className="pt-6">
-              <div className="grid gap-6 md:grid-cols-2">
-                <Field>
-                  <FieldLabel>Name</FieldLabel>
-                  <Input value={category.name || "—"} readOnly />
-                </Field>
-                <Field>
-                  <FieldLabel>Default</FieldLabel>
-                  <Input value={category.isDefault ? "Yes" : "No"} readOnly />
-                </Field>
-                <Field className="md:col-span-2">
-                  <FieldLabel>Description</FieldLabel>
-                  <Textarea
-                    value={category.description || "—"}
-                    readOnly
-                    rows={10}
-                    className="resize-none"
-                  />
-                </Field>
-              </div>
-            </CardContent>
+          <div className="space-y-6">
+            <div className="grid gap-6 md:grid-cols-2">
+              <Field>
+                <FieldLabel className="text-primary">Name</FieldLabel>
+                <Input value={category.name || "—"} readOnly />
+              </Field>
+              <Field>
+                <FieldLabel className="text-primary">Default</FieldLabel>
+                <Input value={category.isDefault ? "Yes" : "No"} readOnly />
+              </Field>
+              <Field className="md:col-span-2">
+                <FieldLabel className="text-primary">Description</FieldLabel>
+                <Textarea
+                  value={category.description || "—"}
+                  readOnly
+                  rows={10}
+                  className="resize-none"
+                />
+              </Field>
+            </div>
 
             {category.editPath && (
-              <CardFooter className="flex justify-end pt-6 border-t bg-muted/20">
+              <div className="flex justify-end pt-6">
                 <Button asChild>
                   <SmartLink href={category.editPath}>Edit</SmartLink>
                 </Button>
-              </CardFooter>
+              </div>
             )}
-          </Card>
+          </div>
         )}
       </DataState>
     </section>

@@ -14,7 +14,6 @@ import useJson from "../hooks/useJson";
 import { SmartLink } from "../utils/routing";
 import type { SessionPageProps } from "../types/app";
 import type { LevelRecord } from "../types/domain";
-import { Card, CardContent, CardFooter } from "../components/ui/card";
 import { Button } from "../components/ui/button";
 import { Field, FieldLabel } from "../components/ui/field";
 import { Input } from "../components/ui/input";
@@ -32,18 +31,18 @@ export default function LevelDetailPage(props: SessionPageProps) {
 
       <DataState state={levelState} emptyMessage="Level not found.">
         {level && (
-          <Card>
-            <CardContent className="grid gap-6 md:grid-cols-2 pt-6">
+          <div className="space-y-6">
+            <div className="grid gap-6 md:grid-cols-2">
               <Field>
-                <FieldLabel>Name</FieldLabel>
+                <FieldLabel className="text-primary">Name</FieldLabel>
                 <Input value={level.name || "—"} readOnly />
               </Field>
               <Field>
-                <FieldLabel>Business level</FieldLabel>
+                <FieldLabel className="text-primary">Business level</FieldLabel>
                 <Input value={level.level ?? "—"} readOnly />
               </Field>
               <Field>
-                <FieldLabel>Color</FieldLabel>
+                <FieldLabel className="text-primary">Color</FieldLabel>
                 <div className="h-10 px-3 py-2 border rounded-md bg-muted/50 flex items-center">
                   <LevelColorFieldValue
                     color={level.color}
@@ -52,24 +51,24 @@ export default function LevelDetailPage(props: SessionPageProps) {
                 </div>
               </Field>
               <Field>
-                <FieldLabel>Country</FieldLabel>
+                <FieldLabel className="text-primary">Country</FieldLabel>
                 <Input value={level.countryName || "—"} readOnly />
               </Field>
               <Field>
-                <FieldLabel>From</FieldLabel>
+                <FieldLabel className="text-primary">From</FieldLabel>
                 <Input value={level.fromLabel || "—"} readOnly />
               </Field>
               <Field>
-                <FieldLabel>To</FieldLabel>
+                <FieldLabel className="text-primary">To</FieldLabel>
                 <Input value={level.toLabel || "—"} readOnly />
               </Field>
               <Field>
-                <FieldLabel>Time zone</FieldLabel>
+                <FieldLabel className="text-primary">Time zone</FieldLabel>
                 <Input value={level.timezoneName || "—"} readOnly />
               </Field>
               <div className="hidden md:block" aria-hidden="true" />
               <Field className="md:col-span-2">
-                <FieldLabel>Description</FieldLabel>
+                <FieldLabel className="text-primary">Description</FieldLabel>
                 <Textarea
                   value={level.description || "—"}
                   readOnly
@@ -77,16 +76,16 @@ export default function LevelDetailPage(props: SessionPageProps) {
                   className="resize-none"
                 />
               </Field>
-            </CardContent>
+            </div>
 
             {level.editPath && (
-              <CardFooter className="flex justify-end pt-6 border-t bg-muted/20">
+              <div className="flex justify-end pt-6">
                 <Button asChild>
                   <SmartLink href={level.editPath}>Edit</SmartLink>
                 </Button>
-              </CardFooter>
+              </div>
             )}
-          </Card>
+          </div>
         )}
       </DataState>
     </section>

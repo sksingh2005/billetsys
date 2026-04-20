@@ -18,18 +18,10 @@ import type {
   LevelRecord,
   VersionInfo,
 } from "../types/domain";
-import { Card, CardContent, CardFooter } from "../components/ui/card";
 import { Button } from "../components/ui/button";
-import { Field, FieldLabel } from "../components/ui/field";
+import { Field } from "../components/ui/field";
 import { Input } from "../components/ui/input";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "../components/ui/table";
+import { Table, TableBody, TableCell, TableRow } from "../components/ui/table";
 
 export default function EntitlementDetailPage(props: SessionPageProps) {
   void props;
@@ -46,16 +38,19 @@ export default function EntitlementDetailPage(props: SessionPageProps) {
         {entitlement && (
           <>
             <PageHeader title={entitlement.name || "Entitlement"} />
-            <Card>
-              <CardContent className="p-6 md:p-8 space-y-6">
-                {/* Top row: Name + Description side by side */}
-                <div className="grid gap-6 md:grid-cols-[1fr_2fr]">
-                  <Field>
-                    <FieldLabel>Name</FieldLabel>
-                    <Input value={entitlement.name || "\u2014"} readOnly />
-                  </Field>
-                  <div className="bg-muted/30 p-4 rounded-lg border border-border">
-                    <h3 className="font-semibold text-sm mb-2">Description</h3>
+            <div className="space-y-6">
+              <div className="grid gap-6 md:grid-cols-2">
+                <Field>
+                  <div className="text-sm font-medium text-[var(--color-header-bg)]">
+                    Name
+                  </div>
+                  <Input value={entitlement.name || "\u2014"} readOnly />
+                </Field>
+                <Field>
+                  <div className="text-sm font-medium text-[var(--color-header-bg)]">
+                    Description
+                  </div>
+                  <div className="min-h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm">
                     {entitlement.description ? (
                       <div className="prose prose-sm dark:prose-invert max-w-none">
                         <MarkdownContent>
@@ -63,89 +58,81 @@ export default function EntitlementDetailPage(props: SessionPageProps) {
                         </MarkdownContent>
                       </div>
                     ) : (
+                      <span className="text-muted-foreground">\u2014</span>
+                    )}
+                  </div>
+                </Field>
+              </div>
+
+              <div className="grid gap-6 md:grid-cols-2">
+                <div>
+                  <div className="mb-3 text-sm font-medium text-[var(--color-header-bg)]">
+                    Support levels
+                  </div>
+                  <div>
+                    {supportLevels.map((level) => (
+                      <div
+                        key={level.id}
+                        className="flex items-center justify-between py-2 border-b last:border-0 border-border"
+                      >
+                        <span className="font-medium text-sm">
+                          {level.name}
+                        </span>
+                        <span className="text-sm text-muted-foreground">
+                          {level.fromLabel} <span className="mx-1">&bull;</span>{" "}
+                          {level.toLabel}
+                        </span>
+                      </div>
+                    ))}
+                    {supportLevels.length === 0 && (
                       <p className="text-sm text-muted-foreground">
-                        No description.
+                        No support levels.
                       </p>
                     )}
                   </div>
                 </div>
 
-                {/* Bottom row: Support levels + Versions side by side */}
-                <div className="grid gap-6 md:grid-cols-2">
-                  <div className="bg-muted/30 p-4 rounded-lg border border-border">
-                    <h3 className="font-semibold text-sm mb-3">
-                      Support levels
-                    </h3>
-                    <div>
-                      {supportLevels.map((level) => (
-                        <div
-                          key={level.id}
-                          className="flex items-center justify-between py-2 border-b last:border-0 border-border"
-                        >
-                          <span className="font-medium text-sm">
-                            {level.name}
-                          </span>
-                          <span className="text-sm text-muted-foreground">
-                            {level.fromLabel}{" "}
-                            <span className="mx-1">&bull;</span> {level.toLabel}
-                          </span>
-                        </div>
-                      ))}
-                      {supportLevels.length === 0 && (
-                        <p className="text-sm text-muted-foreground">
-                          No support levels.
-                        </p>
-                      )}
-                    </div>
+                <div>
+                  <div className="mb-3 text-sm font-medium text-[var(--color-header-bg)]">
+                    Versions
                   </div>
-
-                  <div className="bg-muted/30 p-4 rounded-lg border border-border">
-                    <h3 className="font-semibold text-sm mb-3">Versions</h3>
-                    {(entitlement.versions || []).length > 0 ? (
-                      <Table className="text-sm">
-                        <TableHeader>
-                          <TableRow className="bg-muted/50 hover:bg-muted/50">
-                            <TableHead>Version</TableHead>
-                            <TableHead>Date</TableHead>
-                          </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                          {(entitlement.versions || []).map(
-                            (version: VersionInfo) => (
-                              <TableRow
-                                key={
-                                  version.id ||
-                                  `${version.name}-${version.date}`
-                                }
-                              >
-                                <TableCell className="font-medium">
-                                  {version.name || "\u2014"}
-                                </TableCell>
-                                <TableCell className="text-muted-foreground">
-                                  {version.date || "\u2014"}
-                                </TableCell>
-                              </TableRow>
-                            ),
-                          )}
-                        </TableBody>
-                      </Table>
-                    ) : (
-                      <p className="text-sm text-muted-foreground">
-                        No versions.
-                      </p>
-                    )}
-                  </div>
+                  {(entitlement.versions || []).length > 0 ? (
+                    <Table className="text-sm">
+                      <TableBody>
+                        {(entitlement.versions || []).map(
+                          (version: VersionInfo) => (
+                            <TableRow
+                              key={
+                                version.id || `${version.name}-${version.date}`
+                              }
+                            >
+                              <TableCell className="font-medium">
+                                {version.name || "\u2014"}
+                              </TableCell>
+                              <TableCell className="text-muted-foreground">
+                                {version.date || "\u2014"}
+                              </TableCell>
+                            </TableRow>
+                          ),
+                        )}
+                      </TableBody>
+                    </Table>
+                  ) : (
+                    <p className="text-sm text-muted-foreground">
+                      No versions.
+                    </p>
+                  )}
                 </div>
-              </CardContent>
+              </div>
 
               {entitlement.editPath && (
-                <CardFooter className="flex justify-end pt-6 border-t bg-muted/20">
+                <div className="flex justify-end pt-6">
                   <Button asChild>
                     <SmartLink href={entitlement.editPath}>Edit</SmartLink>
                   </Button>
-                </CardFooter>
+                </div>
               )}
-            </Card>
+            </div>
           </>
         )}
       </DataState>

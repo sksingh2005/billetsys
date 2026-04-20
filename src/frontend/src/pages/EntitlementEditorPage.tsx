@@ -20,12 +20,6 @@ import { resolvePostRedirectPath } from "../utils/routing";
 import type { FormMode, SessionPageProps } from "../types/app";
 import type { EntitlementRecord, LevelRecord } from "../types/domain";
 import type { FormEntries } from "../utils/api";
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardContent,
-} from "../components/ui/card";
 import { Button } from "../components/ui/button";
 import {
   AlertDialog,
@@ -40,6 +34,14 @@ import {
 } from "../components/ui/alert-dialog";
 import { Field, FieldLabel } from "../components/ui/field";
 import { Input } from "../components/ui/input";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "../components/ui/table";
 
 interface EntitlementVersionForm {
   id: string;
@@ -262,18 +264,10 @@ export default function EntitlementEditorPage({
                 isEdit && entitlement ? entitlement.name || "Edit" : "Create"
               }
             />
-            {/* ENTITLEMENT DETAILS SECTION */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Entitlement Details</CardTitle>
-                <p className="text-sm text-muted-foreground mt-1">
-                  Required fields are marked{" "}
-                  <span className="text-destructive">*</span>.
-                </p>
-              </CardHeader>
-              <CardContent className="grid gap-6">
+            <div className="space-y-6">
+              <div className="grid gap-6">
                 <Field>
-                  <FieldLabel>
+                  <FieldLabel className="text-[var(--color-header-bg)]">
                     Name <span className="text-destructive">*</span>
                   </FieldLabel>
                   <Input
@@ -285,7 +279,7 @@ export default function EntitlementEditorPage({
                   />
                 </Field>
                 <Field>
-                  <FieldLabel>
+                  <FieldLabel className="text-[var(--color-header-bg)]">
                     Description <span className="text-destructive">*</span>
                   </FieldLabel>
                   <LexicalEditor
@@ -295,51 +289,62 @@ export default function EntitlementEditorPage({
                     required
                   />
                 </Field>
-              </CardContent>
-            </Card>
+              </div>
 
-            {/* SUPPORT LEVELS SECTION */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Support levels</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid gap-3 md:grid-cols-2">
-                  {supportLevels.map((level) => (
-                    <label
-                      key={level.id}
-                      className="flex items-center space-x-3 rounded-md border p-4 hover:bg-muted/50 cursor-pointer transition-colors"
-                    >
-                      <input
-                        type="checkbox"
-                        className="h-4 w-4 rounded border-primary text-primary focus:ring-primary"
-                        checked={formState.selectedLevelIds.includes(level.id)}
-                        onChange={() => toggleLevel(level.id)}
-                      />
-                      <div className="flex-1 space-y-1">
-                        <p className="text-sm font-medium leading-none">
-                          {level.name}
-                        </p>
-                        <p className="text-sm text-muted-foreground">
-                          {level.fromLabel} - {level.toLabel}
-                        </p>
-                      </div>
-                    </label>
-                  ))}
+              <div className="space-y-3">
+                <div className="text-sm font-medium text-[var(--color-header-bg)]">
+                  Support levels
                 </div>
+                <Table className="w-full table-fixed">
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="w-16 text-[var(--color-header-bg)]">
+                        Use
+                      </TableHead>
+                      <TableHead className="w-[40%] text-[var(--color-header-bg)]">
+                        Support level
+                      </TableHead>
+                      <TableHead className="w-[60%] text-[var(--color-header-bg)]">
+                        Hours
+                      </TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {supportLevels.map((level) => (
+                      <TableRow key={level.id}>
+                        <TableCell className="w-16 align-middle">
+                          <input
+                            type="checkbox"
+                            className="h-4 w-4 rounded border-primary text-primary focus:ring-primary"
+                            checked={formState.selectedLevelIds.includes(
+                              level.id,
+                            )}
+                            onChange={() => toggleLevel(level.id)}
+                            aria-label={`Select ${level.name}`}
+                          />
+                        </TableCell>
+                        <TableCell className="w-[40%] font-medium align-middle">
+                          {level.name}
+                        </TableCell>
+                        <TableCell className="w-[60%] align-middle text-muted-foreground">
+                          {level.fromLabel} - {level.toLabel}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
                 {supportLevels.length === 0 && (
-                  <p className="text-sm text-muted-foreground italic text-center py-4">
+                  <p className="py-4 text-center text-sm italic text-muted-foreground">
                     No support levels available.
                   </p>
                 )}
-              </CardContent>
-            </Card>
+              </div>
 
-            {/* VERSIONS SECTION */}
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between">
-                <div>
-                  <CardTitle>Versions</CardTitle>
+              <div className="space-y-3">
+                <div className="flex items-center justify-between gap-4">
+                  <div className="text-sm font-medium text-[var(--color-header-bg)]">
+                    Versions
+                  </div>
                 </div>
                 <Button
                   type="button"
@@ -347,56 +352,71 @@ export default function EntitlementEditorPage({
                   size="sm"
                   onClick={addVersion}
                 >
-                  Add Version
+                  Add
                 </Button>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {formState.versions.map((version, index) => (
-                  <div
-                    key={`${version.id || "new"}-${index}`}
-                    className="p-4 border rounded-lg bg-card text-card-foreground shadow-sm flex flex-col md:flex-row md:items-end gap-4"
-                  >
-                    <div className="grid gap-4 md:grid-cols-2 flex-grow">
-                      <Field>
-                        <FieldLabel>
-                          Version <span className="text-destructive">*</span>
-                        </FieldLabel>
-                        <Input
-                          value={version.name}
-                          onChange={(event) =>
-                            updateVersion(index, "name", event.target.value)
-                          }
-                          required
-                        />
-                      </Field>
-                      <Field>
-                        <FieldLabel>
-                          Date <span className="text-destructive">*</span>
-                        </FieldLabel>
-                        <Input
-                          type="date"
-                          value={version.date}
-                          onChange={(event) =>
-                            updateVersion(index, "date", event.target.value)
-                          }
-                          required
-                        />
-                      </Field>
-                    </div>
-                    <div className="flex-shrink-0 mt-4 md:mt-0">
-                      <Button
-                        type="button"
-                        variant="destructive"
-                        onClick={() => removeVersion(index)}
-                        disabled={formState.versions.length === 1}
-                      >
-                        Remove
-                      </Button>
-                    </div>
-                  </div>
-                ))}
-              </CardContent>
-            </Card>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="text-[var(--color-header-bg)]">
+                        Version
+                      </TableHead>
+                      <TableHead className="text-[var(--color-header-bg)]">
+                        Date
+                      </TableHead>
+                      <TableHead className="w-24 text-[var(--color-header-bg)]">
+                        Actions
+                      </TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {formState.versions.map((version, index) => (
+                      <TableRow key={`${version.id || "new"}-${index}`}>
+                        <TableCell>
+                          <Field>
+                            <FieldLabel className="sr-only">
+                              Version{" "}
+                              <span className="text-destructive">*</span>
+                            </FieldLabel>
+                            <Input
+                              value={version.name}
+                              onChange={(event) =>
+                                updateVersion(index, "name", event.target.value)
+                              }
+                              required
+                            />
+                          </Field>
+                        </TableCell>
+                        <TableCell>
+                          <Field>
+                            <FieldLabel className="sr-only">
+                              Date <span className="text-destructive">*</span>
+                            </FieldLabel>
+                            <Input
+                              type="date"
+                              value={version.date}
+                              onChange={(event) =>
+                                updateVersion(index, "date", event.target.value)
+                              }
+                              required
+                            />
+                          </Field>
+                        </TableCell>
+                        <TableCell>
+                          <Button
+                            type="button"
+                            variant="destructive"
+                            onClick={() => removeVersion(index)}
+                            disabled={formState.versions.length === 1}
+                          >
+                            Remove
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            </div>
 
             {/* ACTION BUTTONS */}
             <div className="flex items-center justify-end space-x-3 pt-4 border-t">
@@ -409,7 +429,7 @@ export default function EntitlementEditorPage({
                       disabled={saveState.saving}
                       className="mr-auto"
                     >
-                      Delete entitlement
+                      Delete
                     </Button>
                   </AlertDialogTrigger>
                   <AlertDialogContent>
