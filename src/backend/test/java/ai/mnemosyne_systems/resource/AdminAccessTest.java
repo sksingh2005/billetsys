@@ -189,7 +189,8 @@ class AdminAccessTest extends AccessTestSupport {
         String cookie = login("admin", "admin");
 
         RestAssured.given().cookie(AuthHelper.AUTH_COOKIE, cookie).get("/api/app/session").then().statusCode(200)
-                .body("role", Matchers.equalTo("admin")).body("navigation.href", Matchers.hasItem("/categories"));
+                .body("role", Matchers.equalTo("admin")).body("navigation.href", Matchers.hasItem("/categories"))
+                .body("installationLogoBase64", Matchers.startsWith("data:image/svg+xml;base64,"));
     }
 
     @Test
@@ -198,7 +199,8 @@ class AdminAccessTest extends AccessTestSupport {
         String cookie = login("admin", "admin");
 
         RestAssured.given().cookie(AuthHelper.AUTH_COOKIE, cookie).get("/api/app/session").then().statusCode(200)
-                .body("role", Matchers.equalTo("admin")).body("navigation.href", Matchers.hasItem("/owner"));
+                .body("role", Matchers.equalTo("admin")).body("navigation.href", Matchers.hasItem("/owner"))
+                .body("installationLogoBase64", Matchers.startsWith("data:image/svg+xml;base64,"));
     }
 
     @Test
@@ -207,7 +209,8 @@ class AdminAccessTest extends AccessTestSupport {
         String cookie = login("admin", "admin");
 
         RestAssured.given().cookie(AuthHelper.AUTH_COOKIE, cookie).get("/api/app/session").then().statusCode(200)
-                .body("role", Matchers.equalTo("admin")).body("navigation.href", Matchers.hasItem("/companies"));
+                .body("role", Matchers.equalTo("admin")).body("navigation.href", Matchers.hasItem("/companies"))
+                .body("installationLogoBase64", Matchers.startsWith("data:image/svg+xml;base64,"));
     }
 
     @Test

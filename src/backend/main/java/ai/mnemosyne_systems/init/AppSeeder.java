@@ -8,6 +8,7 @@
 
 package ai.mnemosyne_systems.init;
 
+import ai.mnemosyne_systems.infra.BrandingProvider;
 import ai.mnemosyne_systems.model.Category;
 import ai.mnemosyne_systems.model.Attachment;
 import ai.mnemosyne_systems.model.Company;
@@ -24,6 +25,7 @@ import io.quarkus.elytron.security.common.BcryptUtil;
 import io.quarkus.runtime.StartupEvent;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Observes;
+import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
@@ -31,6 +33,9 @@ import ai.mnemosyne_systems.model.Version;
 
 @ApplicationScoped
 public class AppSeeder {
+
+    @Inject
+    BrandingProvider brandingProvider;
 
     void onStart(@Observes StartupEvent event) {
         seedCountriesAndTimezones();
@@ -387,6 +392,9 @@ public class AppSeeder {
         }
         singleton.company = company;
         singleton.name = name;
+        if (singleton.logoBase64 == null || singleton.logoBase64.isBlank()) {
+            singleton.logoBase64 = brandingProvider.defaultInstallationLogoBase64();
+        }
         singleton.singletonKey = "installation";
         singleton.persist();
     }

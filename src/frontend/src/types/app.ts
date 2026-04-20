@@ -30,6 +30,7 @@ export interface Session {
   role?: Role;
   homePath?: string;
   installationCompanyName?: string;
+  installationLogoBase64?: string;
   displayName?: string;
   username?: string;
   logoBase64?: string;

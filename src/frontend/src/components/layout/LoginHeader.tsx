@@ -10,9 +10,10 @@ import { useEffect, useState } from "react";
 
 interface LoginHeaderProps {
   brandName: string;
+  logoSrc?: string;
 }
 
-export default function LoginHeader({ brandName }: LoginHeaderProps) {
+export default function LoginHeader({ brandName, logoSrc }: LoginHeaderProps) {
   const [now, setNow] = useState(() => new Date());
 
   useEffect(() => {
@@ -26,15 +27,23 @@ export default function LoginHeader({ brandName }: LoginHeaderProps) {
         className="flex items-center gap-2.5 text-header-text no-underline text-xl font-bold"
         href="/"
       >
-        <svg
-          viewBox="0 0 24 24"
-          aria-hidden="true"
-          className="w-6 h-6 fill-none stroke-current stroke-2"
-        >
-          <rect x="3" y="3" width="18" height="18" rx="2" />
-          <path d="M7 8h10M7 12h10M7 16h6" />
-          <path d="M6 8l1 1 2-2" />
-        </svg>
+        {logoSrc ? (
+          <img
+            src={logoSrc}
+            alt={`${brandName} logo`}
+            className="h-7 w-7 shrink-0 object-contain"
+          />
+        ) : (
+          <svg
+            viewBox="0 0 24 24"
+            aria-hidden="true"
+            className="w-6 h-6 fill-none stroke-current stroke-2"
+          >
+            <rect x="3" y="3" width="18" height="18" rx="2" />
+            <path d="M7 8h10M7 12h10M7 16h6" />
+            <path d="M6 8l1 1 2-2" />
+          </svg>
+        )}
         {brandName}
       </a>
       <span className="font-semibold tabular-nums">

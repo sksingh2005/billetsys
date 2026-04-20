@@ -18,7 +18,7 @@ The admin role covers the broadest set of management tasks in billetsys, includi
 * Users
 * Categories
 * Entitlements
-* Support levels
+* Levels
 * Related reference data
 * Knowledge content
 
@@ -32,7 +32,9 @@ This is important because ticket visibility, responsibility, and coordination al
 
 ## Service structure
 
-Admins also maintain the support structure behind the ticketing process. Categories, entitlement information, and support levels help define how tickets are classified and how service expectations are represented in the system.
+Admins also maintain the support structure behind the ticketing process. Categories, entitlement information, and levels help define how tickets are classified and how service expectations are represented in the system.
+
+Admins also maintain installation branding. The shared header logo is stored on the Installation entity so the same logo can be shown consistently across the application.
 
 ## Oversight and reporting
 

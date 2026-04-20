@@ -38,7 +38,10 @@ function App() {
         }
       >
         {isLoginRoute ? (
-          <LoginHeader brandName={brandName} />
+          <LoginHeader
+            brandName={brandName}
+            logoSrc={session?.installationLogoBase64}
+          />
         ) : (
           <AuthenticatedHeader session={session} />
         )}

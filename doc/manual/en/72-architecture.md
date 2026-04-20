@@ -61,6 +61,7 @@ erDiagram
     INSTALLATION {
         BIGINT id PK
         STRING name
+        TEXT logo_base64
         BIGINT company_id FK
     }
 
