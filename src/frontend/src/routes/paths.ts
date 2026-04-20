@@ -18,8 +18,6 @@ export const PATHS = {
   ownerEdit: "/owner/edit",
   users: "/users",
   usersNew: "/users/new",
-  messages: "/messages",
-  messagesNew: "/messages/new",
   levels: "/levels",
   levelsNew: "/levels/new",
   workbenchTickets: "/tickets",

@@ -292,8 +292,8 @@ class SupportAccessTest extends AccessTestSupport {
                 .multiPart("body", "Support note").multiPart("date", "2024-01-01T10:00")
                 .multiPart("ticketId", String.valueOf(ticket.id))
                 .multiPart("attachments", "note.txt", attachmentData, "text/plain")
-                .multiPart("attachments", "note-2.txt", attachmentDataTwo, "text/plain").post("/messages").then()
-                .statusCode(303);
+                .multiPart("attachments", "note-2.txt", attachmentDataTwo, "text/plain")
+                .post("/support/tickets/" + ticket.id + "/messages").then().statusCode(303);
         Message message = Message.find("ticket = ?1 and body = ?2", ticket, "Support note").firstResult();
         Assertions.assertNotNull(message);
         List<Attachment> attachments = Attachment.list("message = ?1 order by id", message);
@@ -305,21 +305,6 @@ class SupportAccessTest extends AccessTestSupport {
         Attachment secondAttachment = attachments.get(1);
         Assertions.assertEquals("note-2.txt", secondAttachment.name);
         Assertions.assertEquals(attachmentDataTwo.length, secondAttachment.data.length);
-        RestAssured.given().redirects().follow(false).cookie(AuthHelper.AUTH_COOKIE, cookie).get("/messages").then()
-                .statusCode(303).header("Location", Matchers.endsWith("/messages"));
-        RestAssured.given().cookie(AuthHelper.AUTH_COOKIE, cookie).get("/api/messages").then().statusCode(200)
-                .body("items.preview", Matchers.hasItem(Matchers.containsString("Support note")));
-        RestAssured.given().redirects().follow(false).cookie(AuthHelper.AUTH_COOKIE, cookie).get("/messages/new").then()
-                .statusCode(303).header("Location", Matchers.endsWith("/messages/new"));
-        RestAssured.given().cookie(AuthHelper.AUTH_COOKIE, cookie).get("/api/messages/bootstrap").then().statusCode(200)
-                .body("title", Matchers.equalTo("New message"));
-        RestAssured.given().redirects().follow(false).cookie(AuthHelper.AUTH_COOKIE, cookie)
-                .get("/messages/" + message.id + "/edit").then().statusCode(303)
-                .header("Location", Matchers.endsWith("/messages/" + message.id + "/edit"));
-        RestAssured.given().cookie(AuthHelper.AUTH_COOKIE, cookie).queryParam("messageId", message.id)
-                .get("/api/messages/bootstrap").then().statusCode(200)
-                .body("message.body", Matchers.equalTo("Support note"))
-                .body("attachments.name", Matchers.hasItems("note.txt", "note-2.txt"));
 
         RestAssured.given().cookie(AuthHelper.AUTH_COOKIE, cookie).get("/api/support/tickets/" + ticket.id).then()
                 .statusCode(200)
@@ -349,17 +334,6 @@ class SupportAccessTest extends AccessTestSupport {
         Assertions.assertEquals(2, replyAttachments.size());
         Assertions.assertEquals("reply.txt", replyAttachments.get(0).name);
         Assertions.assertEquals("reply-2.txt", replyAttachments.get(1).name);
-
-        RestAssured.given().redirects().follow(false).cookie(AuthHelper.AUTH_COOKIE, cookie)
-                .multiPart("body", "Support note updated").multiPart("date", "2024-01-01T11:00")
-                .multiPart("ticketId", String.valueOf(ticket.id)).post("/messages/" + message.id).then()
-                .statusCode(303);
-        Message updatedMessage = refreshedMessage(message.id);
-        Assertions.assertEquals("Support note updated", updatedMessage.body);
-
-        RestAssured.given().redirects().follow(false).cookie(AuthHelper.AUTH_COOKIE, cookie)
-                .post("/messages/" + message.id + "/delete").then().statusCode(303);
-        Assertions.assertNull(refreshedMessage(message.id));
 
         RestAssured.given().redirects().follow(false).cookie(AuthHelper.AUTH_COOKIE, cookie)
                 .post("/tickets/" + ticket.id + "/delete").then().statusCode(303);
