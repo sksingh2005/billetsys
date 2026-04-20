@@ -81,47 +81,65 @@ export function UserDetailCard({
     <div className="w-full space-y-6">
       <div className="grid gap-6 md:grid-cols-2">
         <Field>
-          <FieldLabel>Username</FieldLabel>
+          <FieldLabel className="text-[var(--color-header-bg)]">
+            Username
+          </FieldLabel>
           <Input value={user.username || "—"} readOnly />
         </Field>
         <Field>
-          <FieldLabel>Full name</FieldLabel>
+          <FieldLabel className="text-[var(--color-header-bg)]">
+            Full name
+          </FieldLabel>
           <Input value={user.fullName || "—"} readOnly />
         </Field>
         <Field>
-          <FieldLabel>Type</FieldLabel>
+          <FieldLabel className="text-[var(--color-header-bg)]">
+            Type
+          </FieldLabel>
           <Input value={user.typeLabel || user.type || "User"} readOnly />
         </Field>
         <Field>
-          <FieldLabel>Email</FieldLabel>
+          <FieldLabel className="text-[var(--color-header-bg)]">
+            Email
+          </FieldLabel>
           <Input value={user.email || "—"} readOnly />
         </Field>
         <Field>
-          <FieldLabel>Social</FieldLabel>
+          <FieldLabel className="text-[var(--color-header-bg)]">
+            Social
+          </FieldLabel>
           <Input value={user.social || "—"} readOnly />
         </Field>
         <Field>
-          <FieldLabel>Phone</FieldLabel>
+          <FieldLabel className="text-[var(--color-header-bg)]">
+            Phone
+          </FieldLabel>
           <Input
             value={formatPhone(user.phoneNumber, user.phoneExtension)}
             readOnly
           />
         </Field>
         <Field>
-          <FieldLabel>Country</FieldLabel>
+          <FieldLabel className="text-[var(--color-header-bg)]">
+            Country
+          </FieldLabel>
           <Input value={user.countryName || "—"} readOnly />
         </Field>
         <Field>
-          <FieldLabel>Time zone</FieldLabel>
+          <FieldLabel className="text-[var(--color-header-bg)]">
+            Time zone
+          </FieldLabel>
           <Input value={user.timezoneName || "—"} readOnly />
         </Field>
 
         <div className="md:col-span-2 pt-4 border-t mt-2 grid gap-6 md:grid-cols-2">
           <div>
-            <FieldLabel className="mb-2 block">{companyLabel}</FieldLabel>
+            <FieldLabel className="mb-2 block text-[var(--color-header-bg)]">
+              {companyLabel}
+            </FieldLabel>
             {companyHref ? (
               <SmartLink
-                className="text-primary hover:underline font-medium flex items-center h-10"
+                className="flex h-10 items-center font-medium text-[var(--color-header-bg)] hover:underline hover:opacity-80"
                 href={companyHref}
               >
                 {user.companyName || "Open company"}
@@ -136,7 +154,9 @@ export function UserDetailCard({
           </div>
 
           <div>
-            <FieldLabel className="mb-2 block">Logo</FieldLabel>
+            <FieldLabel className="mb-2 block text-[var(--color-header-bg)]">
+              Logo
+            </FieldLabel>
             <UserLogoPreview
               logoBase64={user.logoBase64}
               fullName={user.fullName}

@@ -51,7 +51,7 @@ export default function CategoriesPage(props: SessionPageProps) {
                 <div className="flex items-start justify-between gap-2">
                   <h3 className="font-semibold leading-none tracking-tight">
                     <Link
-                      className="text-primary hover:underline hover:text-primary/80"
+                      className="text-[var(--color-header-bg)] hover:underline hover:opacity-80"
                       to={`/categories/${category.id}`}
                     >
                       {category.name}

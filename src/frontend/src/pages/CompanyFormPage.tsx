@@ -396,7 +396,7 @@ export default function CompanyFormPage({ mode }: CompanyFormPageProps) {
             )}
             <div className="grid gap-6 md:grid-cols-2">
               <Field>
-                <FieldLabel>
+                <FieldLabel className="text-[var(--color-header-bg)]">
                   Name {!isEdit && <span className="text-destructive">*</span>}
                 </FieldLabel>
                 <Input
@@ -408,7 +408,9 @@ export default function CompanyFormPage({ mode }: CompanyFormPageProps) {
                 />
               </Field>
               <Field>
-                <FieldLabel>Phone number</FieldLabel>
+                <FieldLabel className="text-[var(--color-header-bg)]">
+                  Phone number
+                </FieldLabel>
                 <PhoneInput
                   defaultCountry="US"
                   value={formState.phoneNumber}
@@ -418,7 +420,9 @@ export default function CompanyFormPage({ mode }: CompanyFormPageProps) {
                 />
               </Field>
               <Field>
-                <FieldLabel>Address 1</FieldLabel>
+                <FieldLabel className="text-[var(--color-header-bg)]">
+                  Address 1
+                </FieldLabel>
                 <Input
                   value={formState.address1}
                   onChange={(event) =>
@@ -427,7 +431,9 @@ export default function CompanyFormPage({ mode }: CompanyFormPageProps) {
                 />
               </Field>
               <Field>
-                <FieldLabel>Address 2</FieldLabel>
+                <FieldLabel className="text-[var(--color-header-bg)]">
+                  Address 2
+                </FieldLabel>
                 <Input
                   value={formState.address2}
                   onChange={(event) =>
@@ -436,7 +442,9 @@ export default function CompanyFormPage({ mode }: CompanyFormPageProps) {
                 />
               </Field>
               <Field>
-                <FieldLabel>City</FieldLabel>
+                <FieldLabel className="text-[var(--color-header-bg)]">
+                  City
+                </FieldLabel>
                 <Input
                   value={formState.city}
                   onChange={(event) =>
@@ -445,7 +453,9 @@ export default function CompanyFormPage({ mode }: CompanyFormPageProps) {
                 />
               </Field>
               <Field>
-                <FieldLabel>State</FieldLabel>
+                <FieldLabel className="text-[var(--color-header-bg)]">
+                  State
+                </FieldLabel>
                 <Input
                   value={formState.state}
                   onChange={(event) =>
@@ -454,7 +464,9 @@ export default function CompanyFormPage({ mode }: CompanyFormPageProps) {
                 />
               </Field>
               <Field>
-                <FieldLabel>Zip</FieldLabel>
+                <FieldLabel className="text-[var(--color-header-bg)]">
+                  Zip
+                </FieldLabel>
                 <Input
                   value={formState.zip}
                   onChange={(event) =>
@@ -463,7 +475,9 @@ export default function CompanyFormPage({ mode }: CompanyFormPageProps) {
                 />
               </Field>
               <Field>
-                <FieldLabel>Country</FieldLabel>
+                <FieldLabel className="text-[var(--color-header-bg)]">
+                  Country
+                </FieldLabel>
                 <CountryDropdown
                   defaultValue={
                     countries.all.find(
@@ -499,7 +513,9 @@ export default function CompanyFormPage({ mode }: CompanyFormPageProps) {
                 />
               </Field>
               <Field>
-                <FieldLabel>Time zone</FieldLabel>
+                <FieldLabel className="text-[var(--color-header-bg)]">
+                  Time zone
+                </FieldLabel>
                 <Select
                   value={formState.timezoneId || undefined}
                   onValueChange={(value) =>
@@ -706,7 +722,9 @@ export default function CompanyFormPage({ mode }: CompanyFormPageProps) {
             {isEdit ? (
               <div className="space-y-4">
                 <div className="flex flex-row items-center justify-between">
-                  <h2 className="text-base font-semibold">Entitlements</h2>
+                  <h2 className="text-base font-semibold text-[var(--color-header-bg)]">
+                    Entitlements
+                  </h2>
                   <Button
                     type="button"
                     variant="outline"
@@ -724,7 +742,9 @@ export default function CompanyFormPage({ mode }: CompanyFormPageProps) {
                     >
                       <div className="grid gap-4 md:grid-cols-4 flex-grow">
                         <Field>
-                          <FieldLabel>Entitlement</FieldLabel>
+                          <FieldLabel className="text-[var(--color-header-bg)]">
+                            Entitlement
+                          </FieldLabel>
                           <Select
                             value={entry.entitlementId || undefined}
                             onValueChange={(value) =>
@@ -748,7 +768,9 @@ export default function CompanyFormPage({ mode }: CompanyFormPageProps) {
                           </Select>
                         </Field>
                         <Field>
-                          <FieldLabel>Level</FieldLabel>
+                          <FieldLabel className="text-[var(--color-header-bg)]">
+                            Level
+                          </FieldLabel>
                           <Select
                             value={entry.levelId || undefined}
                             onValueChange={(value) =>
@@ -772,7 +794,9 @@ export default function CompanyFormPage({ mode }: CompanyFormPageProps) {
                           </Select>
                         </Field>
                         <Field>
-                          <FieldLabel>Date</FieldLabel>
+                          <FieldLabel className="text-[var(--color-header-bg)]">
+                            Date
+                          </FieldLabel>
                           <Input
                             type="date"
                             value={entry.date}
@@ -787,7 +811,9 @@ export default function CompanyFormPage({ mode }: CompanyFormPageProps) {
                           />
                         </Field>
                         <Field>
-                          <FieldLabel>Duration</FieldLabel>
+                          <FieldLabel className="text-[var(--color-header-bg)]">
+                            Duration
+                          </FieldLabel>
                           <Select
                             value={entry.duration || undefined}
                             onValueChange={(value) =>

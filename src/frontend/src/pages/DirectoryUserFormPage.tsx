@@ -280,7 +280,7 @@ export default function DirectoryUserFormPage({
                 }
               >
                 <Field>
-                  <FieldLabel>
+                  <FieldLabel className="text-[var(--color-header-bg)]">
                     Username <span className="text-destructive">*</span>
                   </FieldLabel>
                   <Input
@@ -292,7 +292,9 @@ export default function DirectoryUserFormPage({
                   />
                 </Field>
                 <Field>
-                  <FieldLabel>Full name</FieldLabel>
+                  <FieldLabel className="text-[var(--color-header-bg)]">
+                    Full name
+                  </FieldLabel>
                   <Input
                     value={formState.fullName}
                     onChange={(event) =>
@@ -301,7 +303,7 @@ export default function DirectoryUserFormPage({
                   />
                 </Field>
                 <Field>
-                  <FieldLabel>
+                  <FieldLabel className="text-[var(--color-header-bg)]">
                     Email <span className="text-destructive">*</span>
                   </FieldLabel>
                   <Input
@@ -314,7 +316,9 @@ export default function DirectoryUserFormPage({
                   />
                 </Field>
                 <Field>
-                  <FieldLabel>Social</FieldLabel>
+                  <FieldLabel className="text-[var(--color-header-bg)]">
+                    Social
+                  </FieldLabel>
                   <Input
                     value={formState.social}
                     onChange={(event) =>
@@ -323,7 +327,9 @@ export default function DirectoryUserFormPage({
                   />
                 </Field>
                 <Field>
-                  <FieldLabel>Phone number</FieldLabel>
+                  <FieldLabel className="text-[var(--color-header-bg)]">
+                    Phone number
+                  </FieldLabel>
                   <PhoneInput
                     defaultCountry="US"
                     value={formState.phoneNumber}
@@ -333,7 +339,9 @@ export default function DirectoryUserFormPage({
                   />
                 </Field>
                 <Field>
-                  <FieldLabel>Extension</FieldLabel>
+                  <FieldLabel className="text-[var(--color-header-bg)]">
+                    Extension
+                  </FieldLabel>
                   <Input
                     value={formState.phoneExtension}
                     onChange={(event) =>
@@ -342,7 +350,9 @@ export default function DirectoryUserFormPage({
                   />
                 </Field>
                 <Field>
-                  <FieldLabel>Country</FieldLabel>
+                  <FieldLabel className="text-[var(--color-header-bg)]">
+                    Country
+                  </FieldLabel>
                   <CountryDropdown
                     defaultValue={
                       countries.all.find(
@@ -372,7 +382,9 @@ export default function DirectoryUserFormPage({
                   />
                 </Field>
                 <Field>
-                  <FieldLabel>Time zone</FieldLabel>
+                  <FieldLabel className="text-[var(--color-header-bg)]">
+                    Time zone
+                  </FieldLabel>
                   <Select
                     value={formState.timezoneId || undefined}
                     onValueChange={(value) =>
@@ -397,7 +409,7 @@ export default function DirectoryUserFormPage({
                   </Select>
                 </Field>
                 <Field>
-                  <FieldLabel>
+                  <FieldLabel className="text-[var(--color-header-bg)]">
                     Type <span className="text-destructive">*</span>
                   </FieldLabel>
                   <Select
@@ -418,7 +430,9 @@ export default function DirectoryUserFormPage({
                   </Select>
                 </Field>
                 <Field>
-                  <FieldLabel>Company</FieldLabel>
+                  <FieldLabel className="text-[var(--color-header-bg)]">
+                    Company
+                  </FieldLabel>
                   <Select
                     value={formState.companyId || undefined}
                     disabled={bootstrap.companyLocked}
@@ -444,7 +458,7 @@ export default function DirectoryUserFormPage({
                   </Select>
                 </Field>
                 <Field className="sm:col-span-2">
-                  <FieldLabel>
+                  <FieldLabel className="text-[var(--color-header-bg)]">
                     Password{" "}
                     {bootstrap.passwordRequired && (
                       <span className="text-destructive">*</span>

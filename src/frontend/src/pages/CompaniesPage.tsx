@@ -49,7 +49,7 @@ export default function CompaniesPage(props: SessionPageProps) {
               <CardHeader>
                 <h3 className="font-semibold leading-none tracking-tight">
                   <Link
-                    className="text-primary hover:underline hover:text-primary/80"
+                    className="text-[var(--color-header-bg)] hover:underline hover:opacity-80"
                     to={`/companies/${company.id}`}
                   >
                     {company.name}

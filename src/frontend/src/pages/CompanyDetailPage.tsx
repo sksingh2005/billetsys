@@ -44,59 +44,83 @@ export default function CompanyDetailPage(props: SessionPageProps) {
             <PageHeader title={company.name || "Company"} />
             <div className="grid gap-6 md:grid-cols-2">
               <Field>
-                <FieldLabel>Name</FieldLabel>
+                <FieldLabel className="text-[var(--color-header-bg)]">
+                  Name
+                </FieldLabel>
                 <Input value={company.name || "—"} readOnly />
               </Field>
               <Field>
-                <FieldLabel>Phone</FieldLabel>
+                <FieldLabel className="text-[var(--color-header-bg)]">
+                  Phone
+                </FieldLabel>
                 <Input value={company.phoneNumber || "—"} readOnly />
               </Field>
               <Field>
-                <FieldLabel>Country</FieldLabel>
+                <FieldLabel className="text-[var(--color-header-bg)]">
+                  Country
+                </FieldLabel>
                 <Input value={company.countryName || "—"} readOnly />
               </Field>
               <Field>
-                <FieldLabel>Time zone</FieldLabel>
+                <FieldLabel className="text-[var(--color-header-bg)]">
+                  Time zone
+                </FieldLabel>
                 <Input value={company.timezoneName || "—"} readOnly />
               </Field>
               <Field>
-                <FieldLabel>Address 1</FieldLabel>
+                <FieldLabel className="text-[var(--color-header-bg)]">
+                  Address 1
+                </FieldLabel>
                 <Input value={company.address1 || "—"} readOnly />
               </Field>
               <Field>
-                <FieldLabel>Address 2</FieldLabel>
+                <FieldLabel className="text-[var(--color-header-bg)]">
+                  Address 2
+                </FieldLabel>
                 <Input value={company.address2 || "—"} readOnly />
               </Field>
               <Field>
-                <FieldLabel>City</FieldLabel>
+                <FieldLabel className="text-[var(--color-header-bg)]">
+                  City
+                </FieldLabel>
                 <Input value={company.city || "—"} readOnly />
               </Field>
               <Field>
-                <FieldLabel>State</FieldLabel>
+                <FieldLabel className="text-[var(--color-header-bg)]">
+                  State
+                </FieldLabel>
                 <Input value={company.state || "—"} readOnly />
               </Field>
               <Field>
-                <FieldLabel>Zip</FieldLabel>
+                <FieldLabel className="text-[var(--color-header-bg)]">
+                  Zip
+                </FieldLabel>
                 <Input value={company.zip || "—"} readOnly />
               </Field>
 
               <div className="md:col-span-2 grid gap-6 md:grid-cols-3">
                 <div className="bg-muted/30 p-5 rounded-lg border border-border">
-                  <h3 className="font-semibold text-sm mb-3">Superusers</h3>
+                  <h3 className="mb-3 text-sm font-semibold text-[var(--color-header-bg)]">
+                    Superusers
+                  </h3>
                   <div className="text-sm">
                     <SelectableUserSummary users={sortedSuperusers} />
                   </div>
                 </div>
 
                 <div className="bg-muted/30 p-5 rounded-lg border border-border">
-                  <h3 className="font-semibold text-sm mb-3">Users</h3>
+                  <h3 className="mb-3 text-sm font-semibold text-[var(--color-header-bg)]">
+                    Users
+                  </h3>
                   <div className="text-sm">
                     <SelectableUserSummary users={sortedUsers} />
                   </div>
                 </div>
 
                 <div className="bg-muted/30 p-5 rounded-lg border border-border">
-                  <h3 className="font-semibold text-sm mb-3">TAMs</h3>
+                  <h3 className="mb-3 text-sm font-semibold text-[var(--color-header-bg)]">
+                    TAMs
+                  </h3>
                   <div className="text-sm">
                     <SelectableUserSummary users={sortedTams} />
                   </div>
@@ -104,7 +128,9 @@ export default function CompanyDetailPage(props: SessionPageProps) {
               </div>
 
               <div className="md:col-span-2 bg-muted/30 p-5 rounded-lg">
-                <h3 className="font-semibold text-sm mb-3">Entitlements</h3>
+                <h3 className="mb-3 text-sm font-semibold text-[var(--color-header-bg)]">
+                  Entitlements
+                </h3>
                 <div>
                   {sortedEntitlements.length === 0 ? (
                     <p className="text-sm text-muted-foreground">—</p>

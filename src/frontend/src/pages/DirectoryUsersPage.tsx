@@ -73,7 +73,7 @@ export default function DirectoryUsersPage({
         <div className="grid gap-6">
           {directory?.showCompanySelector && (
             <div className="grid gap-1.5 max-w-xs">
-              <label className="text-sm font-medium leading-none">
+              <label className="text-sm font-medium leading-none text-[var(--color-header-bg)]">
                 Company
               </label>
               <Select
@@ -106,10 +106,10 @@ export default function DirectoryUsersPage({
               <Card key={user.id} className="hover:shadow-md transition-shadow">
                 <CardHeader>
                   <div className="flex items-start justify-between gap-2">
-                    <h3 className="font-semibold leading-none tracking-tight">
+                    <h3 className="font-semibold leading-none tracking-tight text-[var(--color-header-bg)]">
                       {user.detailPath ? (
                         <SmartLink
-                          className="text-primary hover:underline hover:text-primary/80"
+                          className="text-[var(--color-header-bg)] hover:underline hover:opacity-80"
                           href={user.detailPath}
                         >
                           {user.displayName ||

@@ -60,51 +60,69 @@ export function OwnerPage(props: SessionPageProps) {
             <PageHeader title={owner.name || "Owner"} />
             <div className="grid gap-6 md:grid-cols-2">
               <Field>
-                <FieldLabel>Name</FieldLabel>
+                <FieldLabel className="text-[var(--color-header-bg)]">
+                  Name
+                </FieldLabel>
                 <Input value={owner.name || "—"} readOnly />
               </Field>
               <Field>
-                <FieldLabel>Phone</FieldLabel>
+                <FieldLabel className="text-[var(--color-header-bg)]">
+                  Phone
+                </FieldLabel>
                 <Input value={owner.phoneNumber || "—"} readOnly />
               </Field>
               <Field>
-                <FieldLabel>Country</FieldLabel>
+                <FieldLabel className="text-[var(--color-header-bg)]">
+                  Country
+                </FieldLabel>
                 <Input value={owner.countryName || "—"} readOnly />
               </Field>
               <Field>
-                <FieldLabel>Time zone</FieldLabel>
+                <FieldLabel className="text-[var(--color-header-bg)]">
+                  Time zone
+                </FieldLabel>
                 <Input value={owner.timezoneName || "—"} readOnly />
               </Field>
               <Field>
-                <FieldLabel>Address 1</FieldLabel>
+                <FieldLabel className="text-[var(--color-header-bg)]">
+                  Address 1
+                </FieldLabel>
                 <Input value={owner.address1 || "—"} readOnly />
               </Field>
               <Field>
-                <FieldLabel>Address 2</FieldLabel>
+                <FieldLabel className="text-[var(--color-header-bg)]">
+                  Address 2
+                </FieldLabel>
                 <Input value={owner.address2 || "—"} readOnly />
               </Field>
               <Field>
-                <FieldLabel>City</FieldLabel>
+                <FieldLabel className="text-[var(--color-header-bg)]">
+                  City
+                </FieldLabel>
                 <Input value={owner.city || "—"} readOnly />
               </Field>
               <Field>
-                <FieldLabel>State</FieldLabel>
+                <FieldLabel className="text-[var(--color-header-bg)]">
+                  State
+                </FieldLabel>
                 <Input value={owner.state || "—"} readOnly />
               </Field>
               <Field>
-                <FieldLabel>Zip</FieldLabel>
+                <FieldLabel className="text-[var(--color-header-bg)]">
+                  Zip
+                </FieldLabel>
                 <Input value={owner.zip || "—"} readOnly />
               </Field>
 
               <div className="md:col-span-2 grid gap-6 md:grid-cols-2 pt-6 border-t mt-2">
                 <div className="space-y-4">
-                  <FieldLabel className="text-base text-foreground mb-4">
+                  <FieldLabel className="mb-4 text-base text-[var(--color-header-bg)]">
                     Support
                   </FieldLabel>
                   <OwnerUserList users={owner.supportUsers} />
                 </div>
                 <div className="space-y-4">
-                  <FieldLabel className="text-base text-foreground mb-4">
+                  <FieldLabel className="mb-4 text-base text-[var(--color-header-bg)]">
                     TAMs
                   </FieldLabel>
                   <OwnerUserList users={owner.tamUsers} />
@@ -232,7 +250,9 @@ export function OwnerEditPage(props: SessionPageProps) {
             <PageHeader title={formState.name || owner.name || "Owner"} />
             <div className="grid gap-6 md:grid-cols-2">
               <Field>
-                <FieldLabel>Name</FieldLabel>
+                <FieldLabel className="text-[var(--color-header-bg)]">
+                  Name
+                </FieldLabel>
                 <Input
                   value={formState.name}
                   onChange={(event) => updateField("name", event.target.value)}
@@ -240,7 +260,9 @@ export function OwnerEditPage(props: SessionPageProps) {
                 />
               </Field>
               <Field>
-                <FieldLabel>Phone</FieldLabel>
+                <FieldLabel className="text-[var(--color-header-bg)]">
+                  Phone
+                </FieldLabel>
                 <PhoneInput
                   defaultCountry="US"
                   value={formState.phoneNumber}
@@ -248,7 +270,9 @@ export function OwnerEditPage(props: SessionPageProps) {
                 />
               </Field>
               <Field>
-                <FieldLabel>Country</FieldLabel>
+                <FieldLabel className="text-[var(--color-header-bg)]">
+                  Country
+                </FieldLabel>
                 <CountryDropdown
                   defaultValue={
                     countries.all.find(
@@ -284,7 +308,9 @@ export function OwnerEditPage(props: SessionPageProps) {
                 />
               </Field>
               <Field>
-                <FieldLabel>Time zone</FieldLabel>
+                <FieldLabel className="text-[var(--color-header-bg)]">
+                  Time zone
+                </FieldLabel>
                 <Select
                   value={formState.timezoneId || undefined}
                   onValueChange={(value) => updateField("timezoneId", value)}
@@ -302,7 +328,9 @@ export function OwnerEditPage(props: SessionPageProps) {
                 </Select>
               </Field>
               <Field>
-                <FieldLabel>Address 1</FieldLabel>
+                <FieldLabel className="text-[var(--color-header-bg)]">
+                  Address 1
+                </FieldLabel>
                 <Input
                   value={formState.address1}
                   onChange={(event) =>
@@ -311,7 +339,9 @@ export function OwnerEditPage(props: SessionPageProps) {
                 />
               </Field>
               <Field>
-                <FieldLabel>Address 2</FieldLabel>
+                <FieldLabel className="text-[var(--color-header-bg)]">
+                  Address 2
+                </FieldLabel>
                 <Input
                   value={formState.address2}
                   onChange={(event) =>
@@ -320,21 +350,27 @@ export function OwnerEditPage(props: SessionPageProps) {
                 />
               </Field>
               <Field>
-                <FieldLabel>City</FieldLabel>
+                <FieldLabel className="text-[var(--color-header-bg)]">
+                  City
+                </FieldLabel>
                 <Input
                   value={formState.city}
                   onChange={(event) => updateField("city", event.target.value)}
                 />
               </Field>
               <Field>
-                <FieldLabel>State</FieldLabel>
+                <FieldLabel className="text-[var(--color-header-bg)]">
+                  State
+                </FieldLabel>
                 <Input
                   value={formState.state}
                   onChange={(event) => updateField("state", event.target.value)}
                 />
               </Field>
               <Field>
-                <FieldLabel>Zip</FieldLabel>
+                <FieldLabel className="text-[var(--color-header-bg)]">
+                  Zip
+                </FieldLabel>
                 <Input
                   value={formState.zip}
                   onChange={(event) => updateField("zip", event.target.value)}
@@ -343,7 +379,7 @@ export function OwnerEditPage(props: SessionPageProps) {
 
               <div className="md:col-span-2 grid gap-6 md:grid-cols-2 pt-6 border-t mt-2">
                 <div className="space-y-4">
-                  <FieldLabel className="text-base text-foreground mb-4">
+                  <FieldLabel className="mb-4 text-base text-[var(--color-header-bg)]">
                     Support
                   </FieldLabel>
                   <div className="mt-2">
@@ -358,7 +394,7 @@ export function OwnerEditPage(props: SessionPageProps) {
                   </div>
                 </div>
                 <div className="space-y-4">
-                  <FieldLabel className="text-base text-foreground mb-4">
+                  <FieldLabel className="mb-4 text-base text-[var(--color-header-bg)]">
                     TAMs
                   </FieldLabel>
                   <div className="mt-2">
