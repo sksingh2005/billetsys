@@ -608,7 +608,9 @@ class SupportAccessTest extends AccessTestSupport {
     void reactAppSessionReturnsGuestStateWhenSignedOut() {
         RestAssured.given().get("/api/app/session").then().statusCode(200)
                 .body("authenticated", Matchers.equalTo(false)).body("homePath", Matchers.equalTo("/login"))
-                .body("installationLogoBase64", Matchers.startsWith("data:image/svg+xml;base64,")).body("notices",
+                .body("installationLogoBase64", Matchers.startsWith("data:image/svg+xml;base64,"))
+                .body("inactivityTimeoutSeconds", Matchers.equalTo(AuthHelper.INACTIVITY_TIMEOUT_SECONDS))
+                .body("inactivityWarningSeconds", Matchers.equalTo(AuthHelper.WARNING_LEAD_SECONDS)).body("notices",
                         Matchers.hasItem("The React shell now uses clean URLs for login, tickets, and admin pages."));
     }
 
@@ -621,6 +623,8 @@ class SupportAccessTest extends AccessTestSupport {
                 .body("authenticated", Matchers.equalTo(true)).body("username", Matchers.equalTo("user"))
                 .body("role", Matchers.equalTo("user")).body("homePath", Matchers.equalTo("/user/tickets"))
                 .body("installationLogoBase64", Matchers.startsWith("data:image/svg+xml;base64,"))
+                .body("inactivityTimeoutSeconds", Matchers.equalTo(AuthHelper.INACTIVITY_TIMEOUT_SECONDS))
+                .body("inactivityWarningSeconds", Matchers.equalTo(AuthHelper.WARNING_LEAD_SECONDS))
                 .body("navigation.href", Matchers.hasItem("/user/tickets"))
                 .body("navigation.href", Matchers.hasItem("/articles"))
                 .body("navigation.href", Matchers.hasItem("/profile")).body("notices", Matchers
@@ -634,7 +638,9 @@ class SupportAccessTest extends AccessTestSupport {
 
         RestAssured.given().cookie(AuthHelper.AUTH_COOKIE, cookie).get("/api/app/session").then().statusCode(200)
                 .body("role", Matchers.equalTo("support")).body("homePath", Matchers.equalTo("/support/tickets"))
-                .body("navigation.href", Matchers.hasItem("/support/tickets"));
+                .body("navigation.href", Matchers.hasItem("/support/tickets"))
+                .body("inactivityTimeoutSeconds", Matchers.equalTo(AuthHelper.INACTIVITY_TIMEOUT_SECONDS))
+                .body("inactivityWarningSeconds", Matchers.equalTo(AuthHelper.WARNING_LEAD_SECONDS));
     }
 
     @Test

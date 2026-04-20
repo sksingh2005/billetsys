@@ -57,7 +57,7 @@ public class AdminUserApiResource {
         Company userCompany = userId == null ? null
                 : Company.<Company> find("select c from Company c join c.users u where u = ?1", user).firstResult();
         Company selectedCompany = companyId != null ? Company.findById(companyId) : userCompany;
-        if (selectedCompany == null && !companies.isEmpty()) {
+        if (selectedCompany == null && userId != null && !companies.isEmpty()) {
             selectedCompany = companies.get(0);
         }
         Country selectedCountry = selectCountry(user, countryId);

@@ -145,12 +145,6 @@ export default function CompanyFormPage({ mode }: CompanyFormPageProps) {
       timezoneId: company.defaultTimezoneId
         ? String(company.defaultTimezoneId)
         : "",
-      superuserCountryId: company.defaultCountryId
-        ? String(company.defaultCountryId)
-        : "",
-      superuserTimezoneId: company.defaultTimezoneId
-        ? String(company.defaultTimezoneId)
-        : "",
     });
   }, [company, isEdit]);
 
@@ -159,12 +153,6 @@ export default function CompanyFormPage({ mode }: CompanyFormPageProps) {
       (timezone) =>
         !formState?.countryId ||
         String(timezone.countryId) === formState.countryId,
-    ) || [];
-  const availableSuperuserTimezones =
-    company?.timezones?.filter(
-      (timezone) =>
-        !formState?.superuserCountryId ||
-        String(timezone.countryId) === formState.superuserCountryId,
     ) || [];
   const superuserOptions = company?.superuserOptions?.length
     ? company.superuserOptions
@@ -301,27 +289,13 @@ export default function CompanyFormPage({ mode }: CompanyFormPageProps) {
     ];
     try {
       setSaveState({ saving: true, error: "" });
-      if (isEdit) {
-        entries.push([
-          "superuserId",
-          formState.superuserId ||
-            (formState.selectedSuperuserIds[0]
-              ? String(formState.selectedSuperuserIds[0])
-              : ""),
-        ]);
-      } else {
-        entries.push(
-          ["superuserUsername", formState.superuserUsername],
-          ["superuserFullName", formState.superuserFullName],
-          ["superuserEmail", formState.superuserEmail],
-          ["superuserSocial", formState.superuserSocial],
-          ["superuserPhoneNumber", formState.superuserPhoneNumber],
-          ["superuserPhoneExtension", formState.superuserPhoneExtension],
-          ["superuserCountryId", formState.superuserCountryId],
-          ["superuserTimezoneId", formState.superuserTimezoneId],
-          ["superuserPassword", formState.superuserPassword],
-        );
-      }
+      entries.push([
+        "superuserId",
+        formState.superuserId ||
+          (formState.selectedSuperuserIds[0]
+            ? String(formState.selectedSuperuserIds[0])
+            : ""),
+      ]);
 
       const response = await postForm(
         isEdit ? `/companies/${id}` : "/companies",
@@ -386,14 +360,8 @@ export default function CompanyFormPage({ mode }: CompanyFormPageProps) {
         {formState && company && (
           <form className="space-y-6 pb-20" onSubmit={submit}>
             <PageHeader
-              title={isEdit && company ? company.name || "Edit" : "Create"}
+              title={isEdit && company ? company.name || "Edit" : "New company"}
             />
-            {!isEdit && (
-              <p className="text-sm text-muted-foreground">
-                Required fields are marked{" "}
-                <span className="text-destructive">*</span>.
-              </p>
-            )}
             <div className="grid gap-6 md:grid-cols-2">
               <Field>
                 <FieldLabel className="text-[var(--color-header-bg)]">
@@ -535,21 +503,18 @@ export default function CompanyFormPage({ mode }: CompanyFormPageProps) {
                 </Select>
               </Field>
 
-              <div
-                className={`md:col-span-2 mt-2 pt-4 border-t ${isEdit ? "grid gap-6 md:grid-cols-3" : "space-y-4"}`}
-              >
-                {isEdit && (
-                  <SelectableUserPicker
-                    title="Superuser"
-                    users={superuserOptions}
-                    selectedIds={formState.selectedSuperuserIds}
-                    onToggle={(userId) =>
-                      toggleSelection("selectedSuperuserIds", userId)
-                    }
-                  />
-                )}
+              <div className="md:col-span-2 mt-2 grid gap-6 border-t pt-4 md:grid-cols-3">
                 <SelectableUserPicker
-                  title={isEdit ? "User" : "Users"}
+                  title="Superuser"
+                  users={superuserOptions}
+                  selectedIds={formState.selectedSuperuserIds}
+                  onToggle={(userId) =>
+                    toggleSelection("selectedSuperuserIds", userId)
+                  }
+                  selectionMode="single"
+                />
+                <SelectableUserPicker
+                  title="User"
                   users={company.userOptions || []}
                   selectedIds={formState.selectedUserIds}
                   onToggle={(userId) =>
@@ -557,7 +522,7 @@ export default function CompanyFormPage({ mode }: CompanyFormPageProps) {
                   }
                 />
                 <SelectableUserPicker
-                  title={isEdit ? "TAM" : "TAMs"}
+                  title="TAM"
                   users={company.tamOptions || []}
                   selectedIds={formState.selectedTamIds}
                   onToggle={(userId) =>
@@ -566,158 +531,6 @@ export default function CompanyFormPage({ mode }: CompanyFormPageProps) {
                 />
               </div>
             </div>
-
-            {/* SUPERUSER SECTION */}
-            {!isEdit && (
-              <Card>
-                <CardHeader>
-                  <CardTitle>Superuser Details</CardTitle>
-                </CardHeader>
-                <CardContent className="grid gap-6 md:grid-cols-2">
-                  <Field>
-                    <FieldLabel>
-                      Username <span className="text-destructive">*</span>
-                    </FieldLabel>
-                    <Input
-                      value={formState.superuserUsername}
-                      onChange={(event) =>
-                        updateFormState("superuserUsername", event.target.value)
-                      }
-                      required
-                    />
-                  </Field>
-                  <Field>
-                    <FieldLabel>Full name</FieldLabel>
-                    <Input
-                      value={formState.superuserFullName}
-                      onChange={(event) =>
-                        updateFormState("superuserFullName", event.target.value)
-                      }
-                    />
-                  </Field>
-                  <Field>
-                    <FieldLabel>
-                      Email <span className="text-destructive">*</span>
-                    </FieldLabel>
-                    <Input
-                      type="email"
-                      value={formState.superuserEmail}
-                      onChange={(event) =>
-                        updateFormState("superuserEmail", event.target.value)
-                      }
-                      required
-                    />
-                  </Field>
-                  <Field>
-                    <FieldLabel>Social</FieldLabel>
-                    <Input
-                      value={formState.superuserSocial}
-                      onChange={(event) =>
-                        updateFormState("superuserSocial", event.target.value)
-                      }
-                    />
-                  </Field>
-                  <Field>
-                    <FieldLabel>Phone number</FieldLabel>
-                    <PhoneInput
-                      defaultCountry="US"
-                      value={formState.superuserPhoneNumber}
-                      onChange={(value) =>
-                        updateFormState("superuserPhoneNumber", value || "")
-                      }
-                    />
-                  </Field>
-                  <Field>
-                    <FieldLabel>Phone extension</FieldLabel>
-                    <Input
-                      value={formState.superuserPhoneExtension}
-                      onChange={(event) =>
-                        updateFormState(
-                          "superuserPhoneExtension",
-                          event.target.value,
-                        )
-                      }
-                    />
-                  </Field>
-                  <Field>
-                    <FieldLabel>Country</FieldLabel>
-                    <CountryDropdown
-                      defaultValue={
-                        countries.all.find(
-                          (c) =>
-                            c.name ===
-                            (company.countries || []).find(
-                              (cc) =>
-                                String(cc.id) === formState.superuserCountryId,
-                            )?.name,
-                        )?.alpha2 || ""
-                      }
-                      onChange={(country) => {
-                        const matched = (company.countries || []).find(
-                          (c) => c.name === country.name,
-                        );
-                        const nextCountryId = matched ? String(matched.id) : "";
-                        const timezoneStillValid = (
-                          company.timezones || []
-                        ).some(
-                          (timezone) =>
-                            String(timezone.id) ===
-                              formState.superuserTimezoneId &&
-                            String(timezone.countryId) === nextCountryId,
-                        );
-                        setFormState((current) =>
-                          current
-                            ? {
-                                ...current,
-                                superuserCountryId: nextCountryId,
-                                superuserTimezoneId: timezoneStillValid
-                                  ? current.superuserTimezoneId
-                                  : "",
-                              }
-                            : current,
-                        );
-                      }}
-                    />
-                  </Field>
-                  <Field>
-                    <FieldLabel>Time zone</FieldLabel>
-                    <Select
-                      value={formState.superuserTimezoneId || undefined}
-                      onValueChange={(value) =>
-                        updateFormState("superuserTimezoneId", value)
-                      }
-                    >
-                      <SelectTrigger className="w-full">
-                        <SelectValue placeholder="Select a time zone" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {availableSuperuserTimezones.map((timezone) => (
-                          <SelectItem
-                            key={timezone.id}
-                            value={String(timezone.id)}
-                          >
-                            {timezone.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </Field>
-                  <Field className="md:col-span-2">
-                    <FieldLabel>
-                      Password <span className="text-destructive">*</span>
-                    </FieldLabel>
-                    <Input
-                      type="password"
-                      value={formState.superuserPassword}
-                      onChange={(event) =>
-                        updateFormState("superuserPassword", event.target.value)
-                      }
-                      required
-                    />
-                  </Field>
-                </CardContent>
-              </Card>
-            )}
 
             {isEdit ? (
               <div className="space-y-4">
@@ -868,7 +681,7 @@ export default function CompanyFormPage({ mode }: CompanyFormPageProps) {
                     size="sm"
                     onClick={addEntitlement}
                   >
-                    Add Entitlement
+                    Add
                   </Button>
                 </CardHeader>
                 <CardContent className="space-y-4">

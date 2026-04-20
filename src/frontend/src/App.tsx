@@ -12,6 +12,7 @@ import { Toaster } from "./components/ui/sonner";
 import AppFooter from "./components/layout/AppFooter";
 import AuthenticatedHeader from "./components/layout/AuthenticatedHeader";
 import LoginHeader from "./components/layout/LoginHeader";
+import SessionInactivityManager from "./components/layout/SessionInactivityManager";
 import useJson from "./hooks/useJson";
 import AppRoutes from "./AppRoutes";
 import type { Session } from "./types/app";
@@ -56,6 +57,7 @@ function App() {
         </main>
         <AppFooter />
       </div>
+      <SessionInactivityManager session={session} />
       <Toaster position="bottom-right" richColors />
     </>
   );

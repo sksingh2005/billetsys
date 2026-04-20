@@ -6,9 +6,10 @@
  *   OF THE PROGRAM CONSTITUTES RECIPIENT'S ACCEPTANCE OF THIS AGREEMENT.
  */
 
-import type { FormEvent } from "react";
+import type { ComponentProps, FormEvent } from "react";
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { getCountryCallingCode } from "react-phone-number-input";
 import { toast } from "sonner";
 import DataState from "../components/common/DataState";
 import PageHeader from "../components/layout/PageHeader";
@@ -65,6 +66,8 @@ interface UserTypeOption {
   label?: string;
 }
 
+const UNASSIGNED_COMPANY_VALUE = "__unassigned__";
+
 export default function DirectoryUserFormPage({
   bootstrapBase,
   navigateFallback,
@@ -92,6 +95,16 @@ export default function DirectoryUserFormPage({
     })}`,
   );
   const bootstrap = bootstrapState.data;
+  const selectedPhoneCountry: ComponentProps<
+    typeof PhoneInput
+  >["defaultCountry"] =
+    (countries.all.find(
+      (country) =>
+        country.name ===
+        (bootstrap?.countries || []).find(
+          (option: CountryOption) => String(option.id) === selectedCountryId,
+        )?.name,
+    )?.alpha2 as ComponentProps<typeof PhoneInput>["defaultCountry"]) || "US";
 
   useEffect(() => {
     if (!bootstrap) {
@@ -140,7 +153,21 @@ export default function DirectoryUserFormPage({
 
   const submit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (!formState || !bootstrap || !submissionGuard.tryEnter()) {
+    if (!formState || !bootstrap) {
+      return;
+    }
+    if (
+      bootstrap.passwordRequired &&
+      formState.password !== formState.verifyPassword
+    ) {
+      setSaveState({
+        saving: false,
+        error: "Password and verify password must match.",
+      });
+      toast.error("Password and verify password must match.");
+      return;
+    }
+    if (!submissionGuard.tryEnter()) {
       return;
     }
     try {
@@ -222,48 +249,50 @@ export default function DirectoryUserFormPage({
       bootstrap?.user?.name ||
       bootstrap?.user?.fullName ||
       "User"
-    : bootstrap?.title || (isEdit ? "Edit user" : "New user");
+    : isAdminCreate
+      ? "New user"
+      : bootstrap?.title || (isEdit ? "Edit user" : "New user");
 
   return (
     <section className="w-full mt-4">
-      {!isAdminCreate && (
-        <PageHeader
-          title={pageTitle}
-          actions={
-            !isEdit && bootstrap?.submitPath?.startsWith("/user/") ? (
-              <AlertDialog>
-                <AlertDialogTrigger asChild>
-                  <Button
-                    type="button"
-                    variant="destructive"
-                    disabled={saveState.saving}
+      <PageHeader
+        title={pageTitle}
+        actions={
+          !isAdminCreate &&
+          !isEdit &&
+          bootstrap?.submitPath?.startsWith("/user/") ? (
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button
+                  type="button"
+                  variant="destructive"
+                  disabled={saveState.saving}
+                >
+                  Delete user
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    This action cannot be undone. This will permanently delete
+                    this user.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction
+                    onClick={deleteUser}
+                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                   >
-                    Delete user
-                  </Button>
-                </AlertDialogTrigger>
-                <AlertDialogContent>
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-                    <AlertDialogDescription>
-                      This action cannot be undone. This will permanently delete
-                      this user.
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel>Cancel</AlertDialogCancel>
-                    <AlertDialogAction
-                      onClick={deleteUser}
-                      className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                    >
-                      Delete
-                    </AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
-            ) : null
-          }
-        />
-      )}
+                    Delete
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          ) : null
+        }
+      />
 
       <DataState
         state={bootstrapState}
@@ -274,7 +303,7 @@ export default function DirectoryUserFormPage({
             <form onSubmit={submit}>
               <div
                 className={
-                  isEdit
+                  isEdit || isAdminCreate
                     ? "grid gap-6 sm:grid-cols-2"
                     : "grid gap-6 sm:grid-cols-2 rounded-xl border bg-card px-6 py-6 shadow-sm"
                 }
@@ -331,7 +360,8 @@ export default function DirectoryUserFormPage({
                     Phone number
                   </FieldLabel>
                   <PhoneInput
-                    defaultCountry="US"
+                    key={selectedPhoneCountry || "US"}
+                    defaultCountry={selectedPhoneCountry}
                     value={formState.phoneNumber}
                     onChange={(value) =>
                       updateFormState("phoneNumber", value || "")
@@ -369,12 +399,22 @@ export default function DirectoryUserFormPage({
                         (c: CountryOption) => c.name === country.name,
                       );
                       const nextCountryId = matched ? String(matched.id) : "";
+                      const nextCountryAlpha2 = countries.all.find(
+                        (entry) => entry.name === country.name,
+                      )?.alpha2;
                       setFormState((current) =>
                         current
                           ? {
                               ...current,
                               countryId: nextCountryId,
                               timezoneId: "",
+                              phoneNumber: nextCountryAlpha2
+                                ? (`+${getCountryCallingCode(
+                                    nextCountryAlpha2 as Parameters<
+                                      typeof getCountryCallingCode
+                                    >[0],
+                                  )}` as DirectoryUserFormState["phoneNumber"])
+                                : "",
                             }
                           : current,
                       );
@@ -434,16 +474,30 @@ export default function DirectoryUserFormPage({
                     Company
                   </FieldLabel>
                   <Select
-                    value={formState.companyId || undefined}
+                    value={
+                      formState.companyId
+                        ? formState.companyId
+                        : bootstrap.companyLocked
+                          ? undefined
+                          : UNASSIGNED_COMPANY_VALUE
+                    }
                     disabled={bootstrap.companyLocked}
                     onValueChange={(value) =>
-                      updateFormState("companyId", value)
+                      updateFormState(
+                        "companyId",
+                        value === UNASSIGNED_COMPANY_VALUE ? "" : value,
+                      )
                     }
                   >
                     <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Select company" />
+                      <SelectValue placeholder="Unassigned" />
                     </SelectTrigger>
                     <SelectContent>
+                      {!bootstrap.companyLocked && (
+                        <SelectItem value={UNASSIGNED_COMPANY_VALUE}>
+                          Unassigned
+                        </SelectItem>
+                      )}
                       {(bootstrap.companies || []).map(
                         (company: NamedEntity) => (
                           <SelectItem
@@ -457,7 +511,11 @@ export default function DirectoryUserFormPage({
                     </SelectContent>
                   </Select>
                 </Field>
-                <Field className="sm:col-span-2">
+                <Field
+                  className={
+                    bootstrap.passwordRequired ? undefined : "sm:col-span-2"
+                  }
+                >
                   <FieldLabel className="text-[var(--color-header-bg)]">
                     Password{" "}
                     {bootstrap.passwordRequired && (
@@ -478,13 +536,31 @@ export default function DirectoryUserFormPage({
                     </FieldDescription>
                   )}
                 </Field>
+                {bootstrap.passwordRequired && (
+                  <Field>
+                    <FieldLabel className="text-[var(--color-header-bg)]">
+                      Verify password{" "}
+                      <span className="text-destructive">*</span>
+                    </FieldLabel>
+                    <Input
+                      type="password"
+                      value={formState.verifyPassword}
+                      onChange={(event) =>
+                        updateFormState("verifyPassword", event.target.value)
+                      }
+                      required
+                    />
+                  </Field>
+                )}
               </div>
 
               <div
                 className={
                   isEdit
                     ? "flex items-center gap-3 pt-4"
-                    : "flex items-center space-x-3 justify-end border-t bg-muted/20 px-6 py-4"
+                    : isAdminCreate
+                      ? "flex items-center justify-end gap-3 pt-4"
+                      : "flex items-center space-x-3 justify-end border-t bg-muted/20 px-6 py-4"
                 }
               >
                 {isEdit && bootstrap.submitPath?.startsWith("/user/") && (
@@ -536,6 +612,11 @@ export default function DirectoryUserFormPage({
                         : "Create"}
                 </Button>
               </div>
+              {saveState.error && (
+                <p className="mt-3 text-sm font-medium text-destructive">
+                  {saveState.error}
+                </p>
+              )}
             </form>
           </div>
         )}

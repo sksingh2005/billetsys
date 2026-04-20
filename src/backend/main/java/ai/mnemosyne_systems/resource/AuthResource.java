@@ -46,7 +46,7 @@ public class AuthResource {
         }
         String cookieValue = AuthHelper.createSessionCookieValue(user);
         NewCookie cookie = new NewCookie.Builder(AuthHelper.AUTH_COOKIE).value(cookieValue).path("/").comment("auth")
-                .maxAge(3600).secure(false).build();
+                .secure(false).build();
         String redirect = redirectPath(user);
         return seeOther(redirect).cookie(cookie).build();
     }

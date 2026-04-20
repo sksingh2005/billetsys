@@ -16,30 +16,34 @@ import java.util.concurrent.ConcurrentHashMap;
 public final class AuthHelper {
 
     public static final String AUTH_COOKIE = "authUserIdV3";
-    private static final Map<Long, String> ACTIVE_TOKENS = new ConcurrentHashMap<>();
+    public static final int INACTIVITY_TIMEOUT_SECONDS = 60 * 60;
+    public static final int WARNING_LEAD_SECONDS = 5 * 60;
+    public static final long INACTIVITY_TIMEOUT_MILLIS = INACTIVITY_TIMEOUT_SECONDS * 1000L;
+    private static final Map<Long, ActiveSession> ACTIVE_TOKENS = new ConcurrentHashMap<>();
 
     private AuthHelper() {
     }
 
     public static User findUser(String cookieValue) {
-        if (cookieValue == null || cookieValue.isBlank()) {
+        SessionCookie sessionCookie = parseSessionCookie(cookieValue);
+        if (sessionCookie == null) {
             return null;
         }
-        try {
-            String[] parts = cookieValue.split(":", 2);
-            if (parts.length != 2) {
-                return null;
-            }
-            String token = parts[0];
-            long id = Long.parseLong(parts[1]);
-            String activeToken = ACTIVE_TOKENS.get(id);
-            if (activeToken == null || !activeToken.equals(token)) {
-                return null;
-            }
-            return User.findById(id);
-        } catch (NumberFormatException ex) {
+        ActiveSession activeSession = ACTIVE_TOKENS.get(sessionCookie.userId());
+        if (activeSession == null || !activeSession.token.equals(sessionCookie.token())) {
             return null;
         }
+        long now = System.currentTimeMillis();
+        if (now - activeSession.lastActivityAt >= INACTIVITY_TIMEOUT_MILLIS) {
+            ACTIVE_TOKENS.remove(sessionCookie.userId(), activeSession);
+            return null;
+        }
+        activeSession.lastActivityAt = now;
+        User user = User.findById(sessionCookie.userId());
+        if (user == null) {
+            ACTIVE_TOKENS.remove(sessionCookie.userId(), activeSession);
+        }
+        return user;
     }
 
     public static String createSessionCookieValue(User user) {
@@ -47,24 +51,29 @@ public final class AuthHelper {
             return null;
         }
         String token = UUID.randomUUID().toString();
-        ACTIVE_TOKENS.put(user.id, token);
+        ACTIVE_TOKENS.put(user.id, new ActiveSession(token, System.currentTimeMillis()));
         return token + ":" + user.id;
     }
 
     public static void clearSession(String cookieValue) {
-        if (cookieValue == null || cookieValue.isBlank()) {
+        SessionCookie sessionCookie = parseSessionCookie(cookieValue);
+        if (sessionCookie == null) {
             return;
         }
-        try {
-            String[] parts = cookieValue.split(":", 2);
-            if (parts.length != 2) {
-                return;
-            }
-            String token = parts[0];
-            long id = Long.parseLong(parts[1]);
-            ACTIVE_TOKENS.remove(id, token);
-        } catch (NumberFormatException ex) {
-            // Ignore malformed cookie value.
+        ActiveSession activeSession = ACTIVE_TOKENS.get(sessionCookie.userId());
+        if (activeSession != null && activeSession.token.equals(sessionCookie.token())) {
+            ACTIVE_TOKENS.remove(sessionCookie.userId(), activeSession);
+        }
+    }
+
+    public static void setLastActivityForTesting(String cookieValue, long lastActivityAt) {
+        SessionCookie sessionCookie = parseSessionCookie(cookieValue);
+        if (sessionCookie == null) {
+            return;
+        }
+        ActiveSession activeSession = ACTIVE_TOKENS.get(sessionCookie.userId());
+        if (activeSession != null && activeSession.token.equals(sessionCookie.token())) {
+            activeSession.lastActivityAt = lastActivityAt;
         }
     }
 
@@ -87,5 +96,33 @@ public final class AuthHelper {
     public static boolean isUser(User user) {
         return user != null
                 && (User.TYPE_USER.equalsIgnoreCase(user.type) || User.TYPE_TAM.equalsIgnoreCase(user.type));
+    }
+
+    private static SessionCookie parseSessionCookie(String cookieValue) {
+        if (cookieValue == null || cookieValue.isBlank()) {
+            return null;
+        }
+        try {
+            String[] parts = cookieValue.split(":", 2);
+            if (parts.length != 2) {
+                return null;
+            }
+            return new SessionCookie(parts[0], Long.parseLong(parts[1]));
+        } catch (NumberFormatException ex) {
+            return null;
+        }
+    }
+
+    private static final class ActiveSession {
+        private final String token;
+        private volatile long lastActivityAt;
+
+        private ActiveSession(String token, long lastActivityAt) {
+            this.token = token;
+            this.lastActivityAt = lastActivityAt;
+        }
+    }
+
+    private record SessionCookie(String token, long userId) {
     }
 }

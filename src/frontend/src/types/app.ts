@@ -31,6 +31,8 @@ export interface Session {
   homePath?: string;
   installationCompanyName?: string;
   installationLogoBase64?: string;
+  inactivityTimeoutSeconds?: number;
+  inactivityWarningSeconds?: number;
   displayName?: string;
   username?: string;
   logoBase64?: string;

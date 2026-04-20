@@ -163,11 +163,11 @@ class AdminAccessTest extends AccessTestSupport {
                 .post("/levels/" + level.id + "/delete").then().statusCode(303);
         Assertions.assertNull(refreshedLevel(level.id));
 
+        ensureUser("coverage-superuser", "coverage-superuser@mnemosyne-systems.ai", User.TYPE_SUPERUSER, "password");
+        User coverageSuperuser = User.find("email", "coverage-superuser@mnemosyne-systems.ai").firstResult();
         RestAssured.given().redirects().follow(false).cookie(AuthHelper.AUTH_COOKIE, cookie)
                 .contentType(ContentType.URLENC).formParam("name", "Coverage Co")
-                .formParam("country", "United States of America").formParam("superuserUsername", "username")
-                .formParam("superuserEmail", "user@@email").formParam("superuserPassword", "password")
-                .post("/companies").then().statusCode(303);
+                .formParam("superuserId", coverageSuperuser.id).post("/companies").then().statusCode(303);
         Company company = Company.find("name", "Coverage Co").firstResult();
         Assertions.assertNotNull(company);
 
@@ -190,7 +190,9 @@ class AdminAccessTest extends AccessTestSupport {
 
         RestAssured.given().cookie(AuthHelper.AUTH_COOKIE, cookie).get("/api/app/session").then().statusCode(200)
                 .body("role", Matchers.equalTo("admin")).body("navigation.href", Matchers.hasItem("/categories"))
-                .body("installationLogoBase64", Matchers.startsWith("data:image/svg+xml;base64,"));
+                .body("installationLogoBase64", Matchers.startsWith("data:image/svg+xml;base64,"))
+                .body("inactivityTimeoutSeconds", Matchers.equalTo(AuthHelper.INACTIVITY_TIMEOUT_SECONDS))
+                .body("inactivityWarningSeconds", Matchers.equalTo(AuthHelper.WARNING_LEAD_SECONDS));
     }
 
     @Test
@@ -200,7 +202,9 @@ class AdminAccessTest extends AccessTestSupport {
 
         RestAssured.given().cookie(AuthHelper.AUTH_COOKIE, cookie).get("/api/app/session").then().statusCode(200)
                 .body("role", Matchers.equalTo("admin")).body("navigation.href", Matchers.hasItem("/owner"))
-                .body("installationLogoBase64", Matchers.startsWith("data:image/svg+xml;base64,"));
+                .body("installationLogoBase64", Matchers.startsWith("data:image/svg+xml;base64,"))
+                .body("inactivityTimeoutSeconds", Matchers.equalTo(AuthHelper.INACTIVITY_TIMEOUT_SECONDS))
+                .body("inactivityWarningSeconds", Matchers.equalTo(AuthHelper.WARNING_LEAD_SECONDS));
     }
 
     @Test
@@ -210,7 +214,9 @@ class AdminAccessTest extends AccessTestSupport {
 
         RestAssured.given().cookie(AuthHelper.AUTH_COOKIE, cookie).get("/api/app/session").then().statusCode(200)
                 .body("role", Matchers.equalTo("admin")).body("navigation.href", Matchers.hasItem("/companies"))
-                .body("installationLogoBase64", Matchers.startsWith("data:image/svg+xml;base64,"));
+                .body("installationLogoBase64", Matchers.startsWith("data:image/svg+xml;base64,"))
+                .body("inactivityTimeoutSeconds", Matchers.equalTo(AuthHelper.INACTIVITY_TIMEOUT_SECONDS))
+                .body("inactivityWarningSeconds", Matchers.equalTo(AuthHelper.WARNING_LEAD_SECONDS));
     }
 
     @Test

@@ -33,12 +33,14 @@ public class AppSessionResource {
         User user = AuthHelper.findUser(auth);
         if (user == null) {
             return new SessionResponse(false, null, null, null, null, null, installationCompanyName,
-                    installationLogoBase64, "/login", List.of(),
+                    installationLogoBase64, AuthHelper.INACTIVITY_TIMEOUT_SECONDS, AuthHelper.WARNING_LEAD_SECONDS,
+                    "/login", List.of(),
                     List.of("The React shell now uses clean URLs for login, tickets, and admin pages.",
                             "Sign in to see role-aware navigation."));
         }
         return new SessionResponse(true, user.name, user.getDisplayName(), user.email, user.type, user.logoBase64,
-                installationCompanyName, installationLogoBase64, homePath(user), navigation(user),
+                installationCompanyName, installationLogoBase64, AuthHelper.INACTIVITY_TIMEOUT_SECONDS,
+                AuthHelper.WARNING_LEAD_SECONDS, homePath(user), navigation(user),
                 List.of("The React shell now covers tickets, admin management, profile, and reports.",
                         "Legacy page routes now redirect into the React screens for the same workflows."));
     }
@@ -83,8 +85,9 @@ public class AppSessionResource {
     }
 
     public record SessionResponse(boolean authenticated, String username, String displayName, String email, String role,
-            String logoBase64, String installationCompanyName, String installationLogoBase64, String homePath,
-            List<NavLink> navigation, List<String> notices) {
+            String logoBase64, String installationCompanyName, String installationLogoBase64,
+            int inactivityTimeoutSeconds, int inactivityWarningSeconds, String homePath, List<NavLink> navigation,
+            List<String> notices) {
     }
 
     public record NavLink(String label, String href) {

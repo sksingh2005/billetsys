@@ -504,7 +504,6 @@ abstract class AccessTestSupport {
         Assertions.assertTrue(mail.getHtml().contains(body));
     }
 
-    @Transactional
     Long createCompany(String cookie, String name) {
         String normalized = name == null ? "company"
                 : name.toLowerCase().replaceAll("[^a-z0-9]+", "-").replaceAll("(^-|-$)", "");
@@ -513,11 +512,11 @@ abstract class AccessTestSupport {
         }
         String superuserUsername = normalized + "-superuser";
         String superuserEmail = normalized + "@testing.com";
-        String location = RestAssured.given().redirects().follow(false).cookie(AuthHelper.AUTH_COOKIE, cookie)
-                .contentType(ContentType.URLENC).formParam("name", name)
-                .formParam("superuserUsername", superuserUsername).formParam("superuserEmail", superuserEmail)
-                .formParam("superuserPassword", "pass").post("/companies").then().statusCode(303).extract()
-                .header("Location");
+        ensureUser(superuserUsername, superuserEmail, User.TYPE_SUPERUSER, "pass");
+        User superuser = User.find("email", superuserEmail).firstResult();
+        RestAssured.given().redirects().follow(false).cookie(AuthHelper.AUTH_COOKIE, cookie)
+                .contentType(ContentType.URLENC).formParam("name", name).formParam("superuserId", superuser.id)
+                .post("/companies").then().statusCode(303);
         ai.mnemosyne_systems.model.Company company = ai.mnemosyne_systems.model.Company.find("name", name)
                 .firstResult();
         return company == null ? null : company.id;

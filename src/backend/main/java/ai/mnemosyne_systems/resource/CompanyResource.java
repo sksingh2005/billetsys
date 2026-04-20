@@ -17,7 +17,6 @@ import ai.mnemosyne_systems.model.Ticket;
 import ai.mnemosyne_systems.model.Timezone;
 import ai.mnemosyne_systems.model.User;
 import ai.mnemosyne_systems.util.AuthHelper;
-import io.quarkus.elytron.security.common.BcryptUtil;
 import io.smallrye.common.annotation.Blocking;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.BadRequestException;
@@ -91,24 +90,13 @@ public class CompanyResource {
             @FormParam("levelIds") java.util.List<Long> levelIds,
             @FormParam("entitlementDates") java.util.List<String> entitlementDates,
             @FormParam("entitlementDurations") java.util.List<Integer> entitlementDurations,
-            @FormParam("phoneNumber") String phoneNumber, @FormParam("superuserUsername") String superuserUsername,
-            @FormParam("superuserPhoneNumber") String superuserPhoneNumber,
-            @FormParam("superuserPhoneExtension") String superuserPhoneExtension,
-            @FormParam("superuserEmail") String superuserEmail,
-            @FormParam("superuserPassword") String superuserPassword,
-            @FormParam("superuserCountryId") Long superuserCountryId,
-            @FormParam("superuserTimezoneId") Long superuserTimezoneId,
-            @FormParam("superuserSocial") String superuserSocial,
-            @FormParam("superuserFullName") String superuserFullName) {
+            @FormParam("phoneNumber") String phoneNumber, @FormParam("superuserId") Long superuserId) {
         requireAdmin(auth);
         if (name == null || name.isBlank()) {
             throw new BadRequestException("Name is required");
         }
         Company company = new Company();
-        validateSuperuserUser(superuserUsername, superuserEmail, superuserPassword);
-        User superuser = buildSuperuser(superuserUsername, superuserFullName, superuserEmail, superuserPhoneNumber,
-                superuserPhoneExtension, superuserSocial, superuserTimezoneId, superuserPassword, superuserCountryId);
-        superuser.persist();
+        User superuser = requireSuperuser(superuserId);
         List<Long> userIdsModified = userIds == null ? new ArrayList<>() : new ArrayList<>(userIds);
         userIdsModified.add(superuser.id);
         company.name = name;
@@ -237,6 +225,17 @@ public class CompanyResource {
                 java.util.List.of(User.TYPE_USER, User.TYPE_TAM, User.TYPE_SUPERUSER));
     }
 
+    private User requireSuperuser(Long superuserId) {
+        if (superuserId == null) {
+            throw new BadRequestException("Superuser id is required");
+        }
+        User superuser = User.findById(superuserId);
+        if (superuser == null || !User.TYPE_SUPERUSER.equalsIgnoreCase(superuser.type)) {
+            throw new BadRequestException("Superuser does not exist");
+        }
+        return superuser;
+    }
+
     private java.util.Set<String> applyEntitlements(Company company, java.util.List<Long> entitlementIds,
             java.util.List<Long> levelIds, java.util.List<String> entitlementDates,
             java.util.List<Integer> entitlementDurations, java.util.List<CompanyEntitlement> existingEntitlements) {
@@ -340,31 +339,4 @@ public class CompanyResource {
         return LocalDate.now().isAfter(endDate);
     }
 
-    private void validateSuperuserUser(String username, String email, String password) {
-        if (username == null || username.isEmpty()) {
-            throw new BadRequestException("Superuser username is required");
-        }
-        if (email == null || email.isEmpty()) {
-            throw new BadRequestException("Superuser email is required");
-        }
-        if (password == null || password.isEmpty()) {
-            throw new BadRequestException("Superuser password is required");
-        }
-    }
-
-    private User buildSuperuser(String username, String fullName, String email, String phoneNumber,
-            String phoneExtension, String social, Long timezone, String password, Long countryId) {
-        User user = new User();
-        user.name = username;
-        user.email = email == null ? null : email.trim();
-        user.phoneNumber = phoneNumber != null && !phoneNumber.isBlank() ? phoneNumber : null;
-        user.phoneExtension = phoneExtension != null && !phoneExtension.isBlank() ? phoneExtension : null;
-        user.country = countryId != null ? Country.findById(countryId) : null;
-        user.passwordHash = BcryptUtil.bcryptHash(password);
-        user.social = social != null && !social.isBlank() ? social : null;
-        user.timezone = timezone != null ? Timezone.findById(timezone) : null;
-        user.fullName = fullName != null && !fullName.isBlank() ? fullName : null;
-        user.type = User.TYPE_SUPERUSER;
-        return user;
-    }
 }
