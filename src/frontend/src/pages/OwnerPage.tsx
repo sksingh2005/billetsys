@@ -18,12 +18,6 @@ import {
 } from "../components/users/UserComponents";
 import type { SessionPageProps } from "../types/app";
 import type { OwnerCompany } from "../types/domain";
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardContent,
-} from "../components/ui/card";
 import PageHeader from "../components/layout/PageHeader";
 import { Button } from "../components/ui/button";
 import { Field, FieldLabel } from "../components/ui/field";
@@ -60,61 +54,63 @@ export function OwnerPage(props: SessionPageProps) {
 
   return (
     <section className="w-full mt-4">
-      <PageHeader title="Owner" />
       <DataState state={ownerState} emptyMessage="Owner company not found.">
         {owner && (
           <div className="space-y-6 pb-20">
-            <Card>
-              <CardContent className="grid gap-6 md:grid-cols-2">
-                <Field>
-                  <FieldLabel>Name</FieldLabel>
-                  <Input value={owner.name || "—"} readOnly />
-                </Field>
-                <Field>
-                  <FieldLabel>Phone</FieldLabel>
-                  <Input value={owner.phoneNumber || "—"} readOnly />
-                </Field>
-                <Field>
-                  <FieldLabel>Country</FieldLabel>
-                  <Input value={owner.countryName || "—"} readOnly />
-                </Field>
-                <Field>
-                  <FieldLabel>Time zone</FieldLabel>
-                  <Input value={owner.timezoneName || "—"} readOnly />
-                </Field>
-                <Field>
-                  <FieldLabel>Address1</FieldLabel>
-                  <Input value={owner.address1 || "—"} readOnly />
-                </Field>
-                <Field>
-                  <FieldLabel>Address2</FieldLabel>
-                  <Input value={owner.address2 || "—"} readOnly />
-                </Field>
-                <Field>
-                  <FieldLabel>City</FieldLabel>
-                  <Input value={owner.city || "—"} readOnly />
-                </Field>
-                <Field>
-                  <FieldLabel>State</FieldLabel>
-                  <Input value={owner.state || "—"} readOnly />
-                </Field>
-                <Field className="md:col-span-2">
-                  <FieldLabel>Zip</FieldLabel>
-                  <Input value={owner.zip || "—"} readOnly />
-                </Field>
+            <PageHeader title={owner.name || "Owner"} />
+            <div className="grid gap-6 md:grid-cols-2">
+              <Field>
+                <FieldLabel>Name</FieldLabel>
+                <Input value={owner.name || "—"} readOnly />
+              </Field>
+              <Field>
+                <FieldLabel>Phone</FieldLabel>
+                <Input value={owner.phoneNumber || "—"} readOnly />
+              </Field>
+              <Field>
+                <FieldLabel>Country</FieldLabel>
+                <Input value={owner.countryName || "—"} readOnly />
+              </Field>
+              <Field>
+                <FieldLabel>Time zone</FieldLabel>
+                <Input value={owner.timezoneName || "—"} readOnly />
+              </Field>
+              <Field>
+                <FieldLabel>Address 1</FieldLabel>
+                <Input value={owner.address1 || "—"} readOnly />
+              </Field>
+              <Field>
+                <FieldLabel>Address 2</FieldLabel>
+                <Input value={owner.address2 || "—"} readOnly />
+              </Field>
+              <Field>
+                <FieldLabel>City</FieldLabel>
+                <Input value={owner.city || "—"} readOnly />
+              </Field>
+              <Field>
+                <FieldLabel>State</FieldLabel>
+                <Input value={owner.state || "—"} readOnly />
+              </Field>
+              <Field>
+                <FieldLabel>Zip</FieldLabel>
+                <Input value={owner.zip || "—"} readOnly />
+              </Field>
 
-                <div className="md:col-span-2 grid gap-6 md:grid-cols-2 pt-6 border-t mt-2">
-                  <div className="space-y-3">
-                    <FieldLabel className="text-base">Support</FieldLabel>
-                    <OwnerUserList users={owner.supportUsers} />
-                  </div>
-                  <div className="space-y-3">
-                    <FieldLabel className="text-base">TAMs</FieldLabel>
-                    <OwnerUserList users={owner.tamUsers} />
-                  </div>
+              <div className="md:col-span-2 grid gap-6 md:grid-cols-2 pt-6 border-t mt-2">
+                <div className="space-y-4">
+                  <FieldLabel className="text-base text-foreground mb-4">
+                    Support
+                  </FieldLabel>
+                  <OwnerUserList users={owner.supportUsers} />
                 </div>
-              </CardContent>
-            </Card>
+                <div className="space-y-4">
+                  <FieldLabel className="text-base text-foreground mb-4">
+                    TAMs
+                  </FieldLabel>
+                  <OwnerUserList users={owner.tamUsers} />
+                </div>
+              </div>
+            </div>
 
             <div className="flex items-center justify-end space-x-3 pt-4 border-t">
               <Button asChild>
@@ -233,167 +229,151 @@ export function OwnerEditPage(props: SessionPageProps) {
       <DataState state={ownerState} emptyMessage="Owner company not found.">
         {formState && owner && (
           <form className="space-y-6 pb-20" onSubmit={submit}>
-            <PageHeader title="Edit Owner" />
-            <Card>
-              <CardHeader>
-                <CardTitle>Edit Owner Details</CardTitle>
-              </CardHeader>
-              <CardContent className="grid gap-6 md:grid-cols-2">
-                <Field>
-                  <FieldLabel>Name</FieldLabel>
-                  <Input
-                    value={formState.name}
-                    onChange={(event) =>
-                      updateField("name", event.target.value)
-                    }
-                    required
-                  />
-                </Field>
-                <Field>
-                  <FieldLabel>Phone</FieldLabel>
-                  <PhoneInput
-                    defaultCountry="US"
-                    value={formState.phoneNumber}
-                    onChange={(value) =>
-                      updateField("phoneNumber", value || "")
-                    }
-                  />
-                </Field>
-                <Field>
-                  <FieldLabel>Country</FieldLabel>
-                  <CountryDropdown
-                    defaultValue={
-                      countries.all.find(
-                        (c) =>
-                          c.name ===
-                          owner.countries.find(
-                            (oc) => String(oc.id) === formState.countryId,
-                          )?.name,
-                      )?.alpha2 || ""
-                    }
-                    onChange={(country) => {
-                      const matched = owner.countries.find(
-                        (c) => c.name === country.name,
-                      );
-                      const nextCountryId = matched ? String(matched.id) : "";
-                      const timezoneStillValid = owner.timezones.some(
-                        (timezone) =>
-                          String(timezone.id) === formState.timezoneId &&
-                          String(timezone.countryId) === nextCountryId,
-                      );
-                      setFormState((current) =>
-                        current
-                          ? {
-                              ...current,
-                              countryId: nextCountryId,
-                              timezoneId: timezoneStillValid
-                                ? current.timezoneId
-                                : "",
-                            }
-                          : current,
-                      );
-                    }}
-                  />
-                </Field>
-                <Field>
-                  <FieldLabel>Time zone</FieldLabel>
-                  <Select
-                    value={formState.timezoneId || undefined}
-                    onValueChange={(value) => updateField("timezoneId", value)}
-                  >
-                    <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Select a time zone" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {availableTimezones.map((timezone) => (
-                        <SelectItem
-                          key={timezone.id}
-                          value={String(timezone.id)}
-                        >
-                          {timezone.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </Field>
-                <Field>
-                  <FieldLabel>Address 1</FieldLabel>
-                  <Input
-                    value={formState.address1}
-                    onChange={(event) =>
-                      updateField("address1", event.target.value)
-                    }
-                  />
-                </Field>
-                <Field>
-                  <FieldLabel>Address 2</FieldLabel>
-                  <Input
-                    value={formState.address2}
-                    onChange={(event) =>
-                      updateField("address2", event.target.value)
-                    }
-                  />
-                </Field>
-                <Field>
-                  <FieldLabel>City</FieldLabel>
-                  <Input
-                    value={formState.city}
-                    onChange={(event) =>
-                      updateField("city", event.target.value)
-                    }
-                  />
-                </Field>
-                <Field>
-                  <FieldLabel>State</FieldLabel>
-                  <Input
-                    value={formState.state}
-                    onChange={(event) =>
-                      updateField("state", event.target.value)
-                    }
-                  />
-                </Field>
-                <Field className="md:col-span-2">
-                  <FieldLabel>Zip</FieldLabel>
-                  <Input
-                    value={formState.zip}
-                    onChange={(event) => updateField("zip", event.target.value)}
-                  />
-                </Field>
+            <PageHeader title={formState.name || owner.name || "Owner"} />
+            <div className="grid gap-6 md:grid-cols-2">
+              <Field>
+                <FieldLabel>Name</FieldLabel>
+                <Input
+                  value={formState.name}
+                  onChange={(event) => updateField("name", event.target.value)}
+                  required
+                />
+              </Field>
+              <Field>
+                <FieldLabel>Phone</FieldLabel>
+                <PhoneInput
+                  defaultCountry="US"
+                  value={formState.phoneNumber}
+                  onChange={(value) => updateField("phoneNumber", value || "")}
+                />
+              </Field>
+              <Field>
+                <FieldLabel>Country</FieldLabel>
+                <CountryDropdown
+                  defaultValue={
+                    countries.all.find(
+                      (c) =>
+                        c.name ===
+                        owner.countries.find(
+                          (oc) => String(oc.id) === formState.countryId,
+                        )?.name,
+                    )?.alpha2 || ""
+                  }
+                  onChange={(country) => {
+                    const matched = owner.countries.find(
+                      (c) => c.name === country.name,
+                    );
+                    const nextCountryId = matched ? String(matched.id) : "";
+                    const timezoneStillValid = owner.timezones.some(
+                      (timezone) =>
+                        String(timezone.id) === formState.timezoneId &&
+                        String(timezone.countryId) === nextCountryId,
+                    );
+                    setFormState((current) =>
+                      current
+                        ? {
+                            ...current,
+                            countryId: nextCountryId,
+                            timezoneId: timezoneStillValid
+                              ? current.timezoneId
+                              : "",
+                          }
+                        : current,
+                    );
+                  }}
+                />
+              </Field>
+              <Field>
+                <FieldLabel>Time zone</FieldLabel>
+                <Select
+                  value={formState.timezoneId || undefined}
+                  onValueChange={(value) => updateField("timezoneId", value)}
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Select a time zone" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {availableTimezones.map((timezone) => (
+                      <SelectItem key={timezone.id} value={String(timezone.id)}>
+                        {timezone.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </Field>
+              <Field>
+                <FieldLabel>Address 1</FieldLabel>
+                <Input
+                  value={formState.address1}
+                  onChange={(event) =>
+                    updateField("address1", event.target.value)
+                  }
+                />
+              </Field>
+              <Field>
+                <FieldLabel>Address 2</FieldLabel>
+                <Input
+                  value={formState.address2}
+                  onChange={(event) =>
+                    updateField("address2", event.target.value)
+                  }
+                />
+              </Field>
+              <Field>
+                <FieldLabel>City</FieldLabel>
+                <Input
+                  value={formState.city}
+                  onChange={(event) => updateField("city", event.target.value)}
+                />
+              </Field>
+              <Field>
+                <FieldLabel>State</FieldLabel>
+                <Input
+                  value={formState.state}
+                  onChange={(event) => updateField("state", event.target.value)}
+                />
+              </Field>
+              <Field>
+                <FieldLabel>Zip</FieldLabel>
+                <Input
+                  value={formState.zip}
+                  onChange={(event) => updateField("zip", event.target.value)}
+                />
+              </Field>
 
-                <div className="md:col-span-2 grid gap-6 md:grid-cols-2 pt-6 border-t mt-2">
-                  <div className="space-y-4">
-                    <FieldLabel className="text-base text-foreground mb-4">
-                      Support
-                    </FieldLabel>
-                    <div className="mt-2">
-                      <OwnerSelector
-                        title=""
-                        users={owner.supportOptions}
-                        selectedIds={formState.supportIds}
-                        onToggle={(userId) =>
-                          toggleSelectedUser("supportIds", userId)
-                        }
-                      />
-                    </div>
-                  </div>
-                  <div className="space-y-4">
-                    <FieldLabel className="text-base text-foreground mb-4">
-                      TAMs
-                    </FieldLabel>
-                    <div className="mt-2">
-                      <OwnerSelector
-                        title=""
-                        users={owner.tamOptions}
-                        selectedIds={formState.tamIds}
-                        onToggle={(userId) =>
-                          toggleSelectedUser("tamIds", userId)
-                        }
-                      />
-                    </div>
+              <div className="md:col-span-2 grid gap-6 md:grid-cols-2 pt-6 border-t mt-2">
+                <div className="space-y-4">
+                  <FieldLabel className="text-base text-foreground mb-4">
+                    Support
+                  </FieldLabel>
+                  <div className="mt-2">
+                    <OwnerSelector
+                      title=""
+                      users={owner.supportOptions}
+                      selectedIds={formState.supportIds}
+                      onToggle={(userId) =>
+                        toggleSelectedUser("supportIds", userId)
+                      }
+                    />
                   </div>
                 </div>
-              </CardContent>
-            </Card>
+                <div className="space-y-4">
+                  <FieldLabel className="text-base text-foreground mb-4">
+                    TAMs
+                  </FieldLabel>
+                  <div className="mt-2">
+                    <OwnerSelector
+                      title=""
+                      users={owner.tamOptions}
+                      selectedIds={formState.tamIds}
+                      onToggle={(userId) =>
+                        toggleSelectedUser("tamIds", userId)
+                      }
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
 
             {saveState.error && (
               <p className="text-sm font-medium text-destructive">
