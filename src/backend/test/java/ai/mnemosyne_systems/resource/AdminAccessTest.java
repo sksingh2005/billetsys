@@ -406,6 +406,21 @@ class AdminAccessTest extends AccessTestSupport {
         Assertions.assertNotNull(createdUser);
 
         RestAssured.given().cookie(AuthHelper.AUTH_COOKIE, cookie).header("X-Billetsys-Client", "react")
+                .contentType(ContentType.URLENC).formParam("name", "react-admin-user")
+                .formParam("email", "react-admin-user-duplicate@mnemosyne-systems.ai").formParam("type", User.TYPE_USER)
+                .formParam("password", "secret").post("/users").then().statusCode(400);
+
+        RestAssured.given().cookie(AuthHelper.AUTH_COOKIE, cookie).header("X-Billetsys-Client", "react")
+                .contentType(ContentType.URLENC).formParam("name", "renamed-admin-user")
+                .formParam("email", "react-admin-user-updated@mnemosyne-systems.ai")
+                .formParam("type", User.TYPE_SUPPORT).post("/user/" + createdUser.id).then().statusCode(200)
+                .body("redirectTo", Matchers.equalTo("/users"));
+        User refreshedCreatedUser = refreshedUser(createdUser.id);
+        Assertions.assertEquals("react-admin-user", refreshedCreatedUser.name);
+        Assertions.assertEquals("react-admin-user-updated@mnemosyne-systems.ai", refreshedCreatedUser.email);
+        Assertions.assertEquals(User.TYPE_SUPPORT, refreshedCreatedUser.type);
+
+        RestAssured.given().cookie(AuthHelper.AUTH_COOKIE, cookie).header("X-Billetsys-Client", "react")
                 .multiPart("name", "React Redirect Category").multiPart("description", "Redirect body")
                 .multiPart("isDefault", "false").post("/categories").then().statusCode(200)
                 .body("redirectTo", Matchers.equalTo("/categories"));

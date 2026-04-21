@@ -18,11 +18,7 @@ import useSubmissionGuard from "../hooks/useSubmissionGuard";
 import { postForm } from "../utils/api";
 import { createDirectoryUserFormState } from "../utils/forms";
 import { toQueryString } from "../utils/formatting";
-import {
-  resolveClientPath,
-  resolvePostRedirectPath,
-  SmartLink,
-} from "../utils/routing";
+import { resolveClientPath, resolvePostRedirectPath } from "../utils/routing";
 import type { SessionPageProps } from "../types/app";
 import type {
   CountryOption,
@@ -79,6 +75,7 @@ export default function DirectoryUserFormPage({
   const query = new URLSearchParams(location.search);
   const requestedCompanyId = query.get("companyId") || "";
   const isEdit = Boolean(id);
+  const allowUnassignedCompany = bootstrapBase === "/api/admin/users/bootstrap";
   const isAdminCreate =
     !isEdit && bootstrapBase === "/api/admin/users/bootstrap";
   const [formState, setFormState] = useState<DirectoryUserFormState | null>(
@@ -309,13 +306,7 @@ export default function DirectoryUserFormPage({
         {formState && bootstrap && (
           <div>
             <form onSubmit={submit}>
-              <div
-                className={
-                  isEdit || isAdminCreate
-                    ? "grid gap-6 sm:grid-cols-2"
-                    : "grid gap-6 sm:grid-cols-2 rounded-xl border bg-card px-6 py-6 shadow-sm"
-                }
-              >
+              <div className="grid gap-6 sm:grid-cols-2">
                 <Field>
                   <FieldLabel className="text-[var(--color-header-bg)]">
                     Username <span className="text-destructive">*</span>
@@ -325,6 +316,7 @@ export default function DirectoryUserFormPage({
                     onChange={(event) =>
                       updateFormState("name", event.target.value)
                     }
+                    readOnly={isEdit}
                     required
                   />
                 </Field>
@@ -485,7 +477,7 @@ export default function DirectoryUserFormPage({
                     value={
                       formState.companyId
                         ? formState.companyId
-                        : bootstrap.companyLocked
+                        : bootstrap.companyLocked || !allowUnassignedCompany
                           ? undefined
                           : UNASSIGNED_COMPANY_VALUE
                     }
@@ -498,10 +490,16 @@ export default function DirectoryUserFormPage({
                     }
                   >
                     <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Unassigned" />
+                      <SelectValue
+                        placeholder={
+                          allowUnassignedCompany
+                            ? "Unassigned"
+                            : "Select company"
+                        }
+                      />
                     </SelectTrigger>
                     <SelectContent>
-                      {!bootstrap.companyLocked && (
+                      {!bootstrap.companyLocked && allowUnassignedCompany && (
                         <SelectItem value={UNASSIGNED_COMPANY_VALUE}>
                           Unassigned
                         </SelectItem>
@@ -602,13 +600,6 @@ export default function DirectoryUserFormPage({
                       </AlertDialogFooter>
                     </AlertDialogContent>
                   </AlertDialog>
-                )}
-                {!isAdminCreate && !isEdit && (
-                  <Button variant="outline" asChild>
-                    <SmartLink href={bootstrap?.cancelPath || navigateFallback}>
-                      Cancel
-                    </SmartLink>
-                  </Button>
                 )}
                 <Button type="submit" disabled={saveState.saving}>
                   {saveState.saving

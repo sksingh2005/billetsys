@@ -39,7 +39,9 @@ public class ProfileApiResource {
         if (request == null || request.name() == null || request.name().isBlank()) {
             throw new WebApplicationException("Username is required", Response.Status.BAD_REQUEST);
         }
-        user.name = request.name().trim();
+        if (user.name == null || user.name.isBlank()) {
+            user.name = request.name().trim();
+        }
         user.email = trimOrNull(request.email());
         user.social = trimOrNull(request.social());
         user.fullName = trimOrNull(request.fullName());

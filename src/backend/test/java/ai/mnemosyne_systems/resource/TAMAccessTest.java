@@ -102,7 +102,7 @@ class TAMAccessTest extends AccessTestSupport {
                 .contentType(ContentType.URLENC).formParam("name", "Profile Updated").post("/profile").then()
                 .statusCode(303);
         User updatedProfile = User.find("email", "profile@mnemosyne-systems.ai").firstResult();
-        Assertions.assertEquals("Profile Updated", updatedProfile.name);
+        Assertions.assertEquals("profile", updatedProfile.name);
 
         RestAssured.given().redirects().follow(false).cookie(AuthHelper.AUTH_COOKIE, profileCookie)
                 .contentType(ContentType.URLENC).post("/profile/password").then().statusCode(303)
@@ -138,6 +138,12 @@ class TAMAccessTest extends AccessTestSupport {
         Company tamCompany = Company.findById(tamCompanyId);
         tamCompany.users.size();
         Assertions.assertTrue(tamCompany.users.stream().anyMatch(entry -> entry.id.equals(tamCreated.id)));
+
+        RestAssured.given().redirects().follow(false).cookie(AuthHelper.AUTH_COOKIE, tamCookie)
+                .contentType(ContentType.URLENC).formParam("name", "TAM User")
+                .formParam("email", "tam-user-duplicate@mnemosyne-systems.ai").formParam("password", "tam-user")
+                .formParam("type", "user").formParam("companyId", tamCompanyId).post("/tam/users").then()
+                .statusCode(400);
     }
 
     @Test

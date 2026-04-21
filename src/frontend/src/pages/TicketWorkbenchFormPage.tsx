@@ -16,7 +16,7 @@ import useJson from "../hooks/useJson";
 import useSubmissionGuard from "../hooks/useSubmissionGuard";
 import { postForm } from "../utils/api";
 import { toQueryString } from "../utils/formatting";
-import { resolvePostRedirectPath, SmartLink } from "../utils/routing";
+import { resolvePostRedirectPath } from "../utils/routing";
 import type { SessionPageProps } from "../types/app";
 import type {
   CompanyEntitlementOption,
@@ -465,12 +465,6 @@ export default function TicketWorkbenchFormPage(props: SessionPageProps) {
             )}
 
             <div className="flex items-center justify-end space-x-3 pt-4">
-              <SmartLink
-                className="inline-flex h-10 items-center justify-center rounded-md border border-input bg-background px-4 py-2 text-sm font-medium hover:bg-accent hover:text-accent-foreground"
-                href="/tickets"
-              >
-                Cancel
-              </SmartLink>
               <Button type="submit" disabled={saveState.saving}>
                 {saveState.saving
                   ? "Saving..."

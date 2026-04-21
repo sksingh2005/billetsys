@@ -188,6 +188,9 @@ public class SupportResource {
         if (name == null || name.isBlank()) {
             throw new BadRequestException("Username is required");
         }
+        if (User.usernameExists(name)) {
+            throw new BadRequestException("Username already exists");
+        }
         if (email == null || email.isBlank()) {
             throw new BadRequestException("Email is required");
         }

@@ -58,7 +58,9 @@ public class ProfileResource {
         if (name == null || name.isBlank()) {
             return profileErrorRedirect("Username is required");
         }
-        user.name = name.trim();
+        if (user.name == null || user.name.isBlank()) {
+            user.name = name.trim();
+        }
 
         String email = value(form, "email");
         if (email != null && !email.isBlank()) {

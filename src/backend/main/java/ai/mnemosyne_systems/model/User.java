@@ -19,6 +19,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
+import java.util.Locale;
 
 @Entity
 @Table(name = "users", uniqueConstraints = @UniqueConstraint(name = "uk_users_email", columnNames = "email"))
@@ -69,6 +70,13 @@ public class User extends PanacheEntityBase {
 
     @Column(name = "logo_base64", columnDefinition = "text")
     public String logoBase64;
+
+    public static boolean usernameExists(String username) {
+        if (username == null || username.isBlank()) {
+            return false;
+        }
+        return count("lower(name) = ?1", username.trim().toLowerCase(Locale.ROOT)) > 0;
+    }
 
     /**
      * Returns the formatted phone number with extension if available.

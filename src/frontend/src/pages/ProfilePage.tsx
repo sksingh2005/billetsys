@@ -16,12 +16,6 @@ import { UserLogoPreview } from "../components/users/UserProfileSections";
 import useJson from "../hooks/useJson";
 import type { SessionPageProps } from "../types/app";
 import type { ProfileRecord } from "../types/domain";
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardContent,
-} from "../components/ui/card";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { PhoneInput } from "../components/ui/aevr/phone-input";
@@ -207,195 +201,173 @@ export default function ProfilePage(props: SessionPageProps) {
       <DataState state={profileState} emptyMessage="Profile unavailable.">
         {formState && profile && (
           <form className="space-y-6 pb-20" onSubmit={submit}>
-            <Card>
-              <CardHeader>
-                <CardTitle>Personal Information</CardTitle>
-                <p className="text-sm text-muted-foreground mt-1">
-                  Update your contact details and preferences.
-                </p>
-              </CardHeader>
-              <CardContent className="grid gap-6 md:grid-cols-2">
+            <div className="grid gap-6 md:grid-cols-2">
+              <Field>
+                <FieldLabel>
+                  Username <span className="text-destructive">*</span>
+                </FieldLabel>
+                <Input
+                  value={formState.name}
+                  onChange={(event) => updateField("name", event.target.value)}
+                  readOnly={Boolean(profile.username)}
+                />
+              </Field>
+              <Field>
+                <FieldLabel>Full name</FieldLabel>
+                <Input
+                  value={formState.fullName}
+                  onChange={(event) =>
+                    updateField("fullName", event.target.value)
+                  }
+                />
+              </Field>
+              <Field>
+                <FieldLabel>Email</FieldLabel>
+                <Input
+                  type="email"
+                  value={formState.email}
+                  onChange={(event) => updateField("email", event.target.value)}
+                />
+              </Field>
+              <Field>
+                <FieldLabel>Social</FieldLabel>
+                <Input
+                  value={formState.social}
+                  onChange={(event) =>
+                    updateField("social", event.target.value)
+                  }
+                />
+              </Field>
+              <Field>
+                <FieldLabel>Phone number</FieldLabel>
+                <PhoneInput
+                  defaultCountry="US"
+                  value={formState.phoneNumber}
+                  onChange={(value) => updateField("phoneNumber", value || "")}
+                />
+              </Field>
+              <Field>
+                <FieldLabel>Phone extension</FieldLabel>
+                <Input
+                  value={formState.phoneExtension}
+                  onChange={(event) =>
+                    updateField("phoneExtension", event.target.value)
+                  }
+                />
+              </Field>
+              <Field>
+                <FieldLabel>Country</FieldLabel>
+                <CountryDropdown
+                  defaultValue={
+                    countries.all.find(
+                      (c) =>
+                        c.name ===
+                        profile.countries.find(
+                          (pc) => String(pc.id) === formState.countryId,
+                        )?.name,
+                    )?.alpha2 || ""
+                  }
+                  onChange={(country) => {
+                    const matched = profile.countries.find(
+                      (c) => c.name === country.name,
+                    );
+                    const nextCountryId = matched ? String(matched.id) : "";
+                    const timezoneStillValid = profile.timezones.some(
+                      (timezone) =>
+                        String(timezone.id) === formState.timezoneId &&
+                        String(timezone.countryId) === nextCountryId,
+                    );
+                    setFormState((current) =>
+                      current
+                        ? {
+                            ...current,
+                            countryId: nextCountryId,
+                            timezoneId: timezoneStillValid
+                              ? current.timezoneId
+                              : "",
+                          }
+                        : current,
+                    );
+                    setSaveState((current) => ({
+                      ...current,
+                      saved: false,
+                    }));
+                  }}
+                />
+              </Field>
+              <Field>
+                <FieldLabel>Time zone</FieldLabel>
+                <Select
+                  value={formState.timezoneId}
+                  onValueChange={(value) =>
+                    updateField("timezoneId", value === "none" ? "" : value)
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select a time zone" />
+                  </SelectTrigger>
+                  <SelectContent position="popper">
+                    <SelectItem value="none">Select a time zone</SelectItem>
+                    {availableTimezones.map((timezone) => (
+                      <SelectItem key={timezone.id} value={String(timezone.id)}>
+                        {timezone.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </Field>
+              {profile.canSelectCompany && (
                 <Field>
-                  <FieldLabel>
-                    Username <span className="text-destructive">*</span>
-                  </FieldLabel>
-                  <Input
-                    value={formState.name}
-                    onChange={(event) =>
-                      updateField("name", event.target.value)
-                    }
-                  />
-                </Field>
-                <Field>
-                  <FieldLabel>Full name</FieldLabel>
-                  <Input
-                    value={formState.fullName}
-                    onChange={(event) =>
-                      updateField("fullName", event.target.value)
-                    }
-                  />
-                </Field>
-                <Field>
-                  <FieldLabel>Email</FieldLabel>
-                  <Input
-                    type="email"
-                    value={formState.email}
-                    onChange={(event) =>
-                      updateField("email", event.target.value)
-                    }
-                  />
-                </Field>
-                <Field>
-                  <FieldLabel>Social</FieldLabel>
-                  <Input
-                    value={formState.social}
-                    onChange={(event) =>
-                      updateField("social", event.target.value)
-                    }
-                  />
-                </Field>
-                <Field>
-                  <FieldLabel>Phone number</FieldLabel>
-                  <PhoneInput
-                    defaultCountry="US"
-                    value={formState.phoneNumber}
-                    onChange={(value) =>
-                      updateField("phoneNumber", value || "")
-                    }
-                  />
-                </Field>
-                <Field>
-                  <FieldLabel>Phone extension</FieldLabel>
-                  <Input
-                    value={formState.phoneExtension}
-                    onChange={(event) =>
-                      updateField("phoneExtension", event.target.value)
-                    }
-                  />
-                </Field>
-                <Field>
-                  <FieldLabel>Country</FieldLabel>
-                  <CountryDropdown
-                    defaultValue={
-                      countries.all.find(
-                        (c) =>
-                          c.name ===
-                          profile.countries.find(
-                            (pc) => String(pc.id) === formState.countryId,
-                          )?.name,
-                      )?.alpha2 || ""
-                    }
-                    onChange={(country) => {
-                      const matched = profile.countries.find(
-                        (c) => c.name === country.name,
-                      );
-                      const nextCountryId = matched ? String(matched.id) : "";
-                      const timezoneStillValid = profile.timezones.some(
-                        (timezone) =>
-                          String(timezone.id) === formState.timezoneId &&
-                          String(timezone.countryId) === nextCountryId,
-                      );
-                      setFormState((current) =>
-                        current
-                          ? {
-                              ...current,
-                              countryId: nextCountryId,
-                              timezoneId: timezoneStillValid
-                                ? current.timezoneId
-                                : "",
-                            }
-                          : current,
-                      );
-                      setSaveState((current) => ({
-                        ...current,
-                        saved: false,
-                      }));
-                    }}
-                  />
-                </Field>
-                <Field>
-                  <FieldLabel>Time zone</FieldLabel>
+                  <FieldLabel>Company</FieldLabel>
                   <Select
-                    value={formState.timezoneId}
+                    value={formState.companyId}
                     onValueChange={(value) =>
-                      updateField("timezoneId", value === "none" ? "" : value)
+                      updateField("companyId", value === "none" ? "" : value)
                     }
                   >
                     <SelectTrigger>
-                      <SelectValue placeholder="Select a time zone" />
+                      <SelectValue placeholder="Select a company" />
                     </SelectTrigger>
                     <SelectContent position="popper">
-                      <SelectItem value="none">Select a time zone</SelectItem>
-                      {availableTimezones.map((timezone) => (
-                        <SelectItem
-                          key={timezone.id}
-                          value={String(timezone.id)}
-                        >
-                          {timezone.name}
+                      <SelectItem value="none">Select a company</SelectItem>
+                      {profile.companies.map((company) => (
+                        <SelectItem key={company.id} value={String(company.id)}>
+                          {company.name}
                         </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
                 </Field>
-                {profile.canSelectCompany && (
-                  <Field>
-                    <FieldLabel>Company</FieldLabel>
-                    <Select
-                      value={formState.companyId}
-                      onValueChange={(value) =>
-                        updateField("companyId", value === "none" ? "" : value)
-                      }
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select a company" />
-                      </SelectTrigger>
-                      <SelectContent position="popper">
-                        <SelectItem value="none">Select a company</SelectItem>
-                        {profile.companies.map((company) => (
-                          <SelectItem
-                            key={company.id}
-                            value={String(company.id)}
-                          >
-                            {company.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </Field>
-                )}
+              )}
 
-                <div className="md:col-span-2 pt-4">
-                  <FieldLabel className="mb-2 block">Profile Logo</FieldLabel>
-                  <div className="flex items-center space-x-6">
-                    <UserLogoPreview
-                      logoBase64={formState.logoBase64}
-                      fullName={formState.fullName}
-                      username={formState.name}
-                      email={formState.email}
+              <div className="md:col-span-2 pt-4">
+                <FieldLabel className="mb-2 block">Profile Logo</FieldLabel>
+                <div className="flex items-center space-x-6">
+                  <UserLogoPreview
+                    logoBase64={formState.logoBase64}
+                    fullName={formState.fullName}
+                    username={formState.name}
+                    email={formState.email}
+                  />
+                  <div>
+                    <input
+                      ref={logoInputRef}
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={uploadLogo}
                     />
-                    <div>
-                      <input
-                        ref={logoInputRef}
-                        type="file"
-                        accept="image/*"
-                        className="hidden"
-                        onChange={uploadLogo}
-                      />
-                      <Button
-                        type="button"
-                        variant="outline"
-                        onClick={openLogoPicker}
-                      >
-                        Upload logo
-                      </Button>
-                      <p className="text-sm text-muted-foreground mt-2">
-                        Upload a personal logo or avatar.
-                      </p>
-                    </div>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={openLogoPicker}
+                    >
+                      Upload
+                    </Button>
                   </div>
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
 
             <div className="flex items-center justify-end space-x-3 pt-4">
               <Button type="submit" disabled={saveState.saving}>
