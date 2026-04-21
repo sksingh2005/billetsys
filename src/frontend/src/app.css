@@ -51,6 +51,7 @@
 }
 
 .dark {
+  color-scheme: dark;
   --background: oklch(0.141 0.005 285.823);
   --foreground: oklch(0.985 0 0);
   --card: oklch(0.21 0.006 285.885);
@@ -173,6 +174,27 @@
   .editor-shell [data-slot="button"] svg,
   .editor-shell [data-slot="select-trigger"] * {
     color: inherit !important;
+  }
+
+  .dark .editor-shell button,
+  .dark .editor-shell [data-slot="button"],
+  .dark .editor-shell [data-slot="select-trigger"] {
+    background: #111827 !important;
+    background-color: #111827 !important;
+    color: #f9fafb !important;
+    border-color: #374151 !important;
+    background-image: none !important;
+  }
+
+  .dark .editor-shell button:hover,
+  .dark .editor-shell [data-slot="button"]:hover,
+  .dark .editor-shell [data-slot="button"][aria-expanded="true"],
+  .dark .editor-shell [data-slot="button"][data-state="on"],
+  .dark .editor-shell [data-slot="select-trigger"]:hover,
+  .dark .editor-shell [data-slot="select-trigger"][aria-expanded="true"] {
+    background: #1f2937 !important;
+    background-color: #1f2937 !important;
+    color: #f9fafb !important;
   }
 }
 

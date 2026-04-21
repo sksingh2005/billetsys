@@ -7,6 +7,8 @@
  */
 
 import { useEffect, useState } from "react";
+import { MoonIcon, SunIcon } from "lucide-react";
+import { useDarkModeToggle } from "../../hooks/useDarkModeToggle";
 
 interface LoginHeaderProps {
   brandName: string;
@@ -15,6 +17,7 @@ interface LoginHeaderProps {
 
 export default function LoginHeader({ brandName, logoSrc }: LoginHeaderProps) {
   const [now, setNow] = useState(() => new Date());
+  const { darkModeToggleRef, toggleDarkMode } = useDarkModeToggle();
 
   useEffect(() => {
     const timerId = window.setInterval(() => setNow(new Date()), 1000);
@@ -46,12 +49,27 @@ export default function LoginHeader({ brandName, logoSrc }: LoginHeaderProps) {
         )}
         {brandName}
       </a>
-      <span className="font-semibold tabular-nums">
-        {now.toLocaleTimeString([], {
-          hour: "2-digit",
-          minute: "2-digit",
-        })}
-      </span>
+      <div className="flex items-center gap-3">
+        <button
+          ref={darkModeToggleRef}
+          type="button"
+          onClick={toggleDarkMode}
+          aria-pressed="false"
+          className="group relative inline-flex h-8 w-16 items-center rounded-full border border-white/35 bg-white/12 p-1 text-header-text transition-colors hover:bg-white/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--color-header-bg)]"
+          aria-label="Toggle dark mode"
+          title="Toggle dark mode"
+        >
+          <SunIcon className="absolute left-2 size-3.5 opacity-90" />
+          <MoonIcon className="absolute right-2 size-3.5 opacity-90" />
+          <span className="pointer-events-none inline-block h-6 w-6 translate-x-0 rounded-full bg-white shadow-sm transition-transform duration-200 ease-out group-aria-[pressed=true]:translate-x-8" />
+        </button>
+        <span className="font-semibold tabular-nums">
+          {now.toLocaleTimeString([], {
+            hour: "2-digit",
+            minute: "2-digit",
+          })}
+        </span>
+      </div>
     </header>
   );
 }

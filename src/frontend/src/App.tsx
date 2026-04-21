@@ -35,7 +35,7 @@ function App() {
         className={
           isLoginRoute
             ? "min-h-screen flex flex-col bg-header-bg text-header-text"
-            : "min-h-screen flex flex-col bg-background"
+            : "min-h-screen flex flex-col bg-background dark:bg-black"
         }
       >
         {isLoginRoute ? (
@@ -50,7 +50,7 @@ function App() {
           className={
             isLoginRoute
               ? "flex-1 flex items-center justify-center p-6 bg-header-bg text-header-text"
-              : "flex-1 p-5"
+              : "flex-1 p-5 bg-background dark:bg-black"
           }
         >
           <AppRoutes sessionState={sessionState} />

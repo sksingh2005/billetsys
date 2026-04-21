@@ -14,7 +14,6 @@ import {
   CardHeader,
   CardTitle,
   CardContent,
-  CardDescription,
 } from "../components/ui/card";
 import { Button } from "../components/ui/button";
 import { Field, FieldLabel } from "../components/ui/field";
@@ -36,25 +35,16 @@ export default function LoginPage({ sessionState }: SessionPageProps) {
       <CardHeader className="space-y-1 pb-6 pt-6 bg-transparent text-left">
         <div className="flex items-center justify-between">
           <CardTitle className="text-2xl font-bold tracking-tight">
-            Login to your account
+            Login
           </CardTitle>
-          <a
-            href="/signup"
-            className="text-sm font-medium text-primary hover:underline"
-          >
-            Sign Up
-          </a>
         </div>
-        <CardDescription className="text-[15px] font-normal text-muted-foreground pt-1">
-          Enter your email below to login to your account
-        </CardDescription>
       </CardHeader>
       <CardContent className="pt-0 pb-6 px-6">
         <form className="space-y-4" method="post" action="/login">
           <div className="space-y-4">
             <Field className="space-y-2">
               <FieldLabel className="text-sm font-medium leading-none text-foreground">
-                Email
+                User name
               </FieldLabel>
               <Input
                 name="username"
@@ -92,9 +82,9 @@ export default function LoginPage({ sessionState }: SessionPageProps) {
                   onClick={() => setShowPassword(!showPassword)}
                 >
                   {showPassword ? (
-                    <EyeOffIcon className="h-4 w-4 text-[var(--color-header-bg)]" />
+                    <EyeOffIcon className="h-4 w-4 text-white" />
                   ) : (
-                    <EyeIcon className="h-4 w-4 text-[var(--color-header-bg)]" />
+                    <EyeIcon className="h-4 w-4 text-white" />
                   )}
                   <span className="sr-only">
                     {showPassword ? "Hide password" : "Show password"}

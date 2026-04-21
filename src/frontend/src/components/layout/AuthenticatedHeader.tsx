@@ -10,6 +10,7 @@ import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import useJson from "../../hooks/useJson";
 import useText from "../../hooks/useText";
+import { useDarkModeToggle } from "../../hooks/useDarkModeToggle";
 import { toQueryString } from "../../utils/formatting";
 import { SmartLink, normalizeClientPath } from "../../utils/routing";
 import {
@@ -38,7 +39,7 @@ import {
   CommandList,
   CommandSeparator,
 } from "../ui/command";
-import { SearchIcon, XIcon } from "lucide-react";
+import { MoonIcon, SearchIcon, SunIcon, XIcon } from "lucide-react";
 
 interface TicketCounts {
   assignedCount?: number;
@@ -64,6 +65,7 @@ export default function AuthenticatedHeader({
   session,
 }: AuthenticatedHeaderProps) {
   const [now, setNow] = useState(() => new Date());
+  const { darkModeToggleRef, toggleDarkMode } = useDarkModeToggle();
   const location = useLocation();
   const navigate = useNavigate();
   const role = session?.role;
@@ -439,6 +441,19 @@ export default function AuthenticatedHeader({
                 </a>
               </Button>
             )}
+            <button
+              ref={darkModeToggleRef}
+              type="button"
+              onClick={toggleDarkMode}
+              aria-pressed="false"
+              className="group relative inline-flex h-8 w-16 items-center rounded-full border border-white/35 bg-white/12 p-1 text-header-text transition-colors hover:bg-white/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--color-header-bg)]"
+              aria-label="Toggle dark mode"
+              title="Toggle dark mode"
+            >
+              <SunIcon className="absolute left-2 size-3.5 opacity-90" />
+              <MoonIcon className="absolute right-2 size-3.5 opacity-90" />
+              <span className="pointer-events-none inline-block h-6 w-6 translate-x-0 rounded-full bg-white shadow-sm transition-transform duration-200 ease-out group-aria-[pressed=true]:translate-x-8" />
+            </button>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button
