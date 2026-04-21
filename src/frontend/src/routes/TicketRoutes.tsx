@@ -74,7 +74,12 @@ export function getTicketRoutes(sessionState: SessionState): AppRoute[] {
     },
     {
       path: PATHS.supportTicketsNew,
-      element: <SupportTicketCreatePage sessionState={sessionState} />,
+      element: (
+        <SupportTicketCreatePage
+          sessionState={sessionState}
+          compactCreateActions
+        />
+      ),
       requiresAuth: true,
       allowedRoles: ["support"],
     },
@@ -238,6 +243,7 @@ export function getTicketRoutes(sessionState: SessionState): AppRoute[] {
           backPath={PATHS.superuserTickets}
           submitFallbackPath={PATHS.superuserTickets}
           navigateTo={PATHS.superuserTickets}
+          compactCreateActions
         />
       ),
       requiresAuth: true,

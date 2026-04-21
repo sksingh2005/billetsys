@@ -568,7 +568,7 @@ export default function DirectoryUserFormPage({
                     ? "flex items-center gap-3 pt-4"
                     : isAdminCreate
                       ? "flex items-center justify-end gap-3 pt-4"
-                      : "flex items-center space-x-3 justify-end border-t bg-muted/20 px-6 py-4"
+                      : "flex items-center space-x-3 justify-end bg-muted/20 px-6 py-4"
                 }
               >
                 {isEdit && bootstrap.submitPath?.startsWith("/user/") && (

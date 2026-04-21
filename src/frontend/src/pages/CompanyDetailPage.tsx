@@ -156,7 +156,7 @@ export default function CompanyDetailPage(props: SessionPageProps) {
             </div>
 
             {company.id && (
-              <div className="flex justify-end pt-6 border-t">
+              <div className="flex justify-end pt-6">
                 <Button asChild>
                   <SmartLink href={`/companies/${company.id}/edit`}>
                     Edit

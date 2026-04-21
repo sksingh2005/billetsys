@@ -79,7 +79,7 @@ export default function TicketWorkbenchPage(props: SessionPageProps) {
                     </p>
                   )}
                 </div>
-                <div className="flex gap-4 justify-end mt-4 pt-4 border-t">
+                <div className="flex gap-4 justify-end mt-4 pt-4">
                   <SmartLink
                     className="text-sm font-medium text-primary hover:underline hover:text-primary/80"
                     href={ticket.detailPath}

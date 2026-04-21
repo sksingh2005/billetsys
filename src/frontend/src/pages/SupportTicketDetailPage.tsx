@@ -37,7 +37,6 @@ import type {
   VersionInfo,
 } from "../types/domain";
 import type { SupportTicketDetailState } from "../types/forms";
-import { Card, CardContent } from "../components/ui/card";
 import { Button } from "../components/ui/button";
 import { Field, FieldLabel } from "../components/ui/field";
 import { Input } from "../components/ui/input";
@@ -495,277 +494,269 @@ export default function SupportTicketDetailPage({
                 showSummaryField ? ticket.title || formState.title : undefined
               }
             />
-            <Card className="border-border/80 shadow-sm">
-              <CardContent className="p-6 md:p-8">
-                <form onSubmit={saveTicket} className="space-y-8">
-                  <div className="grid gap-5 md:grid-cols-2">
-                    <Field>
-                      <FieldLabel>Title</FieldLabel>
-                      <Input value={ticket.name || ticketHeading} readOnly />
-                    </Field>
-                    <Field>
-                      <FieldLabel>Company</FieldLabel>
-                      {ticket.companyId ? (
-                        <div className="flex h-10 items-center rounded-md border bg-muted/50 px-3">
-                          <a
-                            className="text-sm font-medium text-primary hover:underline"
-                            href={`/support/companies/${ticket.companyId}`}
-                          >
-                            {ticket.companyName || "-"}
-                          </a>
-                        </div>
-                      ) : (
-                        <Input value={ticket.companyName || "-"} readOnly />
-                      )}
-                    </Field>
-                    {showSummaryField && (
-                      <Field className="md:col-span-2">
-                        <FieldLabel>Summary</FieldLabel>
-                        {isClosed ? (
-                          <Input
-                            value={formState.title || ticket.title || ""}
-                            readOnly
-                          />
-                        ) : (
-                          <Input
-                            value={formState.title}
-                            onChange={(event) =>
-                              updateFormState("title", event.target.value)
-                            }
-                            required
-                          />
-                        )}
-                      </Field>
-                    )}
-                    <Field>
-                      <FieldLabel>Category</FieldLabel>
-                      {isClosed || !canEditCategory ? (
-                        <Input value={ticket.categoryName || "-"} readOnly />
-                      ) : (
-                        <Select
-                          value={formState.categoryId}
-                          onValueChange={(value) =>
-                            updateFormState("categoryId", value)
-                          }
-                        >
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select a category" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {(ticket.categories || []).map(
-                              (category: NamedEntity) => (
-                                <SelectItem
-                                  key={category.id}
-                                  value={String(category.id)}
-                                >
-                                  {category.name}
-                                </SelectItem>
-                              ),
-                            )}
-                          </SelectContent>
-                        </Select>
-                      )}
-                    </Field>
-                    <Field>
-                      <FieldLabel>Entitlement</FieldLabel>
+            <form onSubmit={saveTicket} className="space-y-8">
+              <div className="grid gap-5 md:grid-cols-2">
+                <Field>
+                  <FieldLabel>Title</FieldLabel>
+                  <Input value={ticket.name || ticketHeading} readOnly />
+                </Field>
+                <Field>
+                  <FieldLabel>Company</FieldLabel>
+                  {ticket.companyId ? (
+                    <div className="flex h-10 items-center rounded-md border bg-muted/50 px-3">
+                      <a
+                        className="text-sm font-medium text-primary hover:underline"
+                        href={`/support/companies/${ticket.companyId}`}
+                      >
+                        {ticket.companyName || "-"}
+                      </a>
+                    </div>
+                  ) : (
+                    <Input value={ticket.companyName || "-"} readOnly />
+                  )}
+                </Field>
+                {showSummaryField && (
+                  <Field className="md:col-span-2">
+                    <FieldLabel>Summary</FieldLabel>
+                    {isClosed ? (
                       <Input
-                        value={ticket.entitlementName || "-"}
+                        value={formState.title || ticket.title || ""}
                         readOnly
-                        className={
-                          ticket.ticketEntitlementExpired
-                            ? "text-destructive border-destructive"
-                            : ""
+                      />
+                    ) : (
+                      <Input
+                        value={formState.title}
+                        onChange={(event) =>
+                          updateFormState("title", event.target.value)
                         }
+                        required
                       />
-                    </Field>
-                    <Field>
-                      <FieldLabel>Status</FieldLabel>
-                      {isClosed || !canEditStatus ? (
-                        <Input value={formState.status || "-"} readOnly />
-                      ) : (
-                        <Select
-                          value={formState.status}
-                          onValueChange={(value) =>
-                            updateFormState("status", value)
-                          }
-                        >
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select status" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {(ticket.statusOptions || []).map((option) => (
-                              <SelectItem key={option} value={option}>
-                                {option}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      )}
-                    </Field>
-                    {showLevelField && (
-                      <Field>
-                        <FieldLabel>Level</FieldLabel>
-                        <Input
-                          value={ticket.levelName || "-"}
-                          readOnly
-                          className={
-                            ticket.ticketEntitlementExpired
-                              ? "text-destructive border-destructive"
-                              : ""
-                          }
-                        />
-                      </Field>
                     )}
-                    <Field>
-                      <FieldLabel>External issue</FieldLabel>
-                      {isClosed || !canEditExternalIssue ? (
-                        formState.externalIssueLink ? (
-                          <div className="h-10 px-3 py-2 border rounded-md bg-muted/50 truncate">
-                            <a
-                              href={formState.externalIssueLink}
-                              target="_blank"
-                              rel="noreferrer"
-                              className="text-sm font-medium text-primary hover:underline truncate"
+                  </Field>
+                )}
+                <Field>
+                  <FieldLabel>Category</FieldLabel>
+                  {isClosed || !canEditCategory ? (
+                    <Input value={ticket.categoryName || "-"} readOnly />
+                  ) : (
+                    <Select
+                      value={formState.categoryId}
+                      onValueChange={(value) =>
+                        updateFormState("categoryId", value)
+                      }
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select a category" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {(ticket.categories || []).map(
+                          (category: NamedEntity) => (
+                            <SelectItem
+                              key={category.id}
+                              value={String(category.id)}
                             >
-                              {formState.externalIssueLink}
-                            </a>
-                          </div>
-                        ) : (
-                          <Input value="-" readOnly />
-                        )
-                      ) : (
-                        <div className="relative flex items-center">
-                          <Input
-                            value={formState.externalIssueLink}
-                            onChange={(event) =>
-                              updateFormState(
-                                "externalIssueLink",
-                                event.target.value,
-                              )
-                            }
-                            className="pr-14"
-                          />
-                          {formState.externalIssueLink ? (
-                            <a
-                              className="absolute right-3 top-1/2 -translate-y-1/2 text-sm font-medium text-primary hover:underline bg-background pl-2"
-                              href={formState.externalIssueLink}
-                              target="_blank"
-                              rel="noreferrer"
-                            >
-                              Open
-                            </a>
-                          ) : null}
-                        </div>
-                      )}
-                    </Field>
-                    {showLevelField ? (
-                      <div className="hidden md:block" aria-hidden="true" />
-                    ) : null}
-                    <Field>
-                      <FieldLabel>Affects</FieldLabel>
-                      {isClosed || !canEditAffectsVersion ? (
-                        <Input
-                          value={
-                            versionLabel(
-                              ticket.versions,
-                              formState.affectsVersionId,
-                            ) || "-"
-                          }
-                          readOnly
-                        />
-                      ) : (
-                        <Select
-                          value={formState.affectsVersionId}
-                          onValueChange={(value) =>
-                            updateFormState("affectsVersionId", value)
-                          }
+                              {category.name}
+                            </SelectItem>
+                          ),
+                        )}
+                      </SelectContent>
+                    </Select>
+                  )}
+                </Field>
+                <Field>
+                  <FieldLabel>Entitlement</FieldLabel>
+                  <Input
+                    value={ticket.entitlementName || "-"}
+                    readOnly
+                    className={
+                      ticket.ticketEntitlementExpired
+                        ? "text-destructive border-destructive"
+                        : ""
+                    }
+                  />
+                </Field>
+                <Field>
+                  <FieldLabel>Status</FieldLabel>
+                  {isClosed || !canEditStatus ? (
+                    <Input value={formState.status || "-"} readOnly />
+                  ) : (
+                    <Select
+                      value={formState.status}
+                      onValueChange={(value) =>
+                        updateFormState("status", value)
+                      }
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select status" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {(ticket.statusOptions || []).map((option) => (
+                          <SelectItem key={option} value={option}>
+                            {option}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  )}
+                </Field>
+                {showLevelField && (
+                  <Field>
+                    <FieldLabel>Level</FieldLabel>
+                    <Input
+                      value={ticket.levelName || "-"}
+                      readOnly
+                      className={
+                        ticket.ticketEntitlementExpired
+                          ? "text-destructive border-destructive"
+                          : ""
+                      }
+                    />
+                  </Field>
+                )}
+                <Field>
+                  <FieldLabel>External issue</FieldLabel>
+                  {isClosed || !canEditExternalIssue ? (
+                    formState.externalIssueLink ? (
+                      <div className="h-10 px-3 py-2 border rounded-md bg-muted/50 truncate">
+                        <a
+                          href={formState.externalIssueLink}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="text-sm font-medium text-primary hover:underline truncate"
                         >
-                          <SelectTrigger>
-                            <SelectValue placeholder="Version" />
-                          </SelectTrigger>
-                          <SelectContent position="popper">
-                            <SelectItem value="none">-</SelectItem>
-                            {(ticket.versions || []).map(
-                              (version: VersionInfo) => (
-                                <SelectItem
-                                  key={version.id}
-                                  value={String(version.id)}
-                                >
-                                  {version.name} ({version.date})
-                                </SelectItem>
-                              ),
-                            )}
-                          </SelectContent>
-                        </Select>
-                      )}
-                    </Field>
-                    <Field>
-                      <FieldLabel>Resolved</FieldLabel>
-                      {isClosed || !canEditResolvedVersion ? (
-                        <Input
-                          value={
-                            versionLabel(
-                              ticket.versions,
-                              formState.resolvedVersionId,
-                            ) || "-"
-                          }
-                          readOnly
-                        />
-                      ) : (
-                        <Select
-                          value={formState.resolvedVersionId}
-                          onValueChange={(value) =>
-                            updateFormState("resolvedVersionId", value)
-                          }
-                        >
-                          <SelectTrigger>
-                            <SelectValue placeholder="Version" />
-                          </SelectTrigger>
-                          <SelectContent position="popper">
-                            <SelectItem value="none">-</SelectItem>
-                            {(ticket.versions || []).map(
-                              (version: VersionInfo) => (
-                                <SelectItem
-                                  key={version.id}
-                                  value={String(version.id)}
-                                >
-                                  {version.name} ({version.date})
-                                </SelectItem>
-                              ),
-                            )}
-                          </SelectContent>
-                        </Select>
-                      )}
-                    </Field>
-                    <Field>
-                      <FieldLabel>Support</FieldLabel>
-                      <UserReferenceInlineList users={ticket.supportUsers} />
-                    </Field>
-                    <Field>
-                      <FieldLabel>
-                        {ticket.secondaryUsersLabel || secondaryUsersLabel}
-                      </FieldLabel>
-                      <UserReferenceInlineList
-                        users={ticket.secondaryUsers || ticket.tamUsers}
-                      />
-                    </Field>
-                  </div>
-
-                  {!isClosed &&
-                    (canEditStatus ||
-                      canEditCategory ||
-                      canEditExternalIssue ||
-                      canEditAffectsVersion ||
-                      canEditResolvedVersion) && (
-                      <div className="flex justify-end border-t pt-6">
-                        <Button type="submit" disabled={saveState.saving}>
-                          {saveState.saving ? "Saving..." : "Save"}
-                        </Button>
+                          {formState.externalIssueLink}
+                        </a>
                       </div>
-                    )}
-                </form>
-              </CardContent>
-            </Card>
+                    ) : (
+                      <Input value="-" readOnly />
+                    )
+                  ) : (
+                    <div className="relative flex items-center">
+                      <Input
+                        value={formState.externalIssueLink}
+                        onChange={(event) =>
+                          updateFormState(
+                            "externalIssueLink",
+                            event.target.value,
+                          )
+                        }
+                        className="pr-14"
+                      />
+                      {formState.externalIssueLink ? (
+                        <a
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-sm font-medium text-primary hover:underline bg-background pl-2"
+                          href={formState.externalIssueLink}
+                          target="_blank"
+                          rel="noreferrer"
+                        >
+                          Open
+                        </a>
+                      ) : null}
+                    </div>
+                  )}
+                </Field>
+                {showLevelField ? (
+                  <div className="hidden md:block" aria-hidden="true" />
+                ) : null}
+                <Field>
+                  <FieldLabel>Affects</FieldLabel>
+                  {isClosed || !canEditAffectsVersion ? (
+                    <Input
+                      value={
+                        versionLabel(
+                          ticket.versions,
+                          formState.affectsVersionId,
+                        ) || "-"
+                      }
+                      readOnly
+                    />
+                  ) : (
+                    <Select
+                      value={formState.affectsVersionId}
+                      onValueChange={(value) =>
+                        updateFormState("affectsVersionId", value)
+                      }
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Version" />
+                      </SelectTrigger>
+                      <SelectContent position="popper">
+                        <SelectItem value="none">-</SelectItem>
+                        {(ticket.versions || []).map((version: VersionInfo) => (
+                          <SelectItem
+                            key={version.id}
+                            value={String(version.id)}
+                          >
+                            {version.name} ({version.date})
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  )}
+                </Field>
+                <Field>
+                  <FieldLabel>Resolved</FieldLabel>
+                  {isClosed || !canEditResolvedVersion ? (
+                    <Input
+                      value={
+                        versionLabel(
+                          ticket.versions,
+                          formState.resolvedVersionId,
+                        ) || "-"
+                      }
+                      readOnly
+                    />
+                  ) : (
+                    <Select
+                      value={formState.resolvedVersionId}
+                      onValueChange={(value) =>
+                        updateFormState("resolvedVersionId", value)
+                      }
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Version" />
+                      </SelectTrigger>
+                      <SelectContent position="popper">
+                        <SelectItem value="none">-</SelectItem>
+                        {(ticket.versions || []).map((version: VersionInfo) => (
+                          <SelectItem
+                            key={version.id}
+                            value={String(version.id)}
+                          >
+                            {version.name} ({version.date})
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  )}
+                </Field>
+                <Field>
+                  <FieldLabel>Support</FieldLabel>
+                  <UserReferenceInlineList users={ticket.supportUsers} />
+                </Field>
+                <Field>
+                  <FieldLabel>
+                    {ticket.secondaryUsersLabel || secondaryUsersLabel}
+                  </FieldLabel>
+                  <UserReferenceInlineList
+                    users={ticket.secondaryUsers || ticket.tamUsers}
+                  />
+                </Field>
+              </div>
+
+              {!isClosed &&
+                (canEditStatus ||
+                  canEditCategory ||
+                  canEditExternalIssue ||
+                  canEditAffectsVersion ||
+                  canEditResolvedVersion) && (
+                  <div className="flex justify-end pt-6">
+                    <Button type="submit" disabled={saveState.saving}>
+                      {saveState.saving ? "Saving..." : "Save"}
+                    </Button>
+                  </div>
+                )}
+            </form>
 
             <div className="space-y-4">
               <h2
@@ -878,7 +869,7 @@ export default function SupportTicketDetailPage({
                     </p>
                   )}
 
-                  <div className="mt-8 flex items-center justify-between border-t pt-6">
+                  <div className="mt-8 flex items-center justify-between pt-6">
                     <div>
                       {ticket.exportPath && (
                         <Button variant="outline" asChild>

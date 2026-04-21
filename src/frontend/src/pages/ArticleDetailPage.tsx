@@ -200,7 +200,7 @@ export default function ArticleDetailPage(props: SessionPageProps) {
               </div>
 
               {(article.canDelete || (article.canEdit && article.editPath)) && (
-                <div className="w-full flex items-center justify-between pt-8 mt-auto mb-4 border-t border-border/60">
+                <div className="w-full flex items-center justify-between pt-8 mt-auto mb-4">
                   <div>
                     {article.canDelete && (
                       <DeleteArticleButton

@@ -58,6 +58,7 @@ export default function SupportTicketCreatePage({
   title = "",
   description = "",
   navigateTo = "/support/tickets",
+  compactCreateActions = false,
   hideEntitlementLevel = false,
 }: SupportTicketCreatePageProps) {
   const navigate = useNavigate();
@@ -204,49 +205,266 @@ export default function SupportTicketCreatePage({
       >
         {formState && bootstrap && (
           <form className="space-y-6 pb-20" onSubmit={submit}>
-            <Card>
-              <CardContent className="grid gap-6">
-                <Field>
-                  <FieldLabel>
-                    Title <span className="text-destructive">*</span>
-                  </FieldLabel>
-                  <Input
-                    value={formState.title}
-                    onChange={(event) =>
-                      updateFormState("title", event.target.value)
-                    }
-                    required
-                  />
-                </Field>
+            <div className={compactCreateActions ? "grid gap-6" : undefined}>
+              {!compactCreateActions ? (
+                <Card>
+                  <CardContent className="grid gap-6">
+                    <Field>
+                      <FieldLabel>
+                        Title <span className="text-destructive">*</span>
+                      </FieldLabel>
+                      <Input
+                        value={formState.title}
+                        onChange={(event) =>
+                          updateFormState("title", event.target.value)
+                        }
+                        required
+                      />
+                    </Field>
 
-                <div className="grid gap-6 md:grid-cols-2">
+                    <div className="grid gap-6 md:grid-cols-2">
+                      <Field>
+                        <FieldLabel>
+                          Company <span className="text-destructive">*</span>
+                        </FieldLabel>
+                        {showFixedCompany ? (
+                          <Input
+                            value={
+                              (bootstrap.companies || []).find(
+                                (company: NamedEntity) =>
+                                  String(company.id) === formState.companyId,
+                              )?.name || ""
+                            }
+                            readOnly
+                          />
+                        ) : (
+                          <Select
+                            value={formState.companyId || undefined}
+                            onValueChange={(value) => {
+                              const nextCompanyId = value;
+                              setSelectedCompanyId(nextCompanyId);
+                              setSelectedCompanyEntitlementId("");
+                              setFormState((current) =>
+                                current
+                                  ? {
+                                      ...current,
+                                      companyId: nextCompanyId,
+                                      companyEntitlementId: "",
+                                      affectsVersionId: "",
+                                    }
+                                  : current,
+                              );
+                            }}
+                            required
+                          >
+                            <SelectTrigger className="w-full">
+                              <SelectValue placeholder="Select company" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {(bootstrap.companies || []).map(
+                                (company: NamedEntity) => (
+                                  <SelectItem
+                                    key={company.id}
+                                    value={String(company.id)}
+                                  >
+                                    {company.name}
+                                  </SelectItem>
+                                ),
+                              )}
+                            </SelectContent>
+                          </Select>
+                        )}
+                      </Field>
+                      <Field>
+                        <FieldLabel>
+                          Entitlement{" "}
+                          <span className="text-destructive">*</span>
+                        </FieldLabel>
+                        <Select
+                          value={formState.companyEntitlementId || undefined}
+                          onValueChange={(value) => {
+                            const nextEntitlementId = value;
+                            setSelectedCompanyEntitlementId(nextEntitlementId);
+                            setFormState((current) =>
+                              current
+                                ? {
+                                    ...current,
+                                    companyEntitlementId: nextEntitlementId,
+                                    affectsVersionId: "",
+                                  }
+                                : current,
+                            );
+                          }}
+                          required
+                        >
+                          <SelectTrigger className="w-full">
+                            <SelectValue placeholder="Select entitlement" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {(bootstrap.companyEntitlements || []).map(
+                              (entry: CompanyEntitlementOption) => (
+                                <SelectItem
+                                  key={entry.id}
+                                  value={String(entry.id)}
+                                >
+                                  {entry.name}
+                                  {!hideEntitlementLevel && entry.levelName
+                                    ? ` • ${entry.levelName}`
+                                    : ""}
+                                </SelectItem>
+                              ),
+                            )}
+                          </SelectContent>
+                        </Select>
+                      </Field>
+                      <Field>
+                        <FieldLabel>Category</FieldLabel>
+                        <Select
+                          value={formState.categoryId || undefined}
+                          onValueChange={(value) =>
+                            updateFormState("categoryId", value)
+                          }
+                        >
+                          <SelectTrigger className="w-full">
+                            <SelectValue placeholder="Select category" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {(bootstrap.categories || []).map(
+                              (category: NamedEntity) => (
+                                <SelectItem
+                                  key={category.id}
+                                  value={String(category.id)}
+                                >
+                                  {category.name}
+                                </SelectItem>
+                              ),
+                            )}
+                          </SelectContent>
+                        </Select>
+                      </Field>
+                      <Field>
+                        <FieldLabel>Affects Version</FieldLabel>
+                        <Select
+                          value={formState.affectsVersionId || undefined}
+                          onValueChange={(value) =>
+                            updateFormState("affectsVersionId", value)
+                          }
+                        >
+                          <SelectTrigger className="w-full">
+                            <SelectValue placeholder="Select version" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {(bootstrap.versions || []).map(
+                              (version: VersionInfo) => (
+                                <SelectItem
+                                  key={version.id}
+                                  value={String(version.id)}
+                                >
+                                  {version.name}
+                                  {version.date ? ` (${version.date})` : ""}
+                                </SelectItem>
+                              ),
+                            )}
+                          </SelectContent>
+                        </Select>
+                      </Field>
+                    </div>
+
+                    <Field>
+                      <FieldLabel>
+                        Message <span className="text-destructive">*</span>
+                      </FieldLabel>
+                      <LexicalEditor
+                        value={formState.message}
+                        onChange={(value) => updateFormState("message", value)}
+                        inputRef={messageInputRef}
+                        rows={10}
+                        required
+                      />
+                    </Field>
+                  </CardContent>
+                </Card>
+              ) : (
+                <>
                   <Field>
                     <FieldLabel>
-                      Company <span className="text-destructive">*</span>
+                      Title <span className="text-destructive">*</span>
                     </FieldLabel>
-                    {showFixedCompany ? (
-                      <Input
-                        value={
-                          (bootstrap.companies || []).find(
-                            (company: NamedEntity) =>
-                              String(company.id) === formState.companyId,
-                          )?.name || ""
-                        }
-                        readOnly
-                      />
-                    ) : (
+                    <Input
+                      value={formState.title}
+                      onChange={(event) =>
+                        updateFormState("title", event.target.value)
+                      }
+                      required
+                    />
+                  </Field>
+                  <div className="grid gap-6 md:grid-cols-2">
+                    <Field>
+                      <FieldLabel>
+                        Company <span className="text-destructive">*</span>
+                      </FieldLabel>
+                      {showFixedCompany ? (
+                        <Input
+                          value={
+                            (bootstrap.companies || []).find(
+                              (company: NamedEntity) =>
+                                String(company.id) === formState.companyId,
+                            )?.name || ""
+                          }
+                          readOnly
+                        />
+                      ) : (
+                        <Select
+                          value={formState.companyId || undefined}
+                          onValueChange={(value) => {
+                            const nextCompanyId = value;
+                            setSelectedCompanyId(nextCompanyId);
+                            setSelectedCompanyEntitlementId("");
+                            setFormState((current) =>
+                              current
+                                ? {
+                                    ...current,
+                                    companyId: nextCompanyId,
+                                    companyEntitlementId: "",
+                                    affectsVersionId: "",
+                                  }
+                                : current,
+                            );
+                          }}
+                          required
+                        >
+                          <SelectTrigger className="w-full">
+                            <SelectValue placeholder="Select company" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {(bootstrap.companies || []).map(
+                              (company: NamedEntity) => (
+                                <SelectItem
+                                  key={company.id}
+                                  value={String(company.id)}
+                                >
+                                  {company.name}
+                                </SelectItem>
+                              ),
+                            )}
+                          </SelectContent>
+                        </Select>
+                      )}
+                    </Field>
+                    <Field>
+                      <FieldLabel>
+                        Entitlement <span className="text-destructive">*</span>
+                      </FieldLabel>
                       <Select
-                        value={formState.companyId || undefined}
+                        value={formState.companyEntitlementId || undefined}
                         onValueChange={(value) => {
-                          const nextCompanyId = value;
-                          setSelectedCompanyId(nextCompanyId);
-                          setSelectedCompanyEntitlementId("");
+                          const nextEntitlementId = value;
+                          setSelectedCompanyEntitlementId(nextEntitlementId);
                           setFormState((current) =>
                             current
                               ? {
                                   ...current,
-                                  companyId: nextCompanyId,
-                                  companyEntitlementId: "",
+                                  companyEntitlementId: nextEntitlementId,
                                   affectsVersionId: "",
                                 }
                               : current,
@@ -255,132 +473,97 @@ export default function SupportTicketCreatePage({
                         required
                       >
                         <SelectTrigger className="w-full">
-                          <SelectValue placeholder="Select company" />
+                          <SelectValue placeholder="Select entitlement" />
                         </SelectTrigger>
                         <SelectContent>
-                          {(bootstrap.companies || []).map(
-                            (company: NamedEntity) => (
+                          {(bootstrap.companyEntitlements || []).map(
+                            (entry: CompanyEntitlementOption) => (
                               <SelectItem
-                                key={company.id}
-                                value={String(company.id)}
+                                key={entry.id}
+                                value={String(entry.id)}
                               >
-                                {company.name}
+                                {entry.name}
+                                {!hideEntitlementLevel && entry.levelName
+                                  ? ` • ${entry.levelName}`
+                                  : ""}
                               </SelectItem>
                             ),
                           )}
                         </SelectContent>
                       </Select>
-                    )}
-                  </Field>
+                    </Field>
+                    <Field>
+                      <FieldLabel>Category</FieldLabel>
+                      <Select
+                        value={formState.categoryId || undefined}
+                        onValueChange={(value) =>
+                          updateFormState("categoryId", value)
+                        }
+                      >
+                        <SelectTrigger className="w-full">
+                          <SelectValue placeholder="Select category" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {(bootstrap.categories || []).map(
+                            (category: NamedEntity) => (
+                              <SelectItem
+                                key={category.id}
+                                value={String(category.id)}
+                              >
+                                {category.name}
+                              </SelectItem>
+                            ),
+                          )}
+                        </SelectContent>
+                      </Select>
+                    </Field>
+                    <Field>
+                      <FieldLabel>Affects Version</FieldLabel>
+                      <Select
+                        value={formState.affectsVersionId || undefined}
+                        onValueChange={(value) =>
+                          updateFormState("affectsVersionId", value)
+                        }
+                      >
+                        <SelectTrigger className="w-full">
+                          <SelectValue placeholder="Select version" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {(bootstrap.versions || []).map(
+                            (version: VersionInfo) => (
+                              <SelectItem
+                                key={version.id}
+                                value={String(version.id)}
+                              >
+                                {version.name}
+                                {version.date ? ` (${version.date})` : ""}
+                              </SelectItem>
+                            ),
+                          )}
+                        </SelectContent>
+                      </Select>
+                    </Field>
+                  </div>
+
                   <Field>
                     <FieldLabel>
-                      Entitlement <span className="text-destructive">*</span>
+                      Message <span className="text-destructive">*</span>
                     </FieldLabel>
-                    <Select
-                      value={formState.companyEntitlementId || undefined}
-                      onValueChange={(value) => {
-                        const nextEntitlementId = value;
-                        setSelectedCompanyEntitlementId(nextEntitlementId);
-                        setFormState((current) =>
-                          current
-                            ? {
-                                ...current,
-                                companyEntitlementId: nextEntitlementId,
-                                affectsVersionId: "",
-                              }
-                            : current,
-                        );
-                      }}
+                    <LexicalEditor
+                      value={formState.message}
+                      onChange={(value) => updateFormState("message", value)}
+                      inputRef={messageInputRef}
+                      rows={10}
                       required
-                    >
-                      <SelectTrigger className="w-full">
-                        <SelectValue placeholder="Select entitlement" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {(bootstrap.companyEntitlements || []).map(
-                          (entry: CompanyEntitlementOption) => (
-                            <SelectItem key={entry.id} value={String(entry.id)}>
-                              {entry.name}
-                              {!hideEntitlementLevel && entry.levelName
-                                ? ` • ${entry.levelName}`
-                                : ""}
-                            </SelectItem>
-                          ),
-                        )}
-                      </SelectContent>
-                    </Select>
+                    />
                   </Field>
-                  <Field>
-                    <FieldLabel>Category</FieldLabel>
-                    <Select
-                      value={formState.categoryId || undefined}
-                      onValueChange={(value) =>
-                        updateFormState("categoryId", value)
-                      }
-                    >
-                      <SelectTrigger className="w-full">
-                        <SelectValue placeholder="Select category" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {(bootstrap.categories || []).map(
-                          (category: NamedEntity) => (
-                            <SelectItem
-                              key={category.id}
-                              value={String(category.id)}
-                            >
-                              {category.name}
-                            </SelectItem>
-                          ),
-                        )}
-                      </SelectContent>
-                    </Select>
-                  </Field>
-                  <Field>
-                    <FieldLabel>Affects Version</FieldLabel>
-                    <Select
-                      value={formState.affectsVersionId || undefined}
-                      onValueChange={(value) =>
-                        updateFormState("affectsVersionId", value)
-                      }
-                    >
-                      <SelectTrigger className="w-full">
-                        <SelectValue placeholder="Select version" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {(bootstrap.versions || []).map(
-                          (version: VersionInfo) => (
-                            <SelectItem
-                              key={version.id}
-                              value={String(version.id)}
-                            >
-                              {version.name}
-                              {version.date ? ` (${version.date})` : ""}
-                            </SelectItem>
-                          ),
-                        )}
-                      </SelectContent>
-                    </Select>
-                  </Field>
-                </div>
-
-                <Field>
-                  <FieldLabel>
-                    Message <span className="text-destructive">*</span>
-                  </FieldLabel>
-                  <LexicalEditor
-                    value={formState.message}
-                    onChange={(value) => updateFormState("message", value)}
-                    inputRef={messageInputRef}
-                    rows={10}
-                    required
-                  />
-                </Field>
-              </CardContent>
-            </Card>
+                </>
+              )}
+            </div>
 
             <AttachmentPicker files={files} onFilesChange={setFiles} />
 
-            <div className="flex items-center justify-end space-x-3 pt-4 border-t">
+            <div className="flex items-center justify-end space-x-3 pt-4">
               <Button type="submit" disabled={saveState.saving}>
                 {saveState.saving ? "Creating..." : "Create"}
               </Button>

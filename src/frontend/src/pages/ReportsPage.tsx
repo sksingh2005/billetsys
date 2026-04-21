@@ -353,54 +353,45 @@ export default function ReportsPage({ sessionState }: SessionPageProps) {
       <DataState state={reportsState} emptyMessage="No report data available.">
         {reports && (
           <div className="space-y-8 pb-20">
-            <Card>
-              <CardContent className="p-6">
-                <div className="flex flex-col md:flex-row md:items-center justify-between space-y-4 md:space-y-0">
-                  {reports.showCompanyFilter ? (
-                    <div className="flex items-center space-x-3">
-                      <span className="text-sm font-medium">Company</span>
-                      <Select
-                        value={selectedCompanyId || "all"}
-                        onValueChange={(value) =>
-                          setFilters((current) => ({
-                            ...current,
-                            companyId: value === "all" ? "" : value,
-                          }))
-                        }
-                      >
-                        <SelectTrigger className="w-fit min-w-[200px]">
-                          <SelectValue placeholder="All companies" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="all">All companies</SelectItem>
-                          {(reports.companies || []).map(
-                            (company: NamedEntity) => (
-                              <SelectItem
-                                key={company.id}
-                                value={String(company.id)}
-                              >
-                                {company.name}
-                              </SelectItem>
-                            ),
-                          )}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  ) : (
-                    <p className="text-sm">
-                      <strong className="font-medium">Company:</strong>{" "}
-                      {reports.companyName}
-                    </p>
-                  )}
-                  <p className="text-sm">
-                    Total tickets:{" "}
-                    <strong className="font-medium text-lg">
-                      {reports.totalTickets}
-                    </strong>
-                  </p>
+            <div className="flex flex-col md:flex-row md:items-center justify-between space-y-4 md:space-y-0">
+              {reports.showCompanyFilter ? (
+                <div className="flex items-center space-x-3">
+                  <span className="text-sm font-medium">Company</span>
+                  <Select
+                    value={selectedCompanyId || "all"}
+                    onValueChange={(value) =>
+                      setFilters((current) => ({
+                        ...current,
+                        companyId: value === "all" ? "" : value,
+                      }))
+                    }
+                  >
+                    <SelectTrigger className="w-fit min-w-[200px]">
+                      <SelectValue placeholder="All companies" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All companies</SelectItem>
+                      {(reports.companies || []).map((company: NamedEntity) => (
+                        <SelectItem key={company.id} value={String(company.id)}>
+                          {company.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
-              </CardContent>
-            </Card>
+              ) : (
+                <p className="text-sm">
+                  <strong className="font-medium">Company:</strong>{" "}
+                  {reports.companyName}
+                </p>
+              )}
+              <p className="text-sm">
+                Total tickets:{" "}
+                <strong className="font-medium text-lg">
+                  {reports.totalTickets}
+                </strong>
+              </p>
+            </div>
 
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-2">
               <ReportChartCard
@@ -558,7 +549,7 @@ export default function ReportsPage({ sessionState }: SessionPageProps) {
               </CardContent>
             </Card>
 
-            <div className="flex items-center justify-end space-x-3 pt-4 border-t">
+            <div className="flex items-center justify-end space-x-3 pt-4">
               <Button
                 variant="outline"
                 onClick={exportReport}

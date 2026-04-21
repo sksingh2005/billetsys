@@ -130,7 +130,7 @@ export function OwnerPage(props: SessionPageProps) {
               </div>
             </div>
 
-            <div className="flex items-center justify-end space-x-3 pt-4 border-t">
+            <div className="flex items-center justify-end space-x-3 pt-4">
               <Button asChild>
                 <SmartLink href="/owner/edit">Edit</SmartLink>
               </Button>
@@ -417,7 +417,7 @@ export function OwnerEditPage(props: SessionPageProps) {
               </p>
             )}
 
-            <div className="flex items-center justify-end space-x-3 pt-4 border-t">
+            <div className="flex items-center justify-end space-x-3 pt-4">
               <Button type="submit" disabled={saveState.saving}>
                 {saveState.saving ? "Saving..." : "Save"}
               </Button>

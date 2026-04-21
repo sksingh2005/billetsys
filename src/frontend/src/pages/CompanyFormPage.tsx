@@ -800,7 +800,7 @@ export default function CompanyFormPage({ mode }: CompanyFormPageProps) {
               </Card>
             )}
 
-            <div className="flex items-center justify-end space-x-3 pt-4 border-t">
+            <div className="flex items-center justify-end space-x-3 pt-4">
               {isEdit && (
                 <AlertDialog>
                   <AlertDialogTrigger asChild>

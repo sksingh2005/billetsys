@@ -52,12 +52,6 @@ export default function AttachmentPicker({
             ))}
           </div>
         )}
-        {files.length === 0 && (
-          <p className="text-muted-foreground text-sm italic">
-            No new attachments selected.
-          </p>
-        )}
-
         {!!existingAttachments?.length && (
           <div className="mt-4">
             <h4 className="font-medium text-muted-foreground mb-3 text-sm">

@@ -397,7 +397,7 @@ export default function ProfilePage(props: SessionPageProps) {
               </CardContent>
             </Card>
 
-            <div className="flex items-center justify-end space-x-3 pt-4 border-t">
+            <div className="flex items-center justify-end space-x-3 pt-4">
               <Button type="submit" disabled={saveState.saving}>
                 {saveState.saving ? "Saving..." : "Save"}
               </Button>

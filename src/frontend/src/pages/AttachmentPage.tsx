@@ -64,7 +64,7 @@ export default function AttachmentPage(props: SessionPageProps) {
             </div>
 
             {attachment.downloadPath && (
-              <div className="flex items-center justify-end pt-4 border-t">
+              <div className="flex items-center justify-end pt-4">
                 {attachment.downloadPath && (
                   <Button asChild>
                     <a
