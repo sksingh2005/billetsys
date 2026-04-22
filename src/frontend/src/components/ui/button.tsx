@@ -5,21 +5,21 @@ import { Slot } from "radix-ui";
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-  "group/button inline-flex shrink-0 items-center justify-center rounded-md border border-transparent bg-clip-padding text-sm font-medium whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
+  "group/button inline-flex shrink-0 items-center justify-center rounded-md border border-transparent bg-clip-padding text-sm font-medium whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-buttons-bg)] focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
   {
     variants: {
       variant: {
         default:
-          "bg-[var(--color-header-bg)] text-white hover:bg-[var(--color-primary-dark)] [a]:text-white [a]:hover:text-white",
+          "bg-[var(--color-buttons-bg)] text-[var(--color-buttons-text)] hover:bg-[var(--color-buttons-hover)] [a]:text-[var(--color-buttons-text)] [a]:hover:text-[var(--color-buttons-text)]",
         outline:
-          "border-[var(--color-header-bg)] bg-[var(--color-header-bg)] text-white hover:bg-[var(--color-primary-dark)] hover:text-white aria-expanded:bg-[var(--color-primary-dark)] aria-expanded:text-white [a]:text-white [a]:hover:text-white",
+          "border-[var(--color-buttons-bg)] bg-[var(--color-buttons-bg)] text-[var(--color-buttons-text)] hover:bg-[var(--color-buttons-hover)] hover:text-[var(--color-buttons-text)] aria-expanded:bg-[var(--color-buttons-hover)] aria-expanded:text-[var(--color-buttons-text)] [a]:text-[var(--color-buttons-text)] [a]:hover:text-[var(--color-buttons-text)]",
         secondary:
-          "bg-[var(--color-header-bg)] text-white hover:bg-[var(--color-primary-dark)] aria-expanded:bg-[var(--color-primary-dark)] aria-expanded:text-white [a]:text-white [a]:hover:text-white",
+          "bg-[var(--color-buttons-bg)] text-[var(--color-buttons-text)] hover:bg-[var(--color-buttons-hover)] aria-expanded:bg-[var(--color-buttons-hover)] aria-expanded:text-[var(--color-buttons-text)] [a]:text-[var(--color-buttons-text)] [a]:hover:text-[var(--color-buttons-text)]",
         ghost:
-          "bg-[var(--color-header-bg)] text-white hover:bg-[var(--color-primary-dark)] hover:text-white aria-expanded:bg-[var(--color-primary-dark)] aria-expanded:text-white [a]:text-white [a]:hover:text-white",
+          "bg-[var(--color-buttons-bg)] text-[var(--color-buttons-text)] hover:bg-[var(--color-buttons-hover)] hover:text-[var(--color-buttons-text)] aria-expanded:bg-[var(--color-buttons-hover)] aria-expanded:text-[var(--color-buttons-text)] [a]:text-[var(--color-buttons-text)] [a]:hover:text-[var(--color-buttons-text)]",
         destructive:
-          "bg-[var(--color-header-bg)] text-white hover:bg-[var(--color-primary-dark)] focus-visible:border-[var(--color-header-bg)] focus-visible:ring-[var(--color-header-bg)] [a]:text-white [a]:hover:text-white",
-        link: "bg-[var(--color-header-bg)] text-white hover:bg-[var(--color-primary-dark)] no-underline [a]:text-white [a]:hover:text-white",
+          "bg-[var(--color-buttons-bg)] text-[var(--color-buttons-text)] hover:bg-[var(--color-buttons-hover)] focus-visible:border-[var(--color-buttons-bg)] focus-visible:ring-[var(--color-buttons-bg)] [a]:text-[var(--color-buttons-text)] [a]:hover:text-[var(--color-buttons-text)]",
+        link: "bg-[var(--color-buttons-bg)] text-[var(--color-buttons-text)] hover:bg-[var(--color-buttons-hover)] no-underline [a]:text-[var(--color-buttons-text)] [a]:hover:text-[var(--color-buttons-text)]",
       },
       size: {
         default: "h-10 px-4 py-2",

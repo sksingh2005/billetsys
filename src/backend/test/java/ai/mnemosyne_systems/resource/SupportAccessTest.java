@@ -583,6 +583,11 @@ class SupportAccessTest extends AccessTestSupport {
         RestAssured.given().get("/api/app/session").then().statusCode(200)
                 .body("authenticated", Matchers.equalTo(false)).body("homePath", Matchers.equalTo("/login"))
                 .body("installationLogoBase64", Matchers.startsWith("data:image/svg+xml;base64,"))
+                .body("installationBackgroundBase64",
+                        Matchers.anyOf(Matchers.nullValue(), Matchers.startsWith("data:image/")))
+                .body("installationHeaderFooterColor", Matchers.matchesPattern("^#[0-9a-f]{6}$"))
+                .body("installationHeadersColor", Matchers.matchesPattern("^#[0-9a-f]{6}$"))
+                .body("installationButtonsColor", Matchers.matchesPattern("^#[0-9a-f]{6}$"))
                 .body("inactivityTimeoutSeconds", Matchers.equalTo(AuthHelper.INACTIVITY_TIMEOUT_SECONDS))
                 .body("inactivityWarningSeconds", Matchers.equalTo(AuthHelper.WARNING_LEAD_SECONDS)).body("notices",
                         Matchers.hasItem("The React shell now uses clean URLs for login, tickets, and admin pages."));
@@ -597,6 +602,11 @@ class SupportAccessTest extends AccessTestSupport {
                 .body("authenticated", Matchers.equalTo(true)).body("username", Matchers.equalTo("user"))
                 .body("role", Matchers.equalTo("user")).body("homePath", Matchers.equalTo("/user/tickets"))
                 .body("installationLogoBase64", Matchers.startsWith("data:image/svg+xml;base64,"))
+                .body("installationBackgroundBase64",
+                        Matchers.anyOf(Matchers.nullValue(), Matchers.startsWith("data:image/")))
+                .body("installationHeaderFooterColor", Matchers.matchesPattern("^#[0-9a-f]{6}$"))
+                .body("installationHeadersColor", Matchers.matchesPattern("^#[0-9a-f]{6}$"))
+                .body("installationButtonsColor", Matchers.matchesPattern("^#[0-9a-f]{6}$"))
                 .body("inactivityTimeoutSeconds", Matchers.equalTo(AuthHelper.INACTIVITY_TIMEOUT_SECONDS))
                 .body("inactivityWarningSeconds", Matchers.equalTo(AuthHelper.WARNING_LEAD_SECONDS))
                 .body("navigation.href", Matchers.hasItem("/user/tickets"))

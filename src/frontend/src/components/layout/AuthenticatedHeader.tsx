@@ -196,10 +196,10 @@ export default function AuthenticatedHeader({
   }, [ticketSearchApiBase]);
 
   return (
-    <header className="bg-header-bg text-header-text px-5 py-3 flex items-center justify-between gap-4 flex-wrap">
+    <header className="bg-[var(--header-bg)] px-5 py-3 text-[var(--header-text)] flex items-center justify-between gap-4 flex-wrap">
       <div className="flex items-center gap-4 flex-wrap">
         <SmartLink
-          className="flex items-center gap-2.5 text-header-text no-underline text-xl font-bold"
+          className="flex items-center gap-2.5 text-[var(--header-text)] no-underline text-xl font-bold"
           href={brandHref}
         >
           {session?.installationLogoBase64 ? (
@@ -232,7 +232,7 @@ export default function AuthenticatedHeader({
                   <DropdownMenu key={link.href}>
                     <DropdownMenuTrigger asChild>
                       <button
-                        className={`text-header-text flex items-center gap-1.5 cursor-pointer no-underline font-semibold hover:opacity-80 outline-none ${isTicketRoute ? "underline" : ""}`}
+                        className={`rounded-md bg-[var(--color-buttons-bg)] px-3 py-2 text-[var(--color-buttons-text)] flex items-center gap-1.5 cursor-pointer no-underline font-semibold hover:bg-[var(--color-buttons-hover)] outline-none ${isTicketRoute ? "underline" : ""}`}
                       >
                         {ticketLabel}
                         <span
@@ -269,7 +269,7 @@ export default function AuthenticatedHeader({
                 return (
                   <SmartLink
                     key={link.href}
-                    className={`text-header-text no-underline font-semibold hover:opacity-80 flex items-center ${isTicketRoute ? "underline" : ""}`}
+                    className={`text-[var(--header-text)] no-underline font-semibold hover:opacity-80 flex items-center ${isTicketRoute ? "underline" : ""}`}
                     href={link.href}
                   >
                     {ticketLabel}
@@ -287,7 +287,7 @@ export default function AuthenticatedHeader({
               return (
                 <SmartLink
                   key={link.href}
-                  className="text-header-text no-underline font-semibold hover:opacity-80"
+                  className="text-[var(--header-text)] no-underline font-semibold hover:opacity-80"
                   href={link.href}
                 >
                   {link.label}
@@ -306,11 +306,11 @@ export default function AuthenticatedHeader({
                   type="button"
                   variant="outline"
                   onClick={openTicketSearch}
-                  className="hidden h-10 min-w-72 items-center justify-start rounded-xl border-white/20 bg-white/10 px-3 text-left text-sm text-white/80 shadow-none hover:bg-white/15 hover:text-white md:flex"
+                  className="hidden h-10 min-w-72 items-center justify-start rounded-xl px-3 text-left text-sm shadow-none md:flex"
                 >
                   <SearchIcon className="mr-2 size-4 shrink-0" />
                   <span className="truncate">Search tickets...</span>
-                  <kbd className="ml-auto rounded border border-white/20 bg-white/10 px-1.5 py-0.5 text-[10px] font-medium text-white/70">
+                  <kbd className="ml-auto rounded border border-[var(--color-buttons-text)]/20 bg-[var(--color-buttons-text)]/10 px-1.5 py-0.5 text-[10px] font-medium text-[var(--color-buttons-text)]/80">
                     Ctrl K
                   </kbd>
                 </Button>
@@ -319,7 +319,7 @@ export default function AuthenticatedHeader({
                   variant="ghost"
                   size="icon"
                   onClick={openTicketSearch}
-                  className="text-header-text hover:bg-white/20 hover:text-white md:hidden"
+                  className="md:hidden"
                   aria-label="Search tickets"
                 >
                   <SearchIcon className="size-5" />
@@ -416,12 +416,7 @@ export default function AuthenticatedHeader({
               </>
             )}
             {rssHref && (
-              <Button
-                variant="ghost"
-                size="icon"
-                asChild
-                className="text-header-text hover:bg-white/20 hover:text-white"
-              >
+              <Button variant="ghost" size="icon" asChild className="">
                 <a href={rssHref} title="RSS feed" aria-label="RSS feed">
                   <svg
                     viewBox="0 0 24 24"
@@ -446,18 +441,18 @@ export default function AuthenticatedHeader({
               type="button"
               onClick={toggleDarkMode}
               aria-pressed="false"
-              className="group relative inline-flex h-8 w-16 items-center rounded-full border border-white/35 bg-white/12 p-1 text-header-text transition-colors hover:bg-white/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--color-header-bg)]"
+              className="group relative inline-flex h-8 w-16 items-center rounded-full border border-[var(--color-buttons-bg)] bg-[var(--color-buttons-bg)] p-1 text-[var(--color-buttons-text)] transition-opacity hover:bg-[var(--color-buttons-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-buttons-bg)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--header-bg)]"
               aria-label="Toggle dark mode"
               title="Toggle dark mode"
             >
               <SunIcon className="absolute left-2 size-3.5 opacity-90" />
               <MoonIcon className="absolute right-2 size-3.5 opacity-90" />
-              <span className="pointer-events-none inline-block h-6 w-6 translate-x-0 rounded-full bg-white shadow-sm transition-transform duration-200 ease-out group-aria-[pressed=true]:translate-x-8" />
+              <span className="pointer-events-none inline-block h-6 w-6 translate-x-0 rounded-full bg-[var(--color-buttons-text)] shadow-sm transition-transform duration-200 ease-out group-aria-[pressed=true]:translate-x-8" />
             </button>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button
-                  className="flex items-center cursor-pointer list-none text-header-text outline-none rounded-full"
+                  className="flex items-center cursor-pointer list-none text-[var(--color-buttons-text)] outline-none rounded-full bg-[var(--color-buttons-bg)] p-0.5"
                   aria-label={userName}
                 >
                   {session?.logoBase64 ? (
@@ -468,7 +463,7 @@ export default function AuthenticatedHeader({
                     />
                   ) : (
                     <span
-                      className="w-7 h-7 rounded-full inline-flex items-center justify-center bg-white/20 font-bold"
+                      className="w-7 h-7 rounded-full inline-flex items-center justify-center bg-[var(--color-buttons-text)]/20 font-bold"
                       aria-hidden="true"
                     >
                       <svg

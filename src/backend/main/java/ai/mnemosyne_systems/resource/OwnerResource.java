@@ -10,8 +10,10 @@ package ai.mnemosyne_systems.resource;
 
 import ai.mnemosyne_systems.model.Company;
 import ai.mnemosyne_systems.model.Country;
+import ai.mnemosyne_systems.model.Installation;
 import ai.mnemosyne_systems.model.Timezone;
 import ai.mnemosyne_systems.model.User;
+import ai.mnemosyne_systems.infra.BrandingProvider;
 import ai.mnemosyne_systems.util.AuthHelper;
 import io.smallrye.common.annotation.Blocking;
 import jakarta.transaction.Transactional;
@@ -57,12 +59,16 @@ public class OwnerResource {
             @FormParam("city") String city, @FormParam("state") String state, @FormParam("zip") String zip,
             @FormParam("countryId") Long countryId, @FormParam("timezoneId") Long timezoneId,
             @FormParam("phoneNumber") String phoneNumber, @FormParam("supportIds") List<Long> supportIds,
-            @FormParam("tamIds") List<Long> tamIds) {
+            @FormParam("tamIds") List<Long> tamIds, @FormParam("headerFooterColor") String headerFooterColor,
+            @FormParam("headersColor") String headersColor, @FormParam("buttonsColor") String buttonsColor) {
         requireAdmin(auth);
         Company company = findOwnerCompany();
         if (name == null || name.isBlank()) {
             throw new jakarta.ws.rs.BadRequestException("Name is required");
         }
+        String normalizedHeaderFooterColor = normalizeOwnerColor(headerFooterColor);
+        String normalizedHeadersColor = normalizeOwnerColor(headersColor);
+        String normalizedButtonsColor = normalizeOwnerColor(buttonsColor);
         company.name = name;
         company.address1 = address1;
         company.address2 = address2;
@@ -74,14 +80,25 @@ public class OwnerResource {
         company.phoneNumber = phoneNumber;
         company.users.clear();
         company.users.addAll(resolveSelectedUsers(supportIds, tamIds));
+        Installation installation = findOrCreateInstallation(company);
+        installation.name = name;
+        installation.headerFooterColor = normalizedHeaderFooterColor;
+        installation.headersColor = normalizedHeadersColor;
+        installation.buttonsColor = normalizedButtonsColor;
         return Response.seeOther(URI.create("/owner")).build();
     }
 
     static Company findOwnerCompany() {
-        Company company = Company
-                .find("select distinct c from Company c left join fetch c.users where lower(c.name) = lower(?1)",
-                        "mnemosyne systems")
-                .firstResult();
+        Installation installation = Installation.find(
+                "select i from Installation i join fetch i.company c left join fetch c.users where i.singletonKey = ?1",
+                "installation").firstResult();
+        Company company = installation == null ? null : installation.company;
+        if (company == null) {
+            company = Company
+                    .find("select distinct c from Company c left join fetch c.users where lower(c.name) = lower(?1)",
+                            "mnemosyne systems")
+                    .firstResult();
+        }
         if (company == null) {
             throw new NotFoundException();
         }
@@ -100,6 +117,50 @@ public class OwnerResource {
             return List.of();
         }
         return User.list("id in ?1 and type in ?2", ids, List.of(User.TYPE_SUPPORT, User.TYPE_TAM));
+    }
+
+    static Installation findOrCreateInstallation(Company company) {
+        Installation installation = Installation.find("singletonKey", "installation").firstResult();
+        if (installation == null) {
+            installation = new Installation();
+            installation.singletonKey = "installation";
+        }
+        installation.company = company;
+        if (installation.name == null || installation.name.isBlank()) {
+            installation.name = company.name;
+        }
+        String baseColor = BrandingProvider.normalizeInstallationColor(
+                firstNonBlank(installation.headerFooterColor, installation.headersColor, installation.buttonsColor));
+        if (installation.headerFooterColor == null || installation.headerFooterColor.isBlank()) {
+            installation.headerFooterColor = baseColor;
+        }
+        if (installation.headersColor == null || installation.headersColor.isBlank()) {
+            installation.headersColor = baseColor;
+        }
+        if (installation.buttonsColor == null || installation.buttonsColor.isBlank()) {
+            installation.buttonsColor = baseColor;
+        }
+        installation.persist();
+        return installation;
+    }
+
+    static String normalizeOwnerColor(String color) {
+        if (color == null || color.isBlank()) {
+            return BrandingProvider.DEFAULT_INSTALLATION_COLOR;
+        }
+        if (!BrandingProvider.isValidInstallationColor(color)) {
+            throw new jakarta.ws.rs.BadRequestException("Color must be a valid hex value like #b00020");
+        }
+        return BrandingProvider.normalizeInstallationColor(color);
+    }
+
+    static String firstNonBlank(String... values) {
+        for (String value : values) {
+            if (value != null && !value.isBlank()) {
+                return value;
+            }
+        }
+        return null;
     }
 
     static User requireAdmin(String auth) {

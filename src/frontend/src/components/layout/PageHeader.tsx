@@ -22,7 +22,7 @@ export default function PageHeader({
         <div className="min-w-0">
           <h1
             className={cn(
-              "text-2xl font-semibold tracking-tight text-foreground",
+              "text-2xl font-semibold tracking-tight text-[var(--color-section-header)]",
               titleClassName,
             )}
           >

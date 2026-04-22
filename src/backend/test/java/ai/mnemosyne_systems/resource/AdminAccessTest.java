@@ -15,6 +15,7 @@ import ai.mnemosyne_systems.model.Company;
 import ai.mnemosyne_systems.model.CompanyEntitlement;
 import ai.mnemosyne_systems.model.Country;
 import ai.mnemosyne_systems.model.Entitlement;
+import ai.mnemosyne_systems.model.Installation;
 import ai.mnemosyne_systems.model.Message;
 import ai.mnemosyne_systems.model.Level;
 import ai.mnemosyne_systems.model.Ticket;
@@ -191,6 +192,11 @@ class AdminAccessTest extends AccessTestSupport {
         RestAssured.given().cookie(AuthHelper.AUTH_COOKIE, cookie).get("/api/app/session").then().statusCode(200)
                 .body("role", Matchers.equalTo("admin")).body("navigation.href", Matchers.hasItem("/categories"))
                 .body("installationLogoBase64", Matchers.startsWith("data:image/svg+xml;base64,"))
+                .body("installationBackgroundBase64",
+                        Matchers.anyOf(Matchers.nullValue(), Matchers.startsWith("data:image/")))
+                .body("installationHeaderFooterColor", Matchers.matchesPattern("^#[0-9a-f]{6}$"))
+                .body("installationHeadersColor", Matchers.matchesPattern("^#[0-9a-f]{6}$"))
+                .body("installationButtonsColor", Matchers.matchesPattern("^#[0-9a-f]{6}$"))
                 .body("inactivityTimeoutSeconds", Matchers.equalTo(AuthHelper.INACTIVITY_TIMEOUT_SECONDS))
                 .body("inactivityWarningSeconds", Matchers.equalTo(AuthHelper.WARNING_LEAD_SECONDS));
     }
@@ -203,6 +209,11 @@ class AdminAccessTest extends AccessTestSupport {
         RestAssured.given().cookie(AuthHelper.AUTH_COOKIE, cookie).get("/api/app/session").then().statusCode(200)
                 .body("role", Matchers.equalTo("admin")).body("navigation.href", Matchers.hasItem("/owner"))
                 .body("installationLogoBase64", Matchers.startsWith("data:image/svg+xml;base64,"))
+                .body("installationBackgroundBase64",
+                        Matchers.anyOf(Matchers.nullValue(), Matchers.startsWith("data:image/")))
+                .body("installationHeaderFooterColor", Matchers.matchesPattern("^#[0-9a-f]{6}$"))
+                .body("installationHeadersColor", Matchers.matchesPattern("^#[0-9a-f]{6}$"))
+                .body("installationButtonsColor", Matchers.matchesPattern("^#[0-9a-f]{6}$"))
                 .body("inactivityTimeoutSeconds", Matchers.equalTo(AuthHelper.INACTIVITY_TIMEOUT_SECONDS))
                 .body("inactivityWarningSeconds", Matchers.equalTo(AuthHelper.WARNING_LEAD_SECONDS));
     }
@@ -215,6 +226,11 @@ class AdminAccessTest extends AccessTestSupport {
         RestAssured.given().cookie(AuthHelper.AUTH_COOKIE, cookie).get("/api/app/session").then().statusCode(200)
                 .body("role", Matchers.equalTo("admin")).body("navigation.href", Matchers.hasItem("/companies"))
                 .body("installationLogoBase64", Matchers.startsWith("data:image/svg+xml;base64,"))
+                .body("installationBackgroundBase64",
+                        Matchers.anyOf(Matchers.nullValue(), Matchers.startsWith("data:image/")))
+                .body("installationHeaderFooterColor", Matchers.matchesPattern("^#[0-9a-f]{6}$"))
+                .body("installationHeadersColor", Matchers.matchesPattern("^#[0-9a-f]{6}$"))
+                .body("installationButtonsColor", Matchers.matchesPattern("^#[0-9a-f]{6}$"))
                 .body("inactivityTimeoutSeconds", Matchers.equalTo(AuthHelper.INACTIVITY_TIMEOUT_SECONDS))
                 .body("inactivityWarningSeconds", Matchers.equalTo(AuthHelper.WARNING_LEAD_SECONDS));
     }
@@ -364,11 +380,17 @@ class AdminAccessTest extends AccessTestSupport {
         Timezone timezone = Timezone.find("country = ?1 order by name", country).firstResult();
         User supportUser = User.find("email", "support1@mnemosyne-systems.ai").firstResult();
         User tamUser = User.find("email", "tam1@mnemosyne-systems.ai").firstResult();
+        String installationLogo = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCI+PHJlY3Qgd2lkdGg9IjI0IiBoZWlnaHQ9IjI0IiByeD0iNCIgZmlsbD0iIzEyMzQ1NiIvPjwvc3ZnPg==";
+        String installationBackground = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jx6kAAAAASUVORK5CYII=";
 
         RestAssured.given().cookie(AuthHelper.AUTH_COOKIE, cookie).get("/api/owner").then().statusCode(200)
                 .body("id", Matchers.equalTo(ownerCompany.id.intValue()))
                 .body("name", Matchers.equalTo(ownerCompany.name)).body("countries.size()", Matchers.greaterThan(0))
                 .body("timezones.size()", Matchers.greaterThan(0))
+                .body("headerFooterColor", Matchers.equalTo("#b00020"))
+                .body("headersColor", Matchers.equalTo("#b00020")).body("buttonsColor", Matchers.equalTo("#b00020"))
+                .body("logoBase64", Matchers.startsWith("data:image/svg+xml;base64,"))
+                .body("backgroundBase64", Matchers.nullValue())
                 .body("supportOptions.email", Matchers.hasItem("support1@mnemosyne-systems.ai"))
                 .body("tamOptions.email", Matchers.hasItem("tam1@mnemosyne-systems.ai"));
 
@@ -378,18 +400,38 @@ class AdminAccessTest extends AccessTestSupport {
                         Map.entry("state", "Owner State"), Map.entry("zip", "12345"),
                         Map.entry("phoneNumber", "+45 12345678"), Map.entry("countryId", country.id),
                         Map.entry("timezoneId", timezone.id), Map.entry("supportIds", List.of(supportUser.id)),
-                        Map.entry("tamIds", List.of(tamUser.id))))
+                        Map.entry("tamIds", List.of(tamUser.id)), Map.entry("headerFooterColor", "#123456"),
+                        Map.entry("headersColor", "#234567"), Map.entry("buttonsColor", "#345678"),
+                        Map.entry("logoBase64", installationLogo),
+                        Map.entry("backgroundBase64", installationBackground)))
                 .post("/api/owner").then().statusCode(200).body("city", Matchers.equalTo("Owner City"))
+                .body("headerFooterColor", Matchers.equalTo("#123456"))
+                .body("headersColor", Matchers.equalTo("#234567")).body("buttonsColor", Matchers.equalTo("#345678"))
+                .body("logoBase64", Matchers.equalTo(installationLogo))
+                .body("backgroundBase64", Matchers.equalTo(installationBackground))
                 .body("supportUsers.email", Matchers.hasItem("support1@mnemosyne-systems.ai"))
                 .body("tamUsers.email", Matchers.hasItem("tam1@mnemosyne-systems.ai"));
 
         Company updated = refreshedCompany(ownerCompany.id);
+        Installation installation = Installation.find("singletonKey", "installation").firstResult();
         Assertions.assertEquals("Owner City", updated.city);
         Assertions.assertEquals("+45 12345678", updated.phoneNumber);
         Assertions.assertEquals(country.id, updated.country.id);
         Assertions.assertEquals(timezone.id, updated.timezone.id);
+        Assertions.assertNotNull(installation);
+        Assertions.assertEquals("#123456", installation.headerFooterColor);
+        Assertions.assertEquals("#234567", installation.headersColor);
+        Assertions.assertEquals("#345678", installation.buttonsColor);
+        Assertions.assertEquals(installationLogo, installation.logoBase64);
+        Assertions.assertEquals(installationBackground, installation.backgroundBase64);
         Assertions.assertTrue(companyHasUser(ownerCompany.id, "support1@mnemosyne-systems.ai"));
         Assertions.assertTrue(companyHasUser(ownerCompany.id, "tam1@mnemosyne-systems.ai"));
+        RestAssured.given().cookie(AuthHelper.AUTH_COOKIE, cookie).get("/api/app/session").then().statusCode(200)
+                .body("installationLogoBase64", Matchers.equalTo(installationLogo))
+                .body("installationBackgroundBase64", Matchers.equalTo(installationBackground))
+                .body("installationHeaderFooterColor", Matchers.equalTo("#123456"))
+                .body("installationHeadersColor", Matchers.equalTo("#234567"))
+                .body("installationButtonsColor", Matchers.equalTo("#345678"));
     }
 
     @Test

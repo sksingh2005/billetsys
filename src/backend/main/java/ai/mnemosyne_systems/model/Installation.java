@@ -35,6 +35,18 @@ public class Installation extends PanacheEntityBase {
     @Column(name = "logo_base64", columnDefinition = "TEXT")
     public String logoBase64;
 
+    @Column(name = "background_base64", columnDefinition = "TEXT")
+    public String backgroundBase64;
+
+    @Column(name = "header_footer_color")
+    public String headerFooterColor;
+
+    @Column(name = "headers_color")
+    public String headersColor;
+
+    @Column(name = "buttons_color")
+    public String buttonsColor;
+
     @Column(name = "singleton_key", nullable = false, unique = true, updatable = false)
     public String singletonKey = "installation";
 

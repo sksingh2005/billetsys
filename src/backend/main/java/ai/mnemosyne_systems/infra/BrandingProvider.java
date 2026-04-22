@@ -17,12 +17,16 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Base64;
+import java.util.Locale;
+import java.util.regex.Pattern;
 
 @Named("branding")
 @ApplicationScoped
 public class BrandingProvider {
 
     private static final String DEFAULT_INSTALLATION_LOGO_PATH = "doc/logo/logo.svg";
+    public static final String DEFAULT_INSTALLATION_COLOR = "#b00020";
+    private static final Pattern HEX_COLOR_PATTERN = Pattern.compile("^#[0-9a-fA-F]{6}$");
 
     public String installationCompanyName() {
         Installation installation = installation();
@@ -46,6 +50,29 @@ public class BrandingProvider {
         return defaultInstallationLogoBase64();
     }
 
+    public String installationHeaderFooterColor() {
+        Installation installation = installation();
+        return normalizeInstallationColor(installation == null ? null : installation.headerFooterColor);
+    }
+
+    public String installationHeadersColor() {
+        Installation installation = installation();
+        return normalizeInstallationColor(installation == null ? null : installation.headersColor);
+    }
+
+    public String installationButtonsColor() {
+        Installation installation = installation();
+        return normalizeInstallationColor(installation == null ? null : installation.buttonsColor);
+    }
+
+    public String installationBackgroundBase64() {
+        Installation installation = installation();
+        if (installation == null || installation.backgroundBase64 == null || installation.backgroundBase64.isBlank()) {
+            return null;
+        }
+        return installation.backgroundBase64;
+    }
+
     public String defaultInstallationLogoBase64() {
         try {
             Path repoLogo = Path.of(DEFAULT_INSTALLATION_LOGO_PATH);
@@ -65,6 +92,21 @@ public class BrandingProvider {
 
     private Installation installation() {
         return Installation.find("singletonKey", "installation").firstResult();
+    }
+
+    public static String normalizeInstallationColor(String color) {
+        if (color == null || color.isBlank()) {
+            return DEFAULT_INSTALLATION_COLOR;
+        }
+        String normalized = color.trim();
+        if (!HEX_COLOR_PATTERN.matcher(normalized).matches()) {
+            return DEFAULT_INSTALLATION_COLOR;
+        }
+        return normalized.toLowerCase(Locale.ROOT);
+    }
+
+    public static boolean isValidInstallationColor(String color) {
+        return color != null && HEX_COLOR_PATTERN.matcher(color.trim()).matches();
     }
 
     private String svgDataUri(byte[] svgBytes) {

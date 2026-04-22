@@ -11,6 +11,8 @@ import {
 import { CircleCheckIcon, CopyIcon } from "lucide-react";
 
 import { useDebounce } from "@/components/editor/use-debounce";
+import { buttonVariants } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 interface Props {
   editor: LexicalEditor;
@@ -56,7 +58,10 @@ export function CopyButton({ editor, getCodeDOMNode }: Props) {
 
   return (
     <button
-      className="text-foreground/50 flex shrink-0 cursor-pointer items-center rounded border border-transparent bg-none p-1 uppercase"
+      className={cn(
+        buttonVariants({ size: "icon-xs", variant: "ghost" }),
+        "p-1 uppercase",
+      )}
       onClick={handleClick}
       aria-label="copy"
     >

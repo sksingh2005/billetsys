@@ -30,18 +30,24 @@ public class AppSessionResource {
     public SessionResponse session(@CookieParam(AuthHelper.AUTH_COOKIE) String auth) {
         String installationCompanyName = brandingProvider.installationCompanyName();
         String installationLogoBase64 = brandingProvider.installationLogoBase64();
+        String installationBackgroundBase64 = brandingProvider.installationBackgroundBase64();
+        String installationHeaderFooterColor = brandingProvider.installationHeaderFooterColor();
+        String installationHeadersColor = brandingProvider.installationHeadersColor();
+        String installationButtonsColor = brandingProvider.installationButtonsColor();
         User user = AuthHelper.findUser(auth);
         if (user == null) {
             return new SessionResponse(false, null, null, null, null, null, installationCompanyName,
-                    installationLogoBase64, AuthHelper.INACTIVITY_TIMEOUT_SECONDS, AuthHelper.WARNING_LEAD_SECONDS,
-                    "/login", List.of(),
+                    installationLogoBase64, installationBackgroundBase64, installationHeaderFooterColor,
+                    installationHeadersColor, installationButtonsColor, AuthHelper.INACTIVITY_TIMEOUT_SECONDS,
+                    AuthHelper.WARNING_LEAD_SECONDS, "/login", List.of(),
                     List.of("The React shell now uses clean URLs for login, tickets, and admin pages.",
                             "Sign in to see role-aware navigation."));
         }
         return new SessionResponse(true, user.name, user.getDisplayName(), user.email, user.type, user.logoBase64,
-                installationCompanyName, installationLogoBase64, AuthHelper.INACTIVITY_TIMEOUT_SECONDS,
-                AuthHelper.WARNING_LEAD_SECONDS, homePath(user), navigation(user),
-                List.of("The React shell now covers tickets, admin management, profile, and reports.",
+                installationCompanyName, installationLogoBase64, installationBackgroundBase64,
+                installationHeaderFooterColor, installationHeadersColor, installationButtonsColor,
+                AuthHelper.INACTIVITY_TIMEOUT_SECONDS, AuthHelper.WARNING_LEAD_SECONDS, homePath(user),
+                navigation(user), List.of("The React shell now covers tickets, admin management, profile, and reports.",
                         "Legacy page routes now redirect into the React screens for the same workflows."));
     }
 
@@ -86,8 +92,9 @@ public class AppSessionResource {
 
     public record SessionResponse(boolean authenticated, String username, String displayName, String email, String role,
             String logoBase64, String installationCompanyName, String installationLogoBase64,
-            int inactivityTimeoutSeconds, int inactivityWarningSeconds, String homePath, List<NavLink> navigation,
-            List<String> notices) {
+            String installationBackgroundBase64, String installationHeaderFooterColor, String installationHeadersColor,
+            String installationButtonsColor, int inactivityTimeoutSeconds, int inactivityWarningSeconds,
+            String homePath, List<NavLink> navigation, List<String> notices) {
     }
 
     public record NavLink(String label, String href) {

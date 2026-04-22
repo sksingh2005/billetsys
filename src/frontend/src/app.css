@@ -9,6 +9,11 @@
   color-scheme: light;
   --header-bg: #b00020;
   --header-text: #ffffff;
+  --section-header-color: #b00020;
+  --section-header-hover: #91001a;
+  --button-bg: #b00020;
+  --button-text: #ffffff;
+  --button-hover: #91001a;
   --body-bg: #f5f6f8;
   --body-text: #1a1a1a;
   --card-bg: #ffffff;
@@ -89,14 +94,19 @@
   --font-sans: "Red Hat Text", "Charlie Text", sans-serif;
   --font-heading: "Red Hat Text", "Charlie Text", sans-serif;
 
-  --color-header-bg: var(--header-bg);
+  --color-header-bg: var(--section-header-color);
   --color-header-text: var(--header-text);
+  --color-section-header: var(--section-header-color);
+  --color-section-header-hover: var(--section-header-hover);
   --color-body-bg: var(--body-bg);
   --color-body-text: var(--body-text);
   --color-card-bg: var(--card-bg);
   --color-card-border: var(--card-border);
   --color-muted-text: var(--muted-text);
-  --color-primary-dark: var(--primary-dark);
+  --color-primary-dark: var(--section-header-hover);
+  --color-buttons-bg: var(--button-bg);
+  --color-buttons-text: var(--button-text);
+  --color-buttons-hover: var(--button-hover);
   --color-surface-accent: var(--surface-accent);
 
   --color-sidebar-ring: var(--sidebar-ring);

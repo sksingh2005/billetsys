@@ -34,7 +34,7 @@ This is important because ticket visibility, responsibility, and coordination al
 
 Admins also maintain the support structure behind the ticketing process. Categories, entitlement information, and levels help define how tickets are classified and how service expectations are represented in the system.
 
-Admins also maintain installation branding. The shared header logo is stored on the Installation entity so the same logo can be shown consistently across the application.
+Admins also maintain installation branding. The Installation entity stores the shared logo, optional login background image, and three dedicated branding colors for Header/Footer, Headers, and Buttons so the same branding can be shown consistently across the application.
 
 ## Oversight and reporting
 

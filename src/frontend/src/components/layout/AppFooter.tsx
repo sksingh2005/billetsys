@@ -15,7 +15,7 @@ export default function AppFooter({ className }: AppFooterProps) {
     <footer
       className={
         className ||
-        "mt-auto bg-header-bg text-header-text text-center py-2.5 px-5 font-semibold"
+        "mt-auto bg-[var(--header-bg)] text-[var(--header-text)] text-center py-2.5 px-5 font-semibold"
       }
     >
       Copyright © {new Date().getFullYear()} Powered by{" "}
@@ -23,7 +23,7 @@ export default function AppFooter({ className }: AppFooterProps) {
         href="https://github.com/mnemosyne-systems/billetsys"
         target="_blank"
         rel="noreferrer"
-        className="text-header-text hover:underline"
+        className="text-[var(--header-text)] hover:underline"
       >
         billetsys
       </a>

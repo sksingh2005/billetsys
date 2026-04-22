@@ -8,8 +8,10 @@
 
 package ai.mnemosyne_systems.resource;
 
+import ai.mnemosyne_systems.infra.BrandingProvider;
 import ai.mnemosyne_systems.model.Company;
 import ai.mnemosyne_systems.model.Country;
+import ai.mnemosyne_systems.model.Installation;
 import ai.mnemosyne_systems.model.Timezone;
 import ai.mnemosyne_systems.model.User;
 import ai.mnemosyne_systems.util.AuthHelper;
@@ -49,6 +51,9 @@ public class OwnerApiResource {
         }
 
         Company company = OwnerResource.findOwnerCompany();
+        String normalizedHeaderFooterColor = OwnerResource.normalizeOwnerColor(request.headerFooterColor());
+        String normalizedHeadersColor = OwnerResource.normalizeOwnerColor(request.headersColor());
+        String normalizedButtonsColor = OwnerResource.normalizeOwnerColor(request.buttonsColor());
         company.name = request.name();
         company.address1 = request.address1();
         company.address2 = request.address2();
@@ -60,6 +65,13 @@ public class OwnerApiResource {
         company.phoneNumber = request.phoneNumber();
         company.users.clear();
         company.users.addAll(OwnerResource.resolveSelectedUsers(request.supportIds(), request.tamIds()));
+        Installation installation = OwnerResource.findOrCreateInstallation(company);
+        installation.name = request.name();
+        installation.headerFooterColor = normalizedHeaderFooterColor;
+        installation.headersColor = normalizedHeadersColor;
+        installation.buttonsColor = normalizedButtonsColor;
+        installation.logoBase64 = trimToNull(request.logoBase64());
+        installation.backgroundBase64 = trimToNull(request.backgroundBase64());
         return toResponse(company);
     }
 
@@ -72,6 +84,7 @@ public class OwnerApiResource {
     }
 
     private OwnerResponse toResponse(Company company) {
+        Installation installation = OwnerResource.findOrCreateInstallation(company);
         List<UserSummary> supportUsers = company.users.stream()
                 .filter(user -> User.TYPE_SUPPORT.equalsIgnoreCase(user.type))
                 .sorted((left, right) -> left.name.compareToIgnoreCase(right.name)).map(this::toUserSummary).toList();
@@ -90,7 +103,11 @@ public class OwnerApiResource {
 
         return new OwnerResponse(company.id, company.name, company.address1, company.address2, company.city,
                 company.state, company.zip, company.phoneNumber, company.country == null ? null : company.country.id,
-                company.country == null ? null : company.country.name,
+                company.country == null ? null : company.country.name, installation.logoBase64,
+                installation.backgroundBase64,
+                BrandingProvider.normalizeInstallationColor(installation.headerFooterColor),
+                BrandingProvider.normalizeInstallationColor(installation.headersColor),
+                BrandingProvider.normalizeInstallationColor(installation.buttonsColor),
                 company.timezone == null ? null : company.timezone.id,
                 company.timezone == null ? null : company.timezone.name, supportUsers, tamUsers, supportOptions,
                 tamOptions, countries, timezones);
@@ -100,10 +117,19 @@ public class OwnerApiResource {
         return new UserSummary(user.id, user.name, user.getDisplayName(), user.email, "/user/" + user.id);
     }
 
+    private String trimToNull(String value) {
+        if (value == null || value.isBlank()) {
+            return null;
+        }
+        return value.trim();
+    }
+
     public record OwnerResponse(Long id, String name, String address1, String address2, String city, String state,
-            String zip, String phoneNumber, Long countryId, String countryName, Long timezoneId, String timezoneName,
-            List<UserSummary> supportUsers, List<UserSummary> tamUsers, List<UserSummary> supportOptions,
-            List<UserSummary> tamOptions, List<CountryOption> countries, List<TimezoneOption> timezones) {
+            String zip, String phoneNumber, Long countryId, String countryName, String logoBase64,
+            String backgroundBase64, String headerFooterColor, String headersColor, String buttonsColor,
+            Long timezoneId, String timezoneName, List<UserSummary> supportUsers, List<UserSummary> tamUsers,
+            List<UserSummary> supportOptions, List<UserSummary> tamOptions, List<CountryOption> countries,
+            List<TimezoneOption> timezones) {
     }
 
     public record UserSummary(Long id, String username, String displayName, String email, String profilePath) {
@@ -116,6 +142,8 @@ public class OwnerApiResource {
     }
 
     public record OwnerUpdateRequest(String name, String address1, String address2, String city, String state,
-            String zip, String phoneNumber, Long countryId, Long timezoneId, List<Long> supportIds, List<Long> tamIds) {
+            String zip, String phoneNumber, Long countryId, Long timezoneId, List<Long> supportIds, List<Long> tamIds,
+            String headerFooterColor, String headersColor, String buttonsColor, String logoBase64,
+            String backgroundBase64) {
     }
 }

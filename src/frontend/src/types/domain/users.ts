@@ -46,6 +46,11 @@ export interface OwnerCompany extends NamedEntity {
   zip?: string;
   countryId?: Id;
   timezoneId?: Id;
+  logoBase64?: string;
+  backgroundBase64?: string;
+  headerFooterColor?: string;
+  headersColor?: string;
+  buttonsColor?: string;
   supportUsers: UserReference[];
   tamUsers: UserReference[];
   supportOptions: UserReference[];

@@ -78,13 +78,13 @@ export default function LoginPage({ sessionState }: SessionPageProps) {
                   type="button"
                   variant="ghost"
                   size="icon"
-                  className="absolute right-0 top-0 h-10 w-10 text-muted-foreground hover:text-foreground hover:bg-transparent"
+                  className="absolute right-0 top-0 h-10 w-10 rounded-l-none border-l-0"
                   onClick={() => setShowPassword(!showPassword)}
                 >
                   {showPassword ? (
-                    <EyeOffIcon className="h-4 w-4 text-white" />
+                    <EyeOffIcon className="h-4 w-4 text-[var(--color-buttons-text)]" />
                   ) : (
-                    <EyeIcon className="h-4 w-4 text-white" />
+                    <EyeIcon className="h-4 w-4 text-[var(--color-buttons-text)]" />
                   )}
                   <span className="sr-only">
                     {showPassword ? "Hide password" : "Show password"}

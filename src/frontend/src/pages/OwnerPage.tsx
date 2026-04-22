@@ -6,9 +6,8 @@
  *   OF THE PROGRAM CONSTITUTES RECIPIENT'S ACCEPTANCE OF THIS AGREEMENT.
  */
 
-import type { FormEvent } from "react";
-import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import type { ChangeEvent, FormEvent } from "react";
+import { useEffect, useRef, useState } from "react";
 import useJson from "../hooks/useJson";
 import DataState from "../components/common/DataState";
 import { SmartLink } from "../utils/routing";
@@ -16,6 +15,7 @@ import {
   OwnerUserList,
   OwnerSelector,
 } from "../components/users/UserComponents";
+import { UserLogoPreview } from "../components/users/UserProfileSections";
 import type { SessionPageProps } from "../types/app";
 import type { OwnerCompany } from "../types/domain";
 import PageHeader from "../components/layout/PageHeader";
@@ -32,6 +32,19 @@ import {
   SelectValue,
 } from "../components/ui/select";
 import { countries } from "country-data-list";
+import {
+  ownerInstallationBranding,
+  writeCachedInstallationBranding,
+} from "../utils/installationBranding";
+
+const DEFAULT_INSTALLATION_COLOR = "#b00020";
+const BRANDING_COLOR_COLUMNS = [
+  { key: "headerFooterColor", label: "Header/Footer" },
+  { key: "headersColor", label: "Headers" },
+  { key: "buttonsColor", label: "Buttons" },
+] as const;
+
+type BrandingColorKey = (typeof BRANDING_COLOR_COLUMNS)[number]["key"];
 
 interface OwnerFormState {
   name: string;
@@ -43,8 +56,100 @@ interface OwnerFormState {
   phoneNumber: string;
   countryId: string;
   timezoneId: string;
+  logoBase64: string;
+  backgroundBase64: string;
+  headerFooterColor: string;
+  headersColor: string;
+  buttonsColor: string;
   supportIds: Array<string | number>;
   tamIds: Array<string | number>;
+}
+
+function BrandingColorTable({
+  colors,
+}: {
+  colors: Record<BrandingColorKey, string | undefined>;
+}) {
+  return (
+    <div className="overflow-hidden rounded-xl border border-border">
+      <table className="w-full table-fixed">
+        <thead className="bg-muted/40">
+          <tr>
+            {BRANDING_COLOR_COLUMNS.map((column) => (
+              <th
+                key={column.key}
+                className="px-4 py-3 text-left text-sm font-semibold text-[var(--color-section-header)]"
+              >
+                {column.label}
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            {BRANDING_COLOR_COLUMNS.map((column) => (
+              <td key={column.key} className="px-4 py-4">
+                <div
+                  aria-label={column.label}
+                  className="h-10 w-full rounded-md border border-border"
+                  style={{
+                    backgroundColor:
+                      colors[column.key] || DEFAULT_INSTALLATION_COLOR,
+                  }}
+                />
+              </td>
+            ))}
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+function BrandingColorPickerTable({
+  colors,
+  onChange,
+}: {
+  colors: Record<BrandingColorKey, string>;
+  onChange: (field: BrandingColorKey, value: string) => void;
+}) {
+  return (
+    <div className="overflow-hidden rounded-xl border border-border">
+      <table className="w-full table-fixed">
+        <thead className="bg-muted/40">
+          <tr>
+            {BRANDING_COLOR_COLUMNS.map((column) => (
+              <th
+                key={column.key}
+                className="px-4 py-3 text-left text-sm font-semibold text-[var(--color-section-header)]"
+              >
+                {column.label}
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            {BRANDING_COLOR_COLUMNS.map((column) => (
+              <td key={column.key} className="px-4 py-4">
+                <div className="flex justify-center">
+                  <Input
+                    type="color"
+                    value={colors[column.key] || DEFAULT_INSTALLATION_COLOR}
+                    onChange={(event) =>
+                      onChange(column.key, event.target.value)
+                    }
+                    className="h-11 w-24 cursor-pointer rounded-md p-1"
+                    aria-label={column.label}
+                  />
+                </div>
+              </td>
+            ))}
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  );
 }
 
 export function OwnerPage(props: SessionPageProps) {
@@ -128,6 +233,47 @@ export function OwnerPage(props: SessionPageProps) {
                   <OwnerUserList users={owner.tamUsers} />
                 </div>
               </div>
+              <Field className="md:col-span-2">
+                <FieldLabel className="text-[var(--color-header-bg)]">
+                  Logo
+                </FieldLabel>
+                <div className="flex items-center gap-4">
+                  {owner.logoBase64 ? (
+                    <img
+                      src={owner.logoBase64}
+                      alt={`${owner.name || "Installation"} logo`}
+                      className="h-12 w-12 rounded-md object-contain"
+                    />
+                  ) : (
+                    <span className="text-sm text-muted-foreground">None</span>
+                  )}
+                </div>
+              </Field>
+              <Field className="md:col-span-2">
+                <FieldLabel className="text-[var(--color-header-bg)]">
+                  Background
+                </FieldLabel>
+                {owner.backgroundBase64 ? (
+                  <div
+                    className="h-40 w-full rounded-xl border border-border bg-center bg-cover bg-no-repeat"
+                    style={{
+                      backgroundImage: `url(${owner.backgroundBase64})`,
+                    }}
+                  />
+                ) : (
+                  <span className="text-sm text-muted-foreground">None</span>
+                )}
+              </Field>
+              <Field className="md:col-span-2">
+                <FieldLabel>Colors</FieldLabel>
+                <BrandingColorTable
+                  colors={{
+                    headerFooterColor: owner.headerFooterColor,
+                    headersColor: owner.headersColor,
+                    buttonsColor: owner.buttonsColor,
+                  }}
+                />
+              </Field>
             </div>
 
             <div className="flex items-center justify-end space-x-3 pt-4">
@@ -144,11 +290,12 @@ export function OwnerPage(props: SessionPageProps) {
 
 export function OwnerEditPage(props: SessionPageProps) {
   void props;
-  const navigate = useNavigate();
   const ownerState = useJson<OwnerCompany>("/api/owner");
   const owner = ownerState.data;
   const [formState, setFormState] = useState<OwnerFormState | null>(null);
   const [saveState, setSaveState] = useState({ saving: false, error: "" });
+  const logoInputRef = useRef<HTMLInputElement | null>(null);
+  const backgroundInputRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
     if (owner) {
@@ -162,6 +309,12 @@ export function OwnerEditPage(props: SessionPageProps) {
         phoneNumber: owner.phoneNumber || "",
         countryId: owner.countryId ? String(owner.countryId) : "",
         timezoneId: owner.timezoneId ? String(owner.timezoneId) : "",
+        logoBase64: owner.logoBase64 || "",
+        backgroundBase64: owner.backgroundBase64 || "",
+        headerFooterColor:
+          owner.headerFooterColor || DEFAULT_INSTALLATION_COLOR,
+        headersColor: owner.headersColor || DEFAULT_INSTALLATION_COLOR,
+        buttonsColor: owner.buttonsColor || DEFAULT_INSTALLATION_COLOR,
         supportIds: owner.supportUsers.map((user) => user.id),
         tamIds: owner.tamUsers.map((user) => user.id),
       });
@@ -179,6 +332,58 @@ export function OwnerEditPage(props: SessionPageProps) {
     setFormState((current) =>
       current ? { ...current, [field]: value } : current,
     );
+  };
+
+  const openLogoPicker = () => {
+    logoInputRef.current?.click();
+  };
+
+  const openBackgroundPicker = () => {
+    backgroundInputRef.current?.click();
+  };
+
+  const uploadImage =
+    (field: "logoBase64" | "backgroundBase64", label: string) =>
+    (event: ChangeEvent<HTMLInputElement>) => {
+      const file = event.target.files?.[0];
+      event.target.value = "";
+      if (!file) {
+        return;
+      }
+      if (!file.type.startsWith("image/")) {
+        setSaveState({
+          saving: false,
+          error: `${label} must be an image file.`,
+        });
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = (loadEvent) => {
+        const result = loadEvent.target?.result;
+        if (typeof result !== "string") {
+          setSaveState({
+            saving: false,
+            error: `Unable to read ${label.toLowerCase()} file.`,
+          });
+          return;
+        }
+        updateField(field, result);
+      };
+      reader.onerror = () => {
+        setSaveState({
+          saving: false,
+          error: `Unable to read ${label.toLowerCase()} file.`,
+        });
+      };
+      reader.readAsDataURL(file);
+    };
+
+  const uploadLogo = uploadImage("logoBase64", "Logo");
+
+  const uploadBackground = uploadImage("backgroundBase64", "Background");
+
+  const clearBackground = () => {
+    updateField("backgroundBase64", "");
   };
 
   const toggleSelectedUser = (
@@ -227,7 +432,10 @@ export function OwnerEditPage(props: SessionPageProps) {
         throw new Error(text || "Unable to save owner details.");
       }
 
-      navigate("/owner");
+      const updatedOwner = (await response.json()) as OwnerCompany;
+      writeCachedInstallationBranding(ownerInstallationBranding(updatedOwner));
+      window.location.assign("/owner");
+      return;
     } catch (error: unknown) {
       setSaveState({
         saving: false,
@@ -238,8 +446,6 @@ export function OwnerEditPage(props: SessionPageProps) {
       });
       return;
     }
-
-    setSaveState({ saving: false, error: "" });
   };
 
   return (
@@ -409,6 +615,90 @@ export function OwnerEditPage(props: SessionPageProps) {
                   </div>
                 </div>
               </div>
+              <Field className="md:col-span-2">
+                <FieldLabel className="text-[var(--color-header-bg)]">
+                  Logo
+                </FieldLabel>
+                <div className="flex items-center gap-6">
+                  <UserLogoPreview
+                    logoBase64={formState.logoBase64}
+                    fullName={formState.name}
+                    username={formState.name}
+                    email={formState.name}
+                  />
+                  <div>
+                    <input
+                      ref={logoInputRef}
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={uploadLogo}
+                    />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={openLogoPicker}
+                    >
+                      Upload
+                    </Button>
+                  </div>
+                </div>
+              </Field>
+              <Field className="md:col-span-2">
+                <FieldLabel className="text-[var(--color-header-bg)]">
+                  Background
+                </FieldLabel>
+                <div className="space-y-4">
+                  {formState.backgroundBase64 ? (
+                    <div
+                      className="h-48 w-full rounded-xl border border-border bg-center bg-cover bg-no-repeat"
+                      style={{
+                        backgroundImage: `url(${formState.backgroundBase64})`,
+                      }}
+                    />
+                  ) : (
+                    <div className="flex h-24 items-center justify-center rounded-xl border border-dashed border-border text-sm text-muted-foreground">
+                      None
+                    </div>
+                  )}
+                  <div className="flex items-center gap-3">
+                    <input
+                      ref={backgroundInputRef}
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={uploadBackground}
+                    />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={openBackgroundPicker}
+                    >
+                      Upload
+                    </Button>
+                    {formState.backgroundBase64 ? (
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={clearBackground}
+                      >
+                        Remove
+                      </Button>
+                    ) : null}
+                  </div>
+                </div>
+              </Field>
+              <Field className="md:col-span-2">
+                <FieldLabel>Colors</FieldLabel>
+                <BrandingColorPickerTable
+                  colors={{
+                    headerFooterColor: formState.headerFooterColor,
+                    headersColor: formState.headersColor,
+                    buttonsColor: formState.buttonsColor,
+                  }}
+                  onChange={updateField}
+                />
+              </Field>
             </div>
 
             {saveState.error && (

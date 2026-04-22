@@ -395,8 +395,28 @@ public class AppSeeder {
         if (singleton.logoBase64 == null || singleton.logoBase64.isBlank()) {
             singleton.logoBase64 = brandingProvider.defaultInstallationLogoBase64();
         }
+        String seededColor = BrandingProvider.normalizeInstallationColor(
+                firstNonBlank(singleton.headerFooterColor, singleton.headersColor, singleton.buttonsColor));
+        if (singleton.headerFooterColor == null || singleton.headerFooterColor.isBlank()) {
+            singleton.headerFooterColor = seededColor;
+        }
+        if (singleton.headersColor == null || singleton.headersColor.isBlank()) {
+            singleton.headersColor = seededColor;
+        }
+        if (singleton.buttonsColor == null || singleton.buttonsColor.isBlank()) {
+            singleton.buttonsColor = seededColor;
+        }
         singleton.singletonKey = "installation";
         singleton.persist();
+    }
+
+    private String firstNonBlank(String... values) {
+        for (String value : values) {
+            if (value != null && !value.isBlank()) {
+                return value;
+            }
+        }
+        return null;
     }
 
     private Ticket seedTicket(String name, Company company, User requester, CompanyEntitlement entitlement) {

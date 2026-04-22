@@ -212,13 +212,13 @@ function TicketMessageCard({
 
   return (
     <article className="overflow-visible rounded-md border border-border/80 bg-card shadow-sm">
-      <div className="flex items-center justify-between gap-4 bg-[var(--color-header-bg)] px-4 py-3 text-sm font-semibold text-white">
+      <div className="flex items-center justify-between gap-4 bg-[var(--color-buttons-bg)] px-4 py-3 text-sm font-semibold text-[var(--color-buttons-text)]">
         <span>{message.dateLabel || "-"}</span>
         <span className="text-right">
           {author?.detailPath ? (
             <UserHoverLink
               user={author}
-              className="text-white hover:text-white hover:underline"
+              className="text-[var(--color-buttons-text)] hover:text-[var(--color-buttons-text)] hover:underline"
             >
               {authorLabel}
             </UserHoverLink>

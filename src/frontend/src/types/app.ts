@@ -31,6 +31,10 @@ export interface Session {
   homePath?: string;
   installationCompanyName?: string;
   installationLogoBase64?: string;
+  installationBackgroundBase64?: string;
+  installationHeaderFooterColor?: string;
+  installationHeadersColor?: string;
+  installationButtonsColor?: string;
   inactivityTimeoutSeconds?: number;
   inactivityWarningSeconds?: number;
   displayName?: string;

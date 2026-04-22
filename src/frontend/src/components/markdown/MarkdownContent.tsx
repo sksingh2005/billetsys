@@ -18,6 +18,7 @@ import type { Components } from "react-markdown";
 import rehypeHighlight from "rehype-highlight";
 
 import { cn } from "@/lib/utils";
+import { buttonVariants } from "@/components/ui/button";
 
 interface MarkdownContentProps {
   children?: ReactNode;
@@ -59,7 +60,10 @@ function MarkdownCodeBlock({
     <div className="group relative my-4">
       <button
         type="button"
-        className="absolute right-2 top-2 rounded border border-border bg-background px-2 py-1 text-xs font-medium text-muted-foreground shadow-sm hover:text-foreground"
+        className={cn(
+          buttonVariants({ size: "sm", variant: "outline" }),
+          "absolute right-2 top-2 h-auto px-2 py-1 text-xs shadow-sm",
+        )}
         onClick={copyCode}
       >
         {copied ? "Copied" : "Copy"}
