@@ -138,32 +138,34 @@ function App() {
         )}
         className={
           isLoginRoute
-            ? "min-h-screen flex flex-col bg-[var(--header-bg)] text-[var(--header-text)]"
+            ? "min-h-screen flex flex-col"
             : "min-h-screen flex flex-col bg-background dark:bg-black"
         }
       >
+        {!isLoginRoute && <AuthenticatedHeader session={shellSession} />}
+
         {isLoginRoute ? (
-          <LoginHeader
-            brandName={brandName}
-            logoSrc={branding.installationLogoBase64}
-          />
+          <main
+            className="flex-1 flex flex-col relative"
+            style={{
+              ...loginBackgroundStyle(branding.installationBackgroundBase64),
+              backgroundColor: branding.installationBackgroundBase64
+                ? undefined
+                : "var(--header-bg)",
+            }}
+          >
+            <div className="flex items-center justify-end p-4 absolute top-0 right-0 w-full z-10">
+              <LoginHeader />
+            </div>
+            <div className="flex-1 flex items-center justify-center p-6 w-full relative z-0">
+              <AppRoutes sessionState={sessionState} />
+            </div>
+          </main>
         ) : (
-          <AuthenticatedHeader session={shellSession} />
+          <main className="flex-1 p-5 bg-background dark:bg-black">
+            <AppRoutes sessionState={sessionState} />
+          </main>
         )}
-        <main
-          style={
-            isLoginRoute
-              ? loginBackgroundStyle(branding.installationBackgroundBase64)
-              : undefined
-          }
-          className={
-            isLoginRoute
-              ? "flex-1 flex items-center justify-center p-6 bg-[var(--header-bg)] text-[var(--header-text)]"
-              : "flex-1 p-5 bg-background dark:bg-black"
-          }
-        >
-          <AppRoutes sessionState={sessionState} />
-        </main>
         <AppFooter />
       </div>
       <SessionInactivityManager session={session} />
