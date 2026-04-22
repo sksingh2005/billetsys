@@ -34,6 +34,17 @@ See the developer documentation for setup and workflow details:
 * [Build and run guide](./doc/BUILDING.md)
 * [Frontend guide](./src/frontend/README.md)
 
+You will need a [PostgreSQL](https://www.postgresql.org/) setup as
+
+```sh
+createuser -P ticketdb
+createdb -E UTF8 -O ticketdb ticketdb
+```
+
+where the password is `ticketdb`. Enable access in `pg_hba.conf` and reload.
+
+The configuration is defined in `src/backend/main/resources/application.properties`.
+
 To build and run `billetsys`
 
 ```sh

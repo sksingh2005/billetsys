@@ -28,6 +28,19 @@ This produces the application artifacts in `target/`.
 
 Use `mvn clean package` only when you want to remove previous build output before packaging.
 
+## PostgreSQL setup
+
+You will need a [PostgreSQL](https://www.postgresql.org/) setup as
+
+```sh
+createuser -P ticketdb
+createdb -E UTF8 -O ticketdb ticketdb
+```
+
+where the password is `ticketdb`. Enable access in `pg_hba.conf` and reload.
+
+The configuration is defined in `src/backend/main/resources/application.properties`.
+
 ## Run the project
 
 Set up PostgreSQL with a database owned by user `ticketdb`:
