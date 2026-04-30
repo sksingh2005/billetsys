@@ -216,7 +216,7 @@ export default function HomePage({ sessionState }: SessionPageProps) {
               </div>
 
               <p className="line-clamp-2 text-sm leading-6 text-muted-foreground">
-                Import from CSV.
+                CSV
               </p>
             </div>
           </SmartLink>

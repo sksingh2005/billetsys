@@ -118,14 +118,14 @@ export default function TicketImportPage() {
 
   return (
     <section className="w-full mt-4">
-      <PageHeader title="Import tickets" />
+      <PageHeader title="Import" />
 
       <DataState state={bootstrapState} emptyMessage="Import is unavailable.">
         <form onSubmit={submitImport} className="space-y-6 pb-20">
           <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_360px]">
             <Card>
               <CardHeader>
-                <CardTitle>CSV upload</CardTitle>
+                <CardTitle>CSV</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="flex items-start gap-4 rounded-sm border bg-muted/20 p-4">
@@ -134,10 +134,10 @@ export default function TicketImportPage() {
                   </span>
                   <div className="space-y-1 text-sm">
                     <p className="font-medium text-foreground">
-                      Upload a CSV file to create tickets in billetsys.
+                      Upload
                     </p>
                     <p className="leading-6 text-muted-foreground">
-                      Each row creates one ticket and one initial message.
+                      Each row create one ticket and one initial message
                     </p>
                   </div>
                 </div>
@@ -161,7 +161,7 @@ export default function TicketImportPage() {
             {csvFormat && (
               <Card>
                 <CardHeader>
-                  <CardTitle>CSV columns</CardTitle>
+                  <CardTitle>Columns</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4 text-sm">
                   <div>
