@@ -133,9 +133,7 @@ export default function TicketImportPage() {
                     <FileSpreadsheet className="h-5 w-5" />
                   </span>
                   <div className="space-y-1 text-sm">
-                    <p className="font-medium text-foreground">
-                      Upload
-                    </p>
+                    <p className="font-medium text-foreground">Upload</p>
                     <p className="leading-6 text-muted-foreground">
                       Each row create one ticket and one initial message
                     </p>

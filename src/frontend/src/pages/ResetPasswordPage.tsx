@@ -261,8 +261,7 @@ export default function ResetPasswordPage({ sessionState }: SessionPageProps) {
               <Link
                 to="/login"
                 className="inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:underline"
-              >
-              </Link>
+              ></Link>
             </div>
           </form>
         </CardContent>
