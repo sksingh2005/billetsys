@@ -193,11 +193,13 @@ class SuperuserAccessTest extends AccessTestSupport {
     @Test
     void reactAppSessionReturnsSuperuserTicketLink() {
         ensureUser("superuser1", "superuser1@mnemosyne-systems.ai", User.TYPE_SUPERUSER, "superuser1");
+        setInstallationUse24HourClock(false);
         String cookie = login("superuser1", "superuser1");
 
         RestAssured.given().cookie(AuthHelper.AUTH_COOKIE, cookie).get("/api/app/session").then().statusCode(200)
                 .body("role", Matchers.equalTo("superuser"))
-                .body("navigation.href", Matchers.hasItem("/superuser/tickets"));
+                .body("navigation.href", Matchers.hasItem("/superuser/tickets"))
+                .body("installationUse24HourClock", Matchers.equalTo(false));
     }
 
     @Test

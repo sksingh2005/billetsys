@@ -406,6 +406,9 @@ public class AppSeeder {
         if (singleton.buttonsColor == null || singleton.buttonsColor.isBlank()) {
             singleton.buttonsColor = seededColor;
         }
+        if (singleton.use24HourClock == null) {
+            singleton.use24HourClock = false;
+        }
         singleton.singletonKey = "installation";
         singleton.persist();
     }

@@ -35,6 +35,7 @@ export interface Session {
   installationHeaderFooterColor?: string;
   installationHeadersColor?: string;
   installationButtonsColor?: string;
+  installationUse24HourClock?: boolean;
   inactivityTimeoutSeconds?: number;
   inactivityWarningSeconds?: number;
   displayName?: string;

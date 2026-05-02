@@ -22,6 +22,7 @@ import PageHeader from "../components/layout/PageHeader";
 import { Button } from "../components/ui/button";
 import { Field, FieldLabel } from "../components/ui/field";
 import { Input } from "../components/ui/input";
+import { Switch } from "../components/ui/switch";
 import { PhoneInput } from "../components/ui/aevr/phone-input";
 import { CountryDropdown } from "../components/ui/aevr/country-dropdown";
 import {
@@ -61,8 +62,39 @@ interface OwnerFormState {
   headerFooterColor: string;
   headersColor: string;
   buttonsColor: string;
+  use24HourClock: boolean;
   supportIds: Array<string | number>;
   tamIds: Array<string | number>;
+}
+
+function ClockFormatField({
+  checked,
+  onCheckedChange,
+  disabled = false,
+}: {
+  checked: boolean;
+  onCheckedChange?: (checked: boolean) => void;
+  disabled?: boolean;
+}) {
+  return (
+    <div className="flex items-center justify-between gap-4 rounded-xl border border-border px-4 py-3">
+      <div className="space-y-1">
+        <div className="text-sm font-semibold text-[var(--color-section-header)]">
+          24-hour clock
+        </div>
+        <p className="text-sm text-muted-foreground">
+          Off shows <span className="font-medium text-foreground">2:43pm</span>.
+          On shows <span className="font-medium text-foreground">14:43</span>.
+        </p>
+      </div>
+      <Switch
+        checked={checked}
+        onCheckedChange={onCheckedChange}
+        disabled={disabled}
+        aria-label="Use 24-hour clock"
+      />
+    </div>
+  );
 }
 
 function BrandingColorTable({
@@ -265,6 +297,15 @@ export function OwnerPage(props: SessionPageProps) {
                 )}
               </Field>
               <Field className="md:col-span-2">
+                <FieldLabel className="text-[var(--color-header-bg)]">
+                  Clock
+                </FieldLabel>
+                <ClockFormatField
+                  checked={Boolean(owner.use24HourClock)}
+                  disabled
+                />
+              </Field>
+              <Field className="md:col-span-2">
                 <FieldLabel>Colors</FieldLabel>
                 <BrandingColorTable
                   colors={{
@@ -315,6 +356,7 @@ export function OwnerEditPage(props: SessionPageProps) {
           owner.headerFooterColor || DEFAULT_INSTALLATION_COLOR,
         headersColor: owner.headersColor || DEFAULT_INSTALLATION_COLOR,
         buttonsColor: owner.buttonsColor || DEFAULT_INSTALLATION_COLOR,
+        use24HourClock: Boolean(owner.use24HourClock),
         supportIds: owner.supportUsers.map((user) => user.id),
         tamIds: owner.tamUsers.map((user) => user.id),
       });
@@ -329,6 +371,12 @@ export function OwnerEditPage(props: SessionPageProps) {
     ) || [];
 
   const updateField = (field: keyof OwnerFormState, value: string) => {
+    setFormState((current) =>
+      current ? { ...current, [field]: value } : current,
+    );
+  };
+
+  const updateToggleField = (field: "use24HourClock", value: boolean) => {
     setFormState((current) =>
       current ? { ...current, [field]: value } : current,
     );
@@ -416,6 +464,7 @@ export function OwnerEditPage(props: SessionPageProps) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ...formState,
+          use24HourClock: formState.use24HourClock,
           countryId: formState.countryId ? Number(formState.countryId) : null,
           timezoneId: formState.timezoneId
             ? Number(formState.timezoneId)
@@ -687,6 +736,17 @@ export function OwnerEditPage(props: SessionPageProps) {
                     ) : null}
                   </div>
                 </div>
+              </Field>
+              <Field className="md:col-span-2">
+                <FieldLabel className="text-[var(--color-header-bg)]">
+                  Clock
+                </FieldLabel>
+                <ClockFormatField
+                  checked={formState.use24HourClock}
+                  onCheckedChange={(checked) =>
+                    updateToggleField("use24HourClock", checked)
+                  }
+                />
               </Field>
               <Field className="md:col-span-2">
                 <FieldLabel>Colors</FieldLabel>

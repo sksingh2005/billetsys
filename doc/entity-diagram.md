@@ -31,15 +31,22 @@ erDiagram
         STRING city
         STRING state
         STRING zip
+        STRING phone_number
         BIGINT country_id FK
         BIGINT timezone_id FK
-        BIGINT superuser_id FK
+        BIGINT primary_contact_id FK
     }
 
     INSTALLATION {
         BIGINT id PK
         STRING name
         TEXT logo_base64
+        TEXT background_base64
+        STRING header_footer_color
+        STRING headers_color
+        STRING buttons_color
+        BOOLEAN use_24_hour_clock
+        STRING singleton_key
         BIGINT company_id FK
     }
 
@@ -87,6 +94,7 @@ erDiagram
         BYTEA data
         BIGINT message_id FK
         BIGINT article_id FK
+        BIGINT category_id FK
     }
 
     ARTICLE {
@@ -139,7 +147,7 @@ erDiagram
         INT duration
     }
 
-    ENTITLEMENT_LEVEL {
+    ENTITLEMENT_SUPPORT_LEVEL {
         BIGINT entitlement_id PK, FK
         BIGINT support_level_id PK, FK
     }
@@ -153,7 +161,7 @@ erDiagram
     TIMEZONE ||--o{ LEVEL : assigns
     COMPANY ||--o{ TICKET : has
     COMPANY }o--o{ USER : associates
-    COMPANY }o--|| PRIMARY_CONTACT : has
+    COMPANY }o--|| USER : "primary contact"
     COMPANY ||--o{ COMPANY_ENTITLEMENT : has
     USER ||--o{ TICKET : requests
     TICKET ||--o{ MESSAGE : has
@@ -161,15 +169,16 @@ erDiagram
     TICKET }o--o{ USER : "tam assigned"
     MESSAGE ||--o{ ATTACHMENT : has
     ARTICLE ||--o{ ATTACHMENT : has
+    CATEGORY ||--o{ ATTACHMENT : categorizes
     MESSAGE }o--|| USER : authored
     ENTITLEMENT ||--o{ COMPANY_ENTITLEMENT : includes
     ENTITLEMENT ||--o{ VERSION : has
     VERSION ||--o{ TICKET : affects
     VERSION ||--o{ TICKET : resolves
-    ENTITLEMENT ||--o{ ENTITLEMENT_LEVEL : maps
+    ENTITLEMENT ||--o{ ENTITLEMENT_SUPPORT_LEVEL : maps
     COUNTRY ||--o{ LEVEL : locates
     LEVEL ||--o{ COMPANY_ENTITLEMENT : levels
-    LEVEL ||--o{ ENTITLEMENT_LEVEL : maps
+    LEVEL ||--o{ ENTITLEMENT_SUPPORT_LEVEL : maps
     COMPANY_ENTITLEMENT ||--o{ TICKET : applies
     CATEGORY ||--o{ TICKET : categorizes
 ```

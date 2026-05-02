@@ -15,6 +15,7 @@ import ai.mnemosyne_systems.model.Company;
 import ai.mnemosyne_systems.model.CompanyEntitlement;
 import ai.mnemosyne_systems.model.Country;
 import ai.mnemosyne_systems.model.Entitlement;
+import ai.mnemosyne_systems.model.Installation;
 import ai.mnemosyne_systems.model.Message;
 import ai.mnemosyne_systems.model.Level;
 import ai.mnemosyne_systems.model.Ticket;
@@ -520,6 +521,15 @@ abstract class AccessTestSupport {
         ai.mnemosyne_systems.model.Company company = ai.mnemosyne_systems.model.Company.find("name", name)
                 .firstResult();
         return company == null ? null : company.id;
+    }
+
+    @Transactional
+    void setInstallationUse24HourClock(boolean use24HourClock) {
+        Installation installation = Installation.find("singletonKey", "installation").firstResult();
+        if (installation == null) {
+            return;
+        }
+        installation.use24HourClock = use24HourClock;
     }
 
     @Transactional

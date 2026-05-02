@@ -47,6 +47,9 @@ public class Installation extends PanacheEntityBase {
     @Column(name = "buttons_color")
     public String buttonsColor;
 
+    @Column(name = "use_24_hour_clock")
+    public Boolean use24HourClock;
+
     @Column(name = "singleton_key", nullable = false, unique = true, updatable = false)
     public String singletonKey = "installation";
 

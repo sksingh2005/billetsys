@@ -79,7 +79,7 @@ class AdminAccessTest extends AccessTestSupport {
         RestAssured.given().redirects().follow(false).cookie(AuthHelper.AUTH_COOKIE, cookie).get("/owner").then()
                 .statusCode(303).header("Location", Matchers.endsWith("/owner"));
         RestAssured.given().cookie(AuthHelper.AUTH_COOKIE, cookie).get("/api/owner").then().statusCode(200)
-                .body("name", Matchers.equalTo("mnemosyne systems"))
+                .body("name", Matchers.equalTo("mnemosyne systems")).body("use24HourClock", Matchers.equalTo(false))
                 .body("supportOptions", Matchers.not(Matchers.empty()))
                 .body("tamOptions", Matchers.not(Matchers.empty()));
         RestAssured.given().redirects().follow(false).cookie(AuthHelper.AUTH_COOKIE, cookie).get("/owner/edit").then()
@@ -197,6 +197,7 @@ class AdminAccessTest extends AccessTestSupport {
                 .body("installationHeaderFooterColor", Matchers.matchesPattern("^#[0-9a-f]{6}$"))
                 .body("installationHeadersColor", Matchers.matchesPattern("^#[0-9a-f]{6}$"))
                 .body("installationButtonsColor", Matchers.matchesPattern("^#[0-9a-f]{6}$"))
+                .body("installationUse24HourClock", Matchers.equalTo(false))
                 .body("inactivityTimeoutSeconds", Matchers.equalTo(AuthHelper.INACTIVITY_TIMEOUT_SECONDS))
                 .body("inactivityWarningSeconds", Matchers.equalTo(AuthHelper.WARNING_LEAD_SECONDS));
     }
@@ -214,6 +215,7 @@ class AdminAccessTest extends AccessTestSupport {
                 .body("installationHeaderFooterColor", Matchers.matchesPattern("^#[0-9a-f]{6}$"))
                 .body("installationHeadersColor", Matchers.matchesPattern("^#[0-9a-f]{6}$"))
                 .body("installationButtonsColor", Matchers.matchesPattern("^#[0-9a-f]{6}$"))
+                .body("installationUse24HourClock", Matchers.equalTo(false))
                 .body("inactivityTimeoutSeconds", Matchers.equalTo(AuthHelper.INACTIVITY_TIMEOUT_SECONDS))
                 .body("inactivityWarningSeconds", Matchers.equalTo(AuthHelper.WARNING_LEAD_SECONDS));
     }
@@ -231,6 +233,7 @@ class AdminAccessTest extends AccessTestSupport {
                 .body("installationHeaderFooterColor", Matchers.matchesPattern("^#[0-9a-f]{6}$"))
                 .body("installationHeadersColor", Matchers.matchesPattern("^#[0-9a-f]{6}$"))
                 .body("installationButtonsColor", Matchers.matchesPattern("^#[0-9a-f]{6}$"))
+                .body("installationUse24HourClock", Matchers.equalTo(false))
                 .body("inactivityTimeoutSeconds", Matchers.equalTo(AuthHelper.INACTIVITY_TIMEOUT_SECONDS))
                 .body("inactivityWarningSeconds", Matchers.equalTo(AuthHelper.WARNING_LEAD_SECONDS));
     }
@@ -389,6 +392,7 @@ class AdminAccessTest extends AccessTestSupport {
                 .body("timezones.size()", Matchers.greaterThan(0))
                 .body("headerFooterColor", Matchers.equalTo("#b00020"))
                 .body("headersColor", Matchers.equalTo("#b00020")).body("buttonsColor", Matchers.equalTo("#b00020"))
+                .body("use24HourClock", Matchers.equalTo(false))
                 .body("logoBase64", Matchers.startsWith("data:image/svg+xml;base64,"))
                 .body("backgroundBase64", Matchers.nullValue())
                 .body("supportOptions.email", Matchers.hasItem("support1@mnemosyne-systems.ai"))
@@ -402,12 +406,12 @@ class AdminAccessTest extends AccessTestSupport {
                         Map.entry("timezoneId", timezone.id), Map.entry("supportIds", List.of(supportUser.id)),
                         Map.entry("tamIds", List.of(tamUser.id)), Map.entry("headerFooterColor", "#123456"),
                         Map.entry("headersColor", "#234567"), Map.entry("buttonsColor", "#345678"),
-                        Map.entry("logoBase64", installationLogo),
+                        Map.entry("use24HourClock", true), Map.entry("logoBase64", installationLogo),
                         Map.entry("backgroundBase64", installationBackground)))
                 .post("/api/owner").then().statusCode(200).body("city", Matchers.equalTo("Owner City"))
                 .body("headerFooterColor", Matchers.equalTo("#123456"))
                 .body("headersColor", Matchers.equalTo("#234567")).body("buttonsColor", Matchers.equalTo("#345678"))
-                .body("logoBase64", Matchers.equalTo(installationLogo))
+                .body("use24HourClock", Matchers.equalTo(true)).body("logoBase64", Matchers.equalTo(installationLogo))
                 .body("backgroundBase64", Matchers.equalTo(installationBackground))
                 .body("supportUsers.email", Matchers.hasItem("support1@mnemosyne-systems.ai"))
                 .body("tamUsers.email", Matchers.hasItem("tam1@mnemosyne-systems.ai"));
@@ -422,6 +426,7 @@ class AdminAccessTest extends AccessTestSupport {
         Assertions.assertEquals("#123456", installation.headerFooterColor);
         Assertions.assertEquals("#234567", installation.headersColor);
         Assertions.assertEquals("#345678", installation.buttonsColor);
+        Assertions.assertEquals(Boolean.TRUE, installation.use24HourClock);
         Assertions.assertEquals(installationLogo, installation.logoBase64);
         Assertions.assertEquals(installationBackground, installation.backgroundBase64);
         Assertions.assertTrue(companyHasUser(ownerCompany.id, "support1@mnemosyne-systems.ai"));
@@ -431,7 +436,8 @@ class AdminAccessTest extends AccessTestSupport {
                 .body("installationBackgroundBase64", Matchers.equalTo(installationBackground))
                 .body("installationHeaderFooterColor", Matchers.equalTo("#123456"))
                 .body("installationHeadersColor", Matchers.equalTo("#234567"))
-                .body("installationButtonsColor", Matchers.equalTo("#345678"));
+                .body("installationButtonsColor", Matchers.equalTo("#345678"))
+                .body("installationUse24HourClock", Matchers.equalTo(true));
     }
 
     @Test

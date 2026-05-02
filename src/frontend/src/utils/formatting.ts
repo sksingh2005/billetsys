@@ -45,6 +45,27 @@ export function formatPhone(
   return `${phoneNumber || ""} ext. ${extension}`.trim();
 }
 
+export function formatInstallationClock(
+  value: Date,
+  use24HourClock = false,
+): string {
+  const formatter = new Intl.DateTimeFormat(undefined, {
+    hour: use24HourClock ? "2-digit" : "numeric",
+    minute: "2-digit",
+    hour12: !use24HourClock,
+  });
+  const parts = formatter.formatToParts(value);
+  const hour = parts.find((part) => part.type === "hour")?.value || "";
+  const minute = parts.find((part) => part.type === "minute")?.value || "00";
+  if (use24HourClock) {
+    return `${hour}:${minute}`;
+  }
+  const dayPeriod = (
+    parts.find((part) => part.type === "dayPeriod")?.value || ""
+  ).toLowerCase();
+  return `${hour}:${minute}${dayPeriod}`;
+}
+
 export function durationLabel(value: string | number): string {
   return String(value) === "1" ? "Monthly" : "Yearly";
 }

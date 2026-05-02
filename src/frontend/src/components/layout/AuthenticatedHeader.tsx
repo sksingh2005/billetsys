@@ -12,7 +12,7 @@ import useJson from "../../hooks/useJson";
 import useText from "../../hooks/useText";
 import { useDarkModeToggle } from "../../hooks/useDarkModeToggle";
 import { installationCompanyName } from "../../utils/installationBranding";
-import { toQueryString } from "../../utils/formatting";
+import { formatInstallationClock, toQueryString } from "../../utils/formatting";
 import { SmartLink, normalizeClientPath } from "../../utils/routing";
 import {
   ticketCountsApiPath,
@@ -495,10 +495,7 @@ export default function AuthenticatedHeader({
           </>
         )}
         <span className="font-semibold tabular-nums">
-          {now.toLocaleTimeString([], {
-            hour: "2-digit",
-            minute: "2-digit",
-          })}
+          {formatInstallationClock(now, session?.installationUse24HourClock)}
         </span>
       </div>
     </header>

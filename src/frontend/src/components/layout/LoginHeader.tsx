@@ -9,18 +9,21 @@
 import { useEffect, useState } from "react";
 import { MoonIcon, SunIcon } from "lucide-react";
 import { useDarkModeToggle } from "../../hooks/useDarkModeToggle";
+import { formatInstallationClock } from "../../utils/formatting";
 import { SmartLink } from "../../utils/routing";
 
 interface LoginHeaderProps {
   brandName: string;
   logoSrc?: string;
   brandHref: string;
+  use24HourClock?: boolean;
 }
 
 export default function LoginHeader({
   brandName,
   logoSrc,
   brandHref,
+  use24HourClock = false,
 }: LoginHeaderProps) {
   const [now, setNow] = useState(() => new Date());
   const { darkModeToggleRef, toggleDarkMode } = useDarkModeToggle();
@@ -71,11 +74,8 @@ export default function LoginHeader({
           <MoonIcon className="absolute right-2 size-3.5 opacity-90" />
           <span className="pointer-events-none inline-block h-6 w-6 translate-x-0 rounded-full bg-[var(--color-buttons-text)] shadow-sm transition-transform duration-200 ease-out group-aria-[pressed=true]:translate-x-8" />
         </button>
-        <span className="font-semibold tabular-nums text-foreground">
-          {now.toLocaleTimeString([], {
-            hour: "2-digit",
-            minute: "2-digit",
-          })}
+        <span className="font-semibold tabular-nums text-[var(--header-text)]">
+          {formatInstallationClock(now, use24HourClock)}
         </span>
       </div>
     </div>

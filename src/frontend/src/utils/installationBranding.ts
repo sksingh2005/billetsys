@@ -13,6 +13,7 @@ export type InstallationBranding = Pick<
   | "installationHeaderFooterColor"
   | "installationHeadersColor"
   | "installationButtonsColor"
+  | "installationUse24HourClock"
 >;
 
 export function readCachedInstallationBranding(): InstallationBranding {
@@ -65,6 +66,8 @@ export function pickInstallationBranding(
     result.installationHeadersColor = session.installationHeadersColor;
   if (session.installationButtonsColor !== undefined)
     result.installationButtonsColor = session.installationButtonsColor;
+  if (session.installationUse24HourClock !== undefined)
+    result.installationUse24HourClock = session.installationUse24HourClock;
   return result;
 }
 
@@ -78,6 +81,7 @@ export function ownerInstallationBranding(
     installationHeaderFooterColor: owner?.headerFooterColor,
     installationHeadersColor: owner?.headersColor,
     installationButtonsColor: owner?.buttonsColor,
+    installationUse24HourClock: owner?.use24HourClock,
   };
 }
 

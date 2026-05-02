@@ -34,7 +34,9 @@ This is important because ticket visibility, responsibility, and coordination al
 
 Admins also maintain the support structure behind the ticketing process. Categories, entitlement information, and levels help define how tickets are classified and how service expectations are represented in the system.
 
-Admins also maintain installation branding. The Installation entity stores the shared logo, optional login background image, and three dedicated branding colors for Header/Footer, Headers, and Buttons so the same branding can be shown consistently across the application.
+Admins also maintain installation branding. The Installation entity stores the shared logo, optional login background image, a header clock format toggle (12-hour or 24-hour), and three dedicated branding colors for Header/Footer, Headers, and Buttons so the same branding can be shown consistently across the application.
+
+The branding controls are available on the Owner edit screen. Between the Background and Colors sections, admins can use the slider-style clock toggle to decide whether the header clock is shown as `2:43pm` or `14:43` throughout the application.
 
 ## Oversight and reporting
 

@@ -580,6 +580,7 @@ class SupportAccessTest extends AccessTestSupport {
 
     @Test
     void reactAppSessionReturnsGuestStateWhenSignedOut() {
+        setInstallationUse24HourClock(false);
         RestAssured.given().get("/api/app/session").then().statusCode(200)
                 .body("authenticated", Matchers.equalTo(false)).body("homePath", Matchers.equalTo("/login"))
                 .body("installationLogoBase64", Matchers.startsWith("data:image/svg+xml;base64,"))
@@ -588,6 +589,7 @@ class SupportAccessTest extends AccessTestSupport {
                 .body("installationHeaderFooterColor", Matchers.matchesPattern("^#[0-9a-f]{6}$"))
                 .body("installationHeadersColor", Matchers.matchesPattern("^#[0-9a-f]{6}$"))
                 .body("installationButtonsColor", Matchers.matchesPattern("^#[0-9a-f]{6}$"))
+                .body("installationUse24HourClock", Matchers.equalTo(false))
                 .body("inactivityTimeoutSeconds", Matchers.equalTo(AuthHelper.INACTIVITY_TIMEOUT_SECONDS))
                 .body("inactivityWarningSeconds", Matchers.equalTo(AuthHelper.WARNING_LEAD_SECONDS)).body("notices",
                         Matchers.hasItem("The React shell now uses clean URLs for login, tickets, and admin pages."));
@@ -596,6 +598,7 @@ class SupportAccessTest extends AccessTestSupport {
     @Test
     void reactAppSessionReturnsRoleAwareLinksWhenSignedIn() {
         ensureUser("user", "user@mnemosyne-systems.ai", User.TYPE_USER, "user");
+        setInstallationUse24HourClock(false);
         String cookie = login("user", "user");
 
         RestAssured.given().cookie(AuthHelper.AUTH_COOKIE, cookie).get("/api/app/session").then().statusCode(200)
@@ -607,6 +610,7 @@ class SupportAccessTest extends AccessTestSupport {
                 .body("installationHeaderFooterColor", Matchers.matchesPattern("^#[0-9a-f]{6}$"))
                 .body("installationHeadersColor", Matchers.matchesPattern("^#[0-9a-f]{6}$"))
                 .body("installationButtonsColor", Matchers.matchesPattern("^#[0-9a-f]{6}$"))
+                .body("installationUse24HourClock", Matchers.equalTo(false))
                 .body("inactivityTimeoutSeconds", Matchers.equalTo(AuthHelper.INACTIVITY_TIMEOUT_SECONDS))
                 .body("inactivityWarningSeconds", Matchers.equalTo(AuthHelper.WARNING_LEAD_SECONDS))
                 .body("navigation.href", Matchers.hasItem("/user/tickets"))

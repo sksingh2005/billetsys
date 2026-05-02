@@ -62,6 +62,11 @@ erDiagram
         BIGINT id PK
         STRING name
         TEXT logo_base64
+        TEXT background_base64
+        STRING header_footer_color
+        STRING headers_color
+        STRING buttons_color
+        BOOLEAN use_24_hour_clock
         BIGINT company_id FK
     }
 

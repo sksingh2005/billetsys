@@ -73,6 +73,11 @@ public class BrandingProvider {
         return installation.backgroundBase64;
     }
 
+    public boolean installationUse24HourClock() {
+        Installation installation = installation();
+        return installation != null && Boolean.TRUE.equals(installation.use24HourClock);
+    }
+
     public String defaultInstallationLogoBase64() {
         try {
             Path repoLogo = Path.of(DEFAULT_INSTALLATION_LOGO_PATH);

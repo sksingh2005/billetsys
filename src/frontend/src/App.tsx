@@ -171,6 +171,7 @@ function App() {
                 brandName={brandName}
                 brandHref={brandHref}
                 logoSrc={branding.installationLogoBase64}
+                use24HourClock={branding.installationUse24HourClock}
               />
             </div>
             <div className="flex-1 flex items-center justify-center p-6 w-full relative z-0">

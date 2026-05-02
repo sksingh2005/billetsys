@@ -70,6 +70,7 @@ public class OwnerApiResource {
         installation.headerFooterColor = normalizedHeaderFooterColor;
         installation.headersColor = normalizedHeadersColor;
         installation.buttonsColor = normalizedButtonsColor;
+        installation.use24HourClock = Boolean.TRUE.equals(request.use24HourClock());
         installation.logoBase64 = trimToNull(request.logoBase64());
         installation.backgroundBase64 = trimToNull(request.backgroundBase64());
         return toResponse(company);
@@ -108,7 +109,7 @@ public class OwnerApiResource {
                 BrandingProvider.normalizeInstallationColor(installation.headerFooterColor),
                 BrandingProvider.normalizeInstallationColor(installation.headersColor),
                 BrandingProvider.normalizeInstallationColor(installation.buttonsColor),
-                company.timezone == null ? null : company.timezone.id,
+                Boolean.TRUE.equals(installation.use24HourClock), company.timezone == null ? null : company.timezone.id,
                 company.timezone == null ? null : company.timezone.name, supportUsers, tamUsers, supportOptions,
                 tamOptions, countries, timezones);
     }
@@ -127,9 +128,9 @@ public class OwnerApiResource {
     public record OwnerResponse(Long id, String name, String address1, String address2, String city, String state,
             String zip, String phoneNumber, Long countryId, String countryName, String logoBase64,
             String backgroundBase64, String headerFooterColor, String headersColor, String buttonsColor,
-            Long timezoneId, String timezoneName, List<UserSummary> supportUsers, List<UserSummary> tamUsers,
-            List<UserSummary> supportOptions, List<UserSummary> tamOptions, List<CountryOption> countries,
-            List<TimezoneOption> timezones) {
+            boolean use24HourClock, Long timezoneId, String timezoneName, List<UserSummary> supportUsers,
+            List<UserSummary> tamUsers, List<UserSummary> supportOptions, List<UserSummary> tamOptions,
+            List<CountryOption> countries, List<TimezoneOption> timezones) {
     }
 
     public record UserSummary(Long id, String username, String displayName, String email, String profilePath) {
@@ -143,7 +144,7 @@ public class OwnerApiResource {
 
     public record OwnerUpdateRequest(String name, String address1, String address2, String city, String state,
             String zip, String phoneNumber, Long countryId, Long timezoneId, List<Long> supportIds, List<Long> tamIds,
-            String headerFooterColor, String headersColor, String buttonsColor, String logoBase64,
-            String backgroundBase64) {
+            String headerFooterColor, String headersColor, String buttonsColor, Boolean use24HourClock,
+            String logoBase64, String backgroundBase64) {
     }
 }

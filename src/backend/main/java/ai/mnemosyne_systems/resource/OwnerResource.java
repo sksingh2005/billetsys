@@ -60,7 +60,8 @@ public class OwnerResource {
             @FormParam("countryId") Long countryId, @FormParam("timezoneId") Long timezoneId,
             @FormParam("phoneNumber") String phoneNumber, @FormParam("supportIds") List<Long> supportIds,
             @FormParam("tamIds") List<Long> tamIds, @FormParam("headerFooterColor") String headerFooterColor,
-            @FormParam("headersColor") String headersColor, @FormParam("buttonsColor") String buttonsColor) {
+            @FormParam("headersColor") String headersColor, @FormParam("buttonsColor") String buttonsColor,
+            @FormParam("use24HourClock") Boolean use24HourClock) {
         requireAdmin(auth);
         Company company = findOwnerCompany();
         if (name == null || name.isBlank()) {
@@ -85,6 +86,7 @@ public class OwnerResource {
         installation.headerFooterColor = normalizedHeaderFooterColor;
         installation.headersColor = normalizedHeadersColor;
         installation.buttonsColor = normalizedButtonsColor;
+        installation.use24HourClock = Boolean.TRUE.equals(use24HourClock);
         return Response.seeOther(URI.create("/owner")).build();
     }
 
@@ -139,6 +141,9 @@ public class OwnerResource {
         }
         if (installation.buttonsColor == null || installation.buttonsColor.isBlank()) {
             installation.buttonsColor = baseColor;
+        }
+        if (installation.use24HourClock == null) {
+            installation.use24HourClock = false;
         }
         installation.persist();
         return installation;
