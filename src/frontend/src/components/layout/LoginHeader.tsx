@@ -9,13 +9,19 @@
 import { useEffect, useState } from "react";
 import { MoonIcon, SunIcon } from "lucide-react";
 import { useDarkModeToggle } from "../../hooks/useDarkModeToggle";
+import { SmartLink } from "../../utils/routing";
 
 interface LoginHeaderProps {
   brandName: string;
   logoSrc?: string;
+  brandHref: string;
 }
 
-export default function LoginHeader({ brandName, logoSrc }: LoginHeaderProps) {
+export default function LoginHeader({
+  brandName,
+  logoSrc,
+  brandHref,
+}: LoginHeaderProps) {
   const [now, setNow] = useState(() => new Date());
   const { darkModeToggleRef, toggleDarkMode } = useDarkModeToggle();
 
@@ -26,7 +32,10 @@ export default function LoginHeader({ brandName, logoSrc }: LoginHeaderProps) {
 
   return (
     <div className="flex items-center justify-between gap-4">
-      <div className="flex items-center gap-2.5 text-[var(--header-text)]">
+      <SmartLink
+        href={brandHref}
+        className="flex items-center gap-2.5 text-[var(--header-text)] no-underline"
+      >
         {logoSrc ? (
           <img
             src={logoSrc}
@@ -47,7 +56,7 @@ export default function LoginHeader({ brandName, logoSrc }: LoginHeaderProps) {
         <span className="font-heading text-xl font-bold leading-none">
           {brandName}
         </span>
-      </div>
+      </SmartLink>
       <div className="flex items-center gap-3">
         <button
           ref={darkModeToggleRef}

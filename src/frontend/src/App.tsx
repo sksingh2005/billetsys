@@ -24,6 +24,7 @@ import {
   setInstallationFavicon,
   writeCachedInstallationBranding,
 } from "./utils/installationBranding";
+import { normalizeClientPath } from "./utils/routing";
 
 const DEFAULT_INSTALLATION_COLOR = "#b00020";
 
@@ -120,6 +121,9 @@ function App() {
       location.pathname,
     ) && !session?.authenticated;
   const brandName = installationCompanyName(branding.installationCompanyName);
+  const brandHref = session?.authenticated
+    ? normalizeClientPath(session.homePath) || "/"
+    : "/login";
 
   useEffect(() => {
     if (!session) {
@@ -165,6 +169,7 @@ function App() {
             <div className="p-4 absolute top-0 right-0 w-full z-10">
               <LoginHeader
                 brandName={brandName}
+                brandHref={brandHref}
                 logoSrc={branding.installationLogoBase64}
               />
             </div>

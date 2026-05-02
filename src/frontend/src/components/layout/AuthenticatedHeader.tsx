@@ -94,7 +94,9 @@ export default function AuthenticatedHeader({
   }, []);
 
   const navigation = headerNavigation(session);
-  const brandHref = normalizeClientPath(session?.homePath) || "/";
+  const brandHref = session?.authenticated
+    ? normalizeClientPath(session.homePath) || "/"
+    : "/login";
   const userName = session?.displayName || session?.username || "Guest";
   const assignedCount = ticketCountsState.data?.assignedCount ?? 0;
   const openCount = ticketCountsState.data?.openCount ?? 0;
