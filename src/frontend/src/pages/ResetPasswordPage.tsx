@@ -11,6 +11,7 @@ import { useState } from "react";
 import { Link, Navigate, useLocation } from "react-router-dom";
 import type { SessionPageProps } from "../types/app";
 import {
+  installationCompanyName,
   pickInstallationBranding,
   readCachedInstallationBranding,
 } from "../utils/installationBranding";
@@ -47,7 +48,7 @@ export default function ResetPasswordPage({ sessionState }: SessionPageProps) {
     ...readCachedInstallationBranding(),
     ...pickInstallationBranding(session),
   };
-  const brandName = branding.installationCompanyName || "billetsys";
+  const brandName = installationCompanyName(branding.installationCompanyName);
   const logoSrc = branding.installationLogoBase64;
 
   if (session?.authenticated) {

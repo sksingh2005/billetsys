@@ -18,8 +18,10 @@ import useJson from "./hooks/useJson";
 import AppRoutes from "./AppRoutes";
 import type { Session } from "./types/app";
 import {
+  installationCompanyName,
   pickInstallationBranding,
   readCachedInstallationBranding,
+  setInstallationFavicon,
   writeCachedInstallationBranding,
 } from "./utils/installationBranding";
 
@@ -117,7 +119,7 @@ function App() {
     ["/login", "/forgot-password", "/reset-password"].includes(
       location.pathname,
     ) && !session?.authenticated;
-  const brandName = branding.installationCompanyName || "billetsys";
+  const brandName = installationCompanyName(branding.installationCompanyName);
 
   useEffect(() => {
     if (!session) {
@@ -129,6 +131,10 @@ function App() {
   useEffect(() => {
     document.title = `${brandName}: billetsys`;
   }, [brandName]);
+
+  useEffect(() => {
+    setInstallationFavicon(branding.installationLogoBase64);
+  }, [branding.installationLogoBase64]);
 
   return (
     <>
@@ -156,8 +162,11 @@ function App() {
                 : "var(--header-bg)",
             }}
           >
-            <div className="flex items-center justify-end p-4 absolute top-0 right-0 w-full z-10">
-              <LoginHeader />
+            <div className="p-4 absolute top-0 right-0 w-full z-10">
+              <LoginHeader
+                brandName={brandName}
+                logoSrc={branding.installationLogoBase64}
+              />
             </div>
             <div className="flex-1 flex items-center justify-center p-6 w-full relative z-0">
               <AppRoutes sessionState={sessionState} />

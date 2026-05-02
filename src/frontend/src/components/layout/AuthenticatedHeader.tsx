@@ -11,6 +11,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import useJson from "../../hooks/useJson";
 import useText from "../../hooks/useText";
 import { useDarkModeToggle } from "../../hooks/useDarkModeToggle";
+import { installationCompanyName } from "../../utils/installationBranding";
 import { toQueryString } from "../../utils/formatting";
 import { SmartLink, normalizeClientPath } from "../../utils/routing";
 import {
@@ -205,7 +206,7 @@ export default function AuthenticatedHeader({
           {session?.installationLogoBase64 ? (
             <img
               src={session.installationLogoBase64}
-              alt={`${session.installationCompanyName || "billetsys"} logo`}
+              alt={`${installationCompanyName(session.installationCompanyName)} logo`}
               className="h-7 w-7 shrink-0 object-contain"
             />
           ) : (
@@ -219,7 +220,7 @@ export default function AuthenticatedHeader({
               <path d="M6 8l1 1 2-2" />
             </svg>
           )}
-          {session?.installationCompanyName || "billetsys"}
+          {installationCompanyName(session?.installationCompanyName)}
         </SmartLink>
         {navigation.length > 0 && (
           <nav

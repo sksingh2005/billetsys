@@ -3,17 +3,51 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link href="/favicon.ico" rel="icon" sizes="16x16" type="image/x-icon" />
     <link href="/src/app.css" rel="stylesheet" />
     <title>billetsys app shell</title>
     <script>
       // Apply cached branding CSS variables before first paint to prevent color flicker.
       (function () {
         try {
+          function faviconType(href) {
+            if (href && href.indexOf("data:") === 0) {
+              return (href.match(/^data:([^;,]+)[;,]/) || [])[1] || "image/png";
+            }
+            if (href && href.endsWith(".svg")) return "image/svg+xml";
+            if (href && href.endsWith(".png")) return "image/png";
+            return "image/x-icon";
+          }
+          function applyFavicon(href) {
+            var head = document.head;
+            if (!head) return;
+            Array.from(head.querySelectorAll('link[rel~="icon"]')).forEach(
+              function (existing) {
+                existing.remove();
+              },
+            );
+            ["icon", "shortcut icon"].forEach(function (rel) {
+              var link = document.createElement("link");
+              link.rel = rel;
+              link.href = href;
+              link.type = faviconType(href);
+              link.setAttribute("data-installation-favicon", "true");
+              if (href === "/favicon.ico") {
+                link.sizes = "16x16";
+              }
+              head.appendChild(link);
+            });
+          }
           var raw = localStorage.getItem("billetsys.installation-branding");
-          if (!raw) return;
+          if (!raw) {
+            applyFavicon("/favicon.ico");
+            return;
+          }
           var b = JSON.parse(raw);
-          if (!b || typeof b !== "object") return;
+          if (!b || typeof b !== "object") {
+            applyFavicon("/favicon.ico");
+            return;
+          }
+          applyFavicon(b.installationLogoBase64 || "/favicon.ico");
           var s = document.documentElement.style;
           function hex(c) {
             return /^#[0-9a-fA-F]{6}$/.test(c || "");
@@ -58,7 +92,15 @@
             s.setProperty("--button-text", contrast(bc));
             s.setProperty("--button-hover", darken(bc));
           }
-        } catch (e) {}
+        } catch (e) {
+          var fallback = document.createElement("link");
+          fallback.rel = "icon";
+          fallback.href = "/favicon.ico";
+          fallback.type = "image/x-icon";
+          fallback.sizes = "16x16";
+          fallback.setAttribute("data-installation-favicon", "true");
+          document.head.appendChild(fallback);
+        }
       })();
     </script>
   </head>

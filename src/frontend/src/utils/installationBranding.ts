@@ -2,6 +2,8 @@ import type { Session } from "../types/app";
 import type { OwnerCompany } from "../types/domain";
 
 const BRANDING_STORAGE_KEY = "billetsys.installation-branding";
+export const DEFAULT_INSTALLATION_COMPANY_NAME = "mnemosyne systems";
+export const DEFAULT_FAVICON_HREF = "/favicon.ico";
 
 export type InstallationBranding = Pick<
   Session,
@@ -32,6 +34,7 @@ export function readCachedInstallationBranding(): InstallationBranding {
 export function writeCachedInstallationBranding(
   branding: InstallationBranding,
 ) {
+  setInstallationFavicon(branding.installationLogoBase64);
   if (typeof window === "undefined") {
     return;
   }
@@ -76,4 +79,47 @@ export function ownerInstallationBranding(
     installationHeadersColor: owner?.headersColor,
     installationButtonsColor: owner?.buttonsColor,
   };
+}
+
+export function installationCompanyName(name?: string) {
+  return name?.trim() || DEFAULT_INSTALLATION_COMPANY_NAME;
+}
+
+function faviconMimeType(href: string) {
+  if (href.startsWith("data:")) {
+    const match = href.match(/^data:([^;,]+)[;,]/);
+    return match?.[1] || "image/png";
+  }
+  if (href.endsWith(".svg")) {
+    return "image/svg+xml";
+  }
+  if (href.endsWith(".png")) {
+    return "image/png";
+  }
+  return "image/x-icon";
+}
+
+export function setInstallationFavicon(logoSrc?: string) {
+  if (typeof document === "undefined") {
+    return;
+  }
+  const href = logoSrc?.trim() || DEFAULT_FAVICON_HREF;
+  const head = document.head;
+  if (!head) {
+    return;
+  }
+  head.querySelectorAll('link[rel~="icon"]').forEach((existing) => {
+    existing.remove();
+  });
+  ["icon", "shortcut icon"].forEach((rel) => {
+    const link = document.createElement("link");
+    link.setAttribute("rel", rel);
+    link.setAttribute("href", href);
+    link.setAttribute("type", faviconMimeType(href));
+    link.setAttribute("data-installation-favicon", "true");
+    if (href === DEFAULT_FAVICON_HREF) {
+      link.setAttribute("sizes", "16x16");
+    }
+    head.appendChild(link);
+  });
 }
