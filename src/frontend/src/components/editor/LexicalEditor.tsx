@@ -122,6 +122,12 @@ import { HR } from "./markdown-hr-transformer";
 import { IMAGE } from "./markdown-image-transformer";
 import { TABLE } from "./markdown-table-transformer";
 import { TWEET } from "./markdown-tweet-transformer";
+import {
+  extractSupportedInlineStyles,
+  getStyledTextTokenStyle,
+  serializeStyledTextToken,
+  STYLE_TOKEN_IMPORT_REGEX,
+} from "./styled-text-tokens";
 import { validateUrl } from "./url";
 import { Separator } from "@/components/ui/separator";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -228,6 +234,35 @@ const TICKET_MENTION: TextMatchTransformer = {
   type: "text-match",
 };
 
+const STYLED_TEXT: TextMatchTransformer = {
+  dependencies: [],
+  export: (node) => {
+    if (!$isTextNode(node) || node.getType() !== "text") {
+      return null;
+    }
+
+    const style = extractSupportedInlineStyles(node.getStyle());
+    return serializeStyledTextToken(node.getTextContent(), style);
+  },
+  importRegExp: STYLE_TOKEN_IMPORT_REGEX,
+  regExp: /\[\[style(?:\s+([^\]]+))?\]\]([\s\S]*?)\[\[\/style\]\]$/,
+  replace: (textNode, match) => {
+    const newNode = $createTextNode(match[2] ?? "");
+    const tokenStyle = getStyledTextTokenStyle(match[1]);
+    const inlineStyles = Object.entries(tokenStyle).map(
+      ([property, value]) => `${property}: ${value}`,
+    );
+
+    if (inlineStyles.length > 0) {
+      newNode.setStyle(`${inlineStyles.join("; ")};`);
+    }
+
+    textNode.replace(newNode);
+  },
+  trigger: "]",
+  type: "text-match",
+};
+
 const ALL_TRANSFORMERS = [
   TABLE,
   HR,
@@ -235,6 +270,7 @@ const ALL_TRANSFORMERS = [
   EMOJI,
   TWEET,
   TICKET_MENTION,
+  STYLED_TEXT,
   CHECK_LIST,
   ...ELEMENT_TRANSFORMERS,
   ...MULTILINE_ELEMENT_TRANSFORMERS,
