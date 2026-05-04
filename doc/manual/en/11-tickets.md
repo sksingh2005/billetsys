@@ -62,9 +62,19 @@ Billetsys provides ticket lists that help each role focus on the cases relevant 
 
 This makes the ticket area useful both for individual follow-up and for operational queue management.
 
+For roles that use the ticket queues, these keyboard shortcuts are available from the application header:
+
+* `Ctrl+A` opens **Active tickets**
+* `Ctrl+O` opens **Open tickets**
+* `Ctrl+C` opens **Closed tickets**
+* `Ctrl++` opens **Create ticket**
+* `Ctrl+1` through `Ctrl+9` open the first through ninth ticket in the currently visible list order, and `Ctrl+0` opens the tenth ticket
+
 ## Ticket search
 
-Ticket lists also include a search control in the main application header. The search is opened from the search icon shown before the RSS feed icon.
+Ticket lists also include a search control in the main application header (`Ctrl+K`). The search is opened from the search icon shown before the RSS feed icon.
+
+The header search control does not display a keyboard shortcut label. The documented ticket shortcuts are the queue shortcuts listed above.
 
 Once the search field is open, users can type a search term and press `Enter` to filter the current ticket queue.
 

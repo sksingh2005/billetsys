@@ -21,12 +21,14 @@ import {
   showRoleTicketAlarm,
   headerNavigation,
   rssPath,
+  ticketShortcutPaths,
 } from "../../utils/navigation";
 import type { Session } from "../../types/app";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuShortcut,
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
 import { Button } from "../ui/button";
@@ -62,6 +64,20 @@ interface AuthenticatedHeaderProps {
   session: Session | null;
 }
 
+function isEditableTarget(target: EventTarget | null): boolean {
+  if (!(target instanceof HTMLElement)) {
+    return false;
+  }
+  const tagName = target.tagName.toLowerCase();
+  return (
+    target.isContentEditable ||
+    tagName === "input" ||
+    tagName === "textarea" ||
+    tagName === "select" ||
+    Boolean(target.closest("[contenteditable='true']"))
+  );
+}
+
 export default function AuthenticatedHeader({
   session,
 }: AuthenticatedHeaderProps) {
@@ -83,6 +99,7 @@ export default function AuthenticatedHeader({
       : role === "superuser"
         ? "/superuser/tickets"
         : "/user/tickets";
+  const shortcuts = ticketShortcutPaths(role);
 
   const ticketCountsState = useJson<TicketCounts>(ticketCountsApiPath(role));
   const ticketAlarmState = useText(
@@ -199,6 +216,48 @@ export default function AuthenticatedHeader({
     };
   }, [ticketSearchApiBase]);
 
+  useEffect(() => {
+    if (!shortcuts) {
+      return undefined;
+    }
+    const handleKeyDown = (event: KeyboardEvent) => {
+      const isCreateShortcut =
+        event.key === "+" ||
+        event.code === "NumpadAdd" ||
+        (event.code === "Equal" && event.shiftKey);
+      if (
+        event.defaultPrevented ||
+        !event.ctrlKey ||
+        event.metaKey ||
+        event.altKey ||
+        (event.shiftKey && !isCreateShortcut) ||
+        isEditableTarget(event.target)
+      ) {
+        return;
+      }
+      const key = event.key.toLowerCase();
+      const destination =
+        key === "a"
+          ? shortcuts.active
+          : key === "o"
+            ? shortcuts.open
+            : key === "c"
+              ? shortcuts.closed
+              : isCreateShortcut
+                ? shortcuts.create
+                : null;
+      if (!destination) {
+        return;
+      }
+      event.preventDefault();
+      navigate(destination);
+    };
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [navigate, shortcuts]);
+
   return (
     <header className="bg-[var(--header-bg)] px-5 py-3 text-[var(--header-text)] flex items-center justify-between gap-4 flex-wrap">
       <div className="flex items-center gap-4 flex-wrap">
@@ -250,20 +309,45 @@ export default function AuthenticatedHeader({
                     </DropdownMenuTrigger>
                     <DropdownMenuContent>
                       <DropdownMenuItem asChild>
-                        <SmartLink href={ticketMenuBasePath}>
+                        <SmartLink
+                          href={shortcuts?.active || ticketMenuBasePath}
+                          className="flex w-full items-center"
+                        >
                           Active tickets
+                          <DropdownMenuShortcut>Ctrl+A</DropdownMenuShortcut>
                         </SmartLink>
                       </DropdownMenuItem>
                       <DropdownMenuItem asChild>
-                        <SmartLink href={`${ticketMenuBasePath}/open`}>
+                        <SmartLink
+                          href={shortcuts?.open || `${ticketMenuBasePath}/open`}
+                          className="flex w-full items-center"
+                        >
                           Open tickets
+                          <DropdownMenuShortcut>Ctrl+O</DropdownMenuShortcut>
                         </SmartLink>
                       </DropdownMenuItem>
                       <DropdownMenuItem asChild>
-                        <SmartLink href={`${ticketMenuBasePath}/closed`}>
+                        <SmartLink
+                          href={
+                            shortcuts?.closed || `${ticketMenuBasePath}/closed`
+                          }
+                          className="flex w-full items-center"
+                        >
                           Closed tickets
+                          <DropdownMenuShortcut>Ctrl+C</DropdownMenuShortcut>
                         </SmartLink>
                       </DropdownMenuItem>
+                      {shortcuts && (
+                        <DropdownMenuItem asChild>
+                          <SmartLink
+                            href={shortcuts.create}
+                            className="flex w-full items-center"
+                          >
+                            Create ticket
+                            <DropdownMenuShortcut>Ctrl++</DropdownMenuShortcut>
+                          </SmartLink>
+                        </DropdownMenuItem>
+                      )}
                     </DropdownMenuContent>
                   </DropdownMenu>
                 );
@@ -314,9 +398,6 @@ export default function AuthenticatedHeader({
                 >
                   <SearchIcon className="mr-2 size-4 shrink-0" />
                   <span className="truncate">Search tickets...</span>
-                  <kbd className="ml-auto rounded border border-[var(--color-buttons-text)]/20 bg-[var(--color-buttons-text)]/10 px-1.5 py-0.5 text-[10px] font-medium text-[var(--color-buttons-text)]/80">
-                    Ctrl K
-                  </kbd>
                 </Button>
                 <Button
                   type="button"

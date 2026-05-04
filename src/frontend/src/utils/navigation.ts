@@ -8,6 +8,13 @@
 
 import type { Role, Session, SessionNavigationLink } from "../types/app";
 
+export interface TicketShortcutPaths {
+  active: string;
+  open: string;
+  closed: string;
+  create: string;
+}
+
 export function headerNavigation(
   session: Session | null,
 ): SessionNavigationLink[] {
@@ -124,4 +131,32 @@ export function rssPath(role?: Role): string {
     return "/rss/tam";
   }
   return "";
+}
+
+export function ticketShortcutPaths(role?: Role): TicketShortcutPaths | null {
+  if (role === "support") {
+    return {
+      active: "/support/tickets",
+      open: "/support/tickets/open",
+      closed: "/support/tickets/closed",
+      create: "/support/tickets/new",
+    };
+  }
+  if (role === "superuser") {
+    return {
+      active: "/superuser/tickets",
+      open: "/superuser/tickets/open",
+      closed: "/superuser/tickets/closed",
+      create: "/superuser/tickets/new",
+    };
+  }
+  if (role === "tam" || role === "user") {
+    return {
+      active: "/user/tickets",
+      open: "/user/tickets/open",
+      closed: "/user/tickets/closed",
+      create: "/user/tickets/new",
+    };
+  }
+  return null;
 }
