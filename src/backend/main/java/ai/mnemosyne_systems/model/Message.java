@@ -47,6 +47,9 @@ public class Message extends PanacheEntityBase implements Comparable<Message> {
     @JoinColumn(name = "author_id")
     public User author;
 
+    @Column(name = "is_public", nullable = false, columnDefinition = "boolean default true")
+    public boolean isPublic = true;
+
     @OneToMany(mappedBy = "message", cascade = CascadeType.ALL, orphanRemoval = true)
     public List<Attachment> attachments = new ArrayList<>();
 

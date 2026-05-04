@@ -30,7 +30,7 @@ public class PdfService {
     private final Color lightRed = new Color(244, 235, 236);
     private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMMM dd yyyy, h.mma");
 
-    public byte[] generateTicketPdf(Ticket ticket) {
+    public byte[] generateTicketPdf(Ticket ticket, List<Message> messages) {
         try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
             Document document = new Document();
             PdfWriter writer = PdfWriter.getInstance(document, outputStream);
@@ -58,7 +58,7 @@ public class PdfService {
             document.add(Chunk.NEWLINE);
 
             // Reason for SLA
-            Message lastMessage = getLastMessage(ticket.messages);
+            Message lastMessage = getLastMessage(messages);
             String lastMessageText = buildLastMessageText(ticket, lastMessage);
             Paragraph lastMessageSubTitle = new Paragraph(lastMessageText);
             lastMessageSubTitle.setAlignment(Paragraph.ALIGN_LEFT);
@@ -102,7 +102,7 @@ public class PdfService {
             messagesSubTitle.setSpacingAfter(20);
             document.add(messagesSubTitle);
             // messages and attachments details
-            PdfPTable messagesTable = generateMessages(ticket.messages, writer);
+            PdfPTable messagesTable = generateMessages(messages, writer);
             document.add(messagesTable);
             document.add(Chunk.NEWLINE);
             document.close();

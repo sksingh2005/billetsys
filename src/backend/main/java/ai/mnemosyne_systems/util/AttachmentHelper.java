@@ -59,6 +59,21 @@ public final class AttachmentHelper {
         }
     }
 
+    public static boolean readFormBoolean(MultipartFormDataInput input, String name, boolean defaultValue) {
+        String value = readFormValue(input, name);
+        if (value == null || value.isBlank()) {
+            return defaultValue;
+        }
+        String normalized = value.trim().toLowerCase(Locale.ROOT);
+        if ("true".equals(normalized)) {
+            return true;
+        }
+        if ("false".equals(normalized)) {
+            return false;
+        }
+        throw new BadRequestException("Invalid form data");
+    }
+
     public static UploadedFile readFile(MultipartFormDataInput input, String name) {
         return readFile(input, name, -1);
     }

@@ -165,6 +165,12 @@ abstract class AccessTestSupport {
 
     @Transactional
     Message ensureTimedMessage(Ticket ticket, String body, String authorEmail, java.time.LocalDateTime date) {
+        return ensureTimedMessage(ticket, body, authorEmail, date, true);
+    }
+
+    @Transactional
+    Message ensureTimedMessage(Ticket ticket, String body, String authorEmail, java.time.LocalDateTime date,
+            boolean isPublic) {
         Ticket managedTicket = Ticket.findById(ticket.id);
         Message message = Message.find("ticket = ?1 and body = ?2", managedTicket, body).firstResult();
         if (message == null) {
@@ -174,6 +180,7 @@ abstract class AccessTestSupport {
         }
         message.author = User.find("email", authorEmail).firstResult();
         message.date = date;
+        message.isPublic = isPublic;
         if (message.id == null) {
             message.persist();
         }

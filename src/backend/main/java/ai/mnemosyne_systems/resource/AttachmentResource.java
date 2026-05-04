@@ -9,6 +9,8 @@
 package ai.mnemosyne_systems.resource;
 
 import ai.mnemosyne_systems.model.Attachment;
+import ai.mnemosyne_systems.model.Message;
+import ai.mnemosyne_systems.model.Ticket;
 import ai.mnemosyne_systems.model.User;
 import ai.mnemosyne_systems.util.AuthHelper;
 import io.smallrye.common.annotation.Blocking;
@@ -41,6 +43,12 @@ public class AttachmentResource {
         if (attachment == null) {
             throw new NotFoundException();
         }
+        Message message = attachment.message;
+        Ticket ticket = message == null ? null : message.ticket;
+        if (!MessageVisibilitySupport.canAccessTicket(user, ticket)
+                || !MessageVisibilitySupport.canViewMessage(user, message)) {
+            throw new NotFoundException();
+        }
         String encoded = URLEncoder.encode(attachment.name, java.nio.charset.StandardCharsets.UTF_8).replace("+",
                 "%20");
         return Response.ok(attachment.data, attachment.mimeType)
@@ -56,6 +64,12 @@ public class AttachmentResource {
         }
         Attachment attachment = Attachment.findById(id);
         if (attachment == null) {
+            throw new NotFoundException();
+        }
+        Message message = attachment.message;
+        Ticket ticket = message == null ? null : message.ticket;
+        if (!MessageVisibilitySupport.canAccessTicket(user, ticket)
+                || !MessageVisibilitySupport.canViewMessage(user, message)) {
             throw new NotFoundException();
         }
         return Response.seeOther(URI.create("/attachments/" + id)).build();

@@ -43,6 +43,7 @@ public class TicketCreationService {
         message.date = request.messageDate() == null ? LocalDateTime.now() : request.messageDate();
         message.ticket = ticket;
         message.author = request.requester();
+        message.isPublic = request.initialMessagePublic();
         message.persist();
         return ticket;
     }
@@ -91,6 +92,6 @@ public class TicketCreationService {
 
     public record TicketCreationRequest(String title, String status, Company company,
             CompanyEntitlement companyEntitlement, Category category, User requester, String initialMessage,
-            LocalDateTime messageDate, String externalIssueLink) {
+            LocalDateTime messageDate, String externalIssueLink, boolean initialMessagePublic) {
     }
 }

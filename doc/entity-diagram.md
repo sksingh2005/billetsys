@@ -85,6 +85,7 @@ erDiagram
         DATETIME date
         BIGINT ticket_id FK
         BIGINT author_id FK
+        BOOLEAN is_public
     }
 
     ATTACHMENT {

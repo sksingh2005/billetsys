@@ -18,6 +18,15 @@ Each message belongs to a specific ticket and becomes part of that ticket's hist
 
 This makes the thread valuable not only for communication, but also for auditability and knowledge transfer.
 
+Messages are **public by default**. When writing a message, the sender can switch **Public** off to create a private message instead.
+
+Private messages are only visible within the matching role group:
+
+* Messages written by **Support** or **TAM** are private to **Support and TAM**
+* Messages written by **User** or **Superuser** are private to **User and Superuser**
+
+Private messages are clearly marked with **(Private)** in the message header.
+
 ## Typical message content
 
 Messages can be used for:
@@ -53,9 +62,16 @@ The message thread supports a continuous support conversation:
 
 This makes the thread the practical heartbeat of a ticket.
 
+Public and private messages can exist in the same thread. This lets billetsys support normal customer-visible communication while still allowing group-limited follow-up when needed.
+
 ## Notifications
 
 Message activity can also trigger notifications so that relevant participants stay informed when a conversation changes. This helps billetsys work not only as a web application, but also as part of a broader support communication flow.
+
+Private message email notifications follow the same audience split as the thread itself:
+
+* Private messages from **Support** or **TAM** are emailed only to the **Support/TAM** group
+* Private messages from **User** or **Superuser** are emailed only to the **User/Superuser** group
 
 ## Email integration
 
@@ -72,6 +88,8 @@ When a user opens a ticket, the message history helps answer key questions:
 * Why the ticket has its current status
 
 This makes message history one of the most important parts of understanding a case.
+
+Users only see the messages that are visible to their role group, so the thread view reflects the correct conversation scope for that reader.
 
 ## Role perspective
 

@@ -214,11 +214,13 @@ public class SuperuserResource {
         ticket.affectsVersion = resolveKnownVersion(affectsVersionId, "Affects");
         ticket.category = categoryId != null ? Category.findById(categoryId) : Category.findDefault();
         ticket.persist();
+        boolean isPublic = AttachmentHelper.readFormBoolean(input, "isPublic", true);
         Message message = new Message();
         message.body = messageBody.trim();
         message.date = LocalDateTime.now();
         message.ticket = ticket;
         message.author = user;
+        message.isPublic = isPublic;
         List<Attachment> attachments = AttachmentHelper.readAttachments(input, "attachments");
         AttachmentHelper.attachToMessage(message, attachments);
         message.persistAndFlush();
@@ -306,11 +308,13 @@ public class SuperuserResource {
         if (ticket == null) {
             throw new NotFoundException();
         }
+        boolean isPublic = AttachmentHelper.readFormBoolean(input, "isPublic", true);
         Message message = new Message();
         message.body = body;
         message.date = LocalDateTime.now();
         message.ticket = ticket;
         message.author = user;
+        message.isPublic = isPublic;
         List<Attachment> attachments = AttachmentHelper.readAttachments(input, "attachments");
         AttachmentHelper.attachToMessage(message, attachments);
         message.persistAndFlush();
@@ -376,34 +380,37 @@ public class SuperuserResource {
         return new SupportResource.SupportTicketCounts(assigned, open);
     }
 
-    private List<Message> loadMessages(Ticket ticket) {
-        List<Message> messages = Message.find(
-                "select distinct m from Message m left join fetch m.attachments where m.ticket = ?1 order by m.date desc",
-                ticket).list();
-        if (messages.isEmpty()) {
-            return messages;
-        }
-        return new ArrayList<>(new LinkedHashSet<>(messages));
+    private List<Message> loadMessages(Ticket ticket, User viewer) {
+        return MessageVisibilitySupport.loadMessagesForViewer(ticket, viewer);
     }
 
     SupportTicketData buildTicketDataForUser(User user) {
-        return buildTicketDataFor(loadScopedTickets(user));
+        return buildTicketDataFor(loadScopedTickets(user), user);
     }
 
-    private SupportTicketData buildTicketDataFor(List<Ticket> tickets) {
-        return buildTicketDataFor(tickets, false);
+    private SupportTicketData buildTicketDataFor(List<Ticket> tickets, User viewer) {
+        return buildTicketDataFor(tickets, viewer, false);
     }
 
-    private SupportTicketData buildTicketDataFor(List<Ticket> tickets, boolean keepExistingSlaForSuperuserReplies) {
+    private SupportTicketData buildTicketDataFor(List<Ticket> tickets, User viewer,
+            boolean keepExistingSlaForSuperuserReplies) {
         List<Ticket> scopedTickets = tickets == null ? List.of() : tickets;
+        Set<Long> scopedTicketIds = scopedTickets.stream().filter(ticket -> ticket != null && ticket.id != null)
+                .map(ticket -> ticket.id).collect(java.util.stream.Collectors.toSet());
         Map<Long, LocalDateTime> messageDates = new HashMap<>();
         Map<Long, String> messageDateLabels = new HashMap<>();
         Map<Long, String> messageDirectionArrows = new HashMap<>();
-        List<Message> messages = Message.find("order by date desc").list();
-        for (Message message : messages) {
-            if (message.ticket != null && scopedTickets.contains(message.ticket) && message.ticket.id != null
-                    && !messageDates.containsKey(message.ticket.id)) {
+        List<Message> allMessages = Message.find("order by date desc").list();
+        List<Message> visibleMessages = MessageVisibilitySupport.filterVisibleMessages(allMessages, viewer);
+        for (Message message : allMessages) {
+            if (message.ticket != null && message.ticket.id != null && message.isPublic
+                    && scopedTicketIds.contains(message.ticket.id) && !messageDates.containsKey(message.ticket.id)) {
                 messageDates.put(message.ticket.id, message.date);
+            }
+        }
+        for (Message message : visibleMessages) {
+            if (message.ticket != null && message.ticket.id != null && scopedTicketIds.contains(message.ticket.id)
+                    && !messageDateLabels.containsKey(message.ticket.id)) {
                 if (message.date != null) {
                     messageDateLabels.put(message.ticket.id, formatDate(message.date));
                 }
@@ -497,10 +504,13 @@ public class SuperuserResource {
     }
 
     private Map<Long, LocalDateTime> requesterPendingSlaDates(List<Ticket> tickets) {
+        Set<Long> ticketIds = tickets.stream().filter(ticket -> ticket != null && ticket.id != null)
+                .map(ticket -> ticket.id).collect(java.util.stream.Collectors.toSet());
         Map<Long, LocalDateTime> pendingDates = new HashMap<>();
         List<Message> messages = Message.find("order by date asc").list();
         for (Message message : messages) {
-            if (message.ticket == null || !tickets.contains(message.ticket) || message.ticket.id == null) {
+            if (message.ticket == null || message.ticket.id == null || !message.isPublic
+                    || !ticketIds.contains(message.ticket.id)) {
                 continue;
             }
             if (resetsRequesterSla(message.author)) {

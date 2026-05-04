@@ -99,7 +99,7 @@ public class TicketImportService {
             String status = row.status() == null || row.status().isBlank() ? "Open" : row.status().trim();
             Ticket ticket = ticketCreationService.createTicketWithInitialMessage(
                     new TicketCreationService.TicketCreationRequest(title, status, company, entitlement, category,
-                            requester, initialMessage, parseCreatedAt(row.createdAt()), row.externalIssueLink()));
+                            requester, initialMessage, parseCreatedAt(row.createdAt()), row.externalIssueLink(), true));
             TicketImportRecord record = record(batch, row, sourceSystem, sourceKey, TicketImportRecord.RESULT_CREATED,
                     ticket, null);
             return toResult(record);

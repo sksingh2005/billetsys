@@ -55,7 +55,7 @@ public class SupportTicketApiResource {
             tickets = TicketSearchSupport.combineTickets(data.assignedTickets(), data.openTickets(),
                     data.closedTickets());
         }
-        tickets = TicketSearchSupport.filterTicketsBySearch(tickets, searchTerm);
+        tickets = TicketSearchSupport.filterTicketsBySearch(tickets, searchTerm, user);
         String title = switch (normalizedView) {
             case "open" -> "Open tickets";
             case "closed" -> "Closed tickets";
@@ -137,7 +137,7 @@ public class SupportTicketApiResource {
                 "select distinct u from Company c join c.users u where c = ?1 and lower(u.type) = ?2 order by u.email",
                 ticket.company, User.TYPE_TAM).list();
         mergeTicketTams(ticket, tamUsers);
-        List<Message> messages = SupportTicketViewSupport.loadMessages(ticket);
+        List<Message> messages = SupportTicketViewSupport.loadMessages(ticket, user);
         java.util.Map<Long, Ticket> ticketCache = crossReferenceService
                 .preloadReferencedTickets(messages.stream().map(m -> m.body).toList());
         List<MessageEntry> messageEntries = messages.stream().map(m -> toMessageEntry(m, ticketCache)).toList();
@@ -226,7 +226,8 @@ public class SupportTicketApiResource {
         return new MessageEntry(message.id, transformedBody,
                 message.date == null ? null : SupportTicketViewSupport.formatDate(message.date),
                 message.date == null ? null : message.date.toString(),
-                message.author == null ? null : toUserReference(message.author), message.attachments == null ? List.of()
+                message.author == null ? null : toUserReference(message.author), message.isPublic,
+                message.attachments == null ? List.of()
                         : message.attachments.stream().map(this::toAttachmentEntry).toList());
     }
 
@@ -370,7 +371,7 @@ public class SupportTicketApiResource {
     }
 
     public record MessageEntry(Long id, String body, String dateLabel, String date, UserReference author,
-            List<AttachmentEntry> attachments) {
+            boolean isPublic, List<AttachmentEntry> attachments) {
     }
 
     public record AttachmentEntry(Long id, String name, String mimeType, String sizeLabel, String downloadPath) {

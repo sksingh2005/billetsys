@@ -244,11 +244,13 @@ public class UserResource {
         ticket.affectsVersion = resolveKnownVersion(affectsVersionId, "Affects");
         ticket.category = categoryId != null ? Category.findById(categoryId) : Category.findDefault();
         ticket.persist();
+        boolean isPublic = AttachmentHelper.readFormBoolean(input, "isPublic", true);
         Message message = new Message();
         message.body = messageBody.trim();
         message.date = java.time.LocalDateTime.now();
         message.ticket = ticket;
         message.author = user;
+        message.isPublic = isPublic;
         List<Attachment> attachments = AttachmentHelper.readAttachments(input, "attachments");
         AttachmentHelper.attachToMessage(message, attachments);
         message.persistAndFlush();
@@ -342,14 +344,8 @@ public class UserResource {
         return Response.seeOther(URI.create("/user/tickets/" + id)).build();
     }
 
-    private List<ai.mnemosyne_systems.model.Message> loadMessages(Ticket ticket) {
-        List<ai.mnemosyne_systems.model.Message> messages = ai.mnemosyne_systems.model.Message.find(
-                "select distinct m from Message m left join fetch m.attachments where m.ticket = ?1 order by m.date desc",
-                ticket).list();
-        if (messages.isEmpty()) {
-            return messages;
-        }
-        return new ArrayList<>(new LinkedHashSet<>(messages));
+    private List<ai.mnemosyne_systems.model.Message> loadMessages(Ticket ticket, User viewer) {
+        return MessageVisibilitySupport.loadMessagesForViewer(ticket, viewer);
     }
 
     @POST
@@ -367,11 +363,13 @@ public class UserResource {
         if (ticket == null) {
             throw new NotFoundException();
         }
+        boolean isPublic = AttachmentHelper.readFormBoolean(input, "isPublic", true);
         ai.mnemosyne_systems.model.Message message = new ai.mnemosyne_systems.model.Message();
         message.body = body;
         message.date = java.time.LocalDateTime.now();
         message.ticket = ticket;
         message.author = user;
+        message.isPublic = isPublic;
         List<Attachment> attachments = AttachmentHelper.readAttachments(input, "attachments");
         AttachmentHelper.attachToMessage(message, attachments);
         message.persistAndFlush();
@@ -636,12 +634,12 @@ public class UserResource {
         java.util.List<Ticket> tickets = Ticket.list(
                 "select distinct t from Ticket t left join t.tamUsers tu left join t.company c left join c.users cu where tu = ?1 or cu = ?1",
                 user);
-        return buildTicketDataFor(tickets);
+        return buildTicketDataFor(tickets, user);
     }
 
     SupportTicketData buildUserTicketData(User user) {
         java.util.List<Ticket> tickets = Ticket.list("requester = ?1", user);
-        return buildTicketDataFor(tickets);
+        return buildTicketDataFor(tickets, user);
     }
 
     SupportTicketData buildTicketDataForUser(User user) {
@@ -651,22 +649,32 @@ public class UserResource {
         return buildUserTicketData(user);
     }
 
-    private SupportTicketData buildTicketDataFor(java.util.List<Ticket> tickets) {
-        return buildTicketDataFor(tickets, false);
+    private SupportTicketData buildTicketDataFor(java.util.List<Ticket> tickets, User viewer) {
+        return buildTicketDataFor(tickets, viewer, false);
     }
 
-    private SupportTicketData buildTicketDataFor(java.util.List<Ticket> tickets,
+    private SupportTicketData buildTicketDataFor(java.util.List<Ticket> tickets, User viewer,
             boolean keepExistingSlaForRequesterReplies) {
         java.util.List<Ticket> scopedTickets = tickets == null ? java.util.List.of() : tickets;
+        java.util.Set<Long> scopedTicketIds = scopedTickets.stream()
+                .filter(ticket -> ticket != null && ticket.id != null).map(ticket -> ticket.id)
+                .collect(java.util.stream.Collectors.toSet());
         java.util.Map<Long, java.time.LocalDateTime> messageDates = new java.util.LinkedHashMap<>();
         java.util.Map<Long, String> messageDateLabels = new java.util.LinkedHashMap<>();
         java.util.Map<Long, String> messageDirectionArrows = new java.util.LinkedHashMap<>();
-        java.util.List<ai.mnemosyne_systems.model.Message> messages = ai.mnemosyne_systems.model.Message
+        java.util.List<ai.mnemosyne_systems.model.Message> allMessages = ai.mnemosyne_systems.model.Message
                 .find("order by date desc").list();
-        for (ai.mnemosyne_systems.model.Message message : messages) {
-            if (message.ticket != null && scopedTickets.contains(message.ticket)
-                    && !messageDates.containsKey(message.ticket.id)) {
+        java.util.List<ai.mnemosyne_systems.model.Message> visibleMessages = MessageVisibilitySupport
+                .filterVisibleMessages(allMessages, viewer);
+        for (ai.mnemosyne_systems.model.Message message : allMessages) {
+            if (message.ticket != null && message.ticket.id != null && message.isPublic
+                    && scopedTicketIds.contains(message.ticket.id) && !messageDates.containsKey(message.ticket.id)) {
                 messageDates.put(message.ticket.id, message.date);
+            }
+        }
+        for (ai.mnemosyne_systems.model.Message message : visibleMessages) {
+            if (message.ticket != null && message.ticket.id != null && scopedTicketIds.contains(message.ticket.id)
+                    && !messageDateLabels.containsKey(message.ticket.id)) {
                 if (message.date != null) {
                     messageDateLabels.put(message.ticket.id, formatDate(message.date));
                 }
@@ -757,11 +765,14 @@ public class UserResource {
     }
 
     private java.util.Map<Long, java.time.LocalDateTime> requesterPendingSlaDates(java.util.List<Ticket> tickets) {
+        java.util.Set<Long> ticketIds = tickets.stream().filter(ticket -> ticket != null && ticket.id != null)
+                .map(ticket -> ticket.id).collect(java.util.stream.Collectors.toSet());
         java.util.Map<Long, java.time.LocalDateTime> pendingDates = new java.util.LinkedHashMap<>();
         java.util.List<ai.mnemosyne_systems.model.Message> messages = ai.mnemosyne_systems.model.Message
                 .find("order by date asc").list();
         for (ai.mnemosyne_systems.model.Message message : messages) {
-            if (message.ticket == null || !tickets.contains(message.ticket) || message.ticket.id == null) {
+            if (message.ticket == null || message.ticket.id == null || !message.isPublic
+                    || !ticketIds.contains(message.ticket.id)) {
                 continue;
             }
             if (resetsRequesterSla(message.author)) {

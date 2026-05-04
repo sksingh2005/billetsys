@@ -448,6 +448,11 @@ export default function TicketWorkbenchFormPage(props: SessionPageProps) {
                         <strong className="font-medium text-foreground">
                           {message.dateLabel || "-"}
                         </strong>{" "}
+                        {message.isPublic === false && (
+                          <span className="font-medium text-muted-foreground">
+                            (Private)
+                          </span>
+                        )}{" "}
                         <span className="text-muted-foreground">
                           - {message.body || "No message body"}
                         </span>

@@ -73,9 +73,11 @@ When the entered text matches ticket identifiers or ticket titles, the search al
 The search currently matches:
 
 * Ticket identifier
-* Ticket message content
+* Visible ticket message content
 
 This makes it possible to find a case either by its ticket number or by text that appeared in the conversation history.
+
+For private messages, search only matches message content that is visible to the current user role.
 
 Search is queue-aware. For example, when a user searches from the open tickets view, the result only includes matches from that open ticket list. The same behavior applies to assigned and closed ticket queues.
 

@@ -40,6 +40,10 @@ public class AttachmentApiResource {
         }
         Message message = attachment.message;
         Ticket ticket = message == null ? null : message.ticket;
+        if (!MessageVisibilitySupport.canAccessTicket(user, ticket)
+                || !MessageVisibilitySupport.canViewMessage(user, message)) {
+            throw new NotFoundException();
+        }
         return new AttachmentResponse(attachment.id, attachment.name, attachment.mimeType, attachment.sizeLabel(),
                 attachment.isImage(), "/attachments/" + attachment.id + "/data", ticket == null ? null : ticket.id,
                 ticket == null ? null : ticket.name, resolveBackPath(user, ticket), textLines(attachment),

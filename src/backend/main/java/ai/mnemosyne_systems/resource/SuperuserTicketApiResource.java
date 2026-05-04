@@ -55,7 +55,7 @@ public class SuperuserTicketApiResource {
         if (searchTerm != null) {
             tickets = TicketSearchSupport.combineTickets(data.assignedTickets, data.openTickets, data.closedTickets);
         }
-        tickets = TicketSearchSupport.filterTicketsBySearch(tickets, searchTerm);
+        tickets = TicketSearchSupport.filterTicketsBySearch(tickets, searchTerm, user);
         String title = switch (normalizedView) {
             case "open" -> "Open tickets";
             case "closed" -> "Closed tickets";
@@ -137,9 +137,7 @@ public class SuperuserTicketApiResource {
             throw new NotFoundException();
         }
         SuperuserResource.SupportTicketData data = superuserResource.buildTicketDataForUser(user);
-        List<Message> messages = Message.find(
-                "select distinct m from Message m left join fetch m.attachments where m.ticket = ?1 order by m.date desc",
-                ticket).list();
+        List<Message> messages = MessageVisibilitySupport.loadMessagesForViewer(ticket, user);
         List<User> supportUsers = User
                 .find("select u from Ticket t join t.supportUsers u where t = ?1 order by u.email", ticket).list();
         List<User> secondaryUsers = ticket.company == null ? new ArrayList<>()
@@ -226,7 +224,8 @@ public class SuperuserTicketApiResource {
         return new SupportTicketApiResource.MessageEntry(message.id, transformedBody,
                 message.date == null ? null : SupportTicketViewSupport.formatDate(message.date),
                 message.date == null ? null : message.date.toString(),
-                message.author == null ? null : toUserReference(message.author), message.attachments == null ? List.of()
+                message.author == null ? null : toUserReference(message.author), message.isPublic,
+                message.attachments == null ? List.of()
                         : message.attachments.stream().map(this::toAttachmentEntry).toList());
     }
 

@@ -36,6 +36,7 @@ export interface MessageReference extends NamedEntity {
   dateLabel?: string;
   preview?: string;
   body?: string;
+  isPublic?: boolean;
   editPath?: string;
   attachmentCount?: number;
   attachments?: AttachmentReference[];

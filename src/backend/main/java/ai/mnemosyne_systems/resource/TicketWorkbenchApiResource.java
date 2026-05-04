@@ -39,10 +39,11 @@ public class TicketWorkbenchApiResource {
     @GET
     @Transactional
     public TicketListResponse list(@CookieParam(AuthHelper.AUTH_COOKIE) String auth) {
-        requireSupport(auth);
+        User user = requireSupport(auth);
         List<Ticket> tickets = Ticket.listAll();
         Map<Long, String> lastMessageLabels = new LinkedHashMap<>();
-        for (Message message : Message.<Message> list("order by date desc")) {
+        for (Message message : MessageVisibilitySupport
+                .filterVisibleMessages(Message.<Message> list("order by date desc"), user)) {
             if (message.ticket != null && message.ticket.id != null
                     && !lastMessageLabels.containsKey(message.ticket.id)) {
                 lastMessageLabels.put(message.ticket.id, formatDate(message.date));
@@ -62,7 +63,7 @@ public class TicketWorkbenchApiResource {
     @Transactional
     public TicketFormResponse bootstrap(@CookieParam(AuthHelper.AUTH_COOKIE) String auth,
             @QueryParam("ticketId") Long ticketId, @QueryParam("companyId") Long companyId) {
-        requireSupport(auth);
+        User user = requireSupport(auth);
         Ticket ticket = ticketId == null ? new Ticket()
                 : Ticket.find(
                         "select t from Ticket t left join fetch t.companyEntitlement ce left join fetch ce.entitlement left join fetch ce.supportLevel where t.id = ?1",
@@ -94,7 +95,7 @@ public class TicketWorkbenchApiResource {
                         .toList(),
                 versions.stream().map(version -> new VersionOption(version.id, version.name)).toList(),
                 ticketId == null ? List.of()
-                        : Message.<Message> list("ticket = ?1 order by date desc", ticket).stream()
+                        : MessageVisibilitySupport.loadMessagesForViewer(ticket, user).stream()
                                 .map(this::toMessageSummary).toList(),
                 new TicketFormData(ticket.id, ticket.displayTitle(), ticket.status,
                         ticket.company == null ? null : ticket.company.id,
@@ -112,7 +113,7 @@ public class TicketWorkbenchApiResource {
     }
 
     private MessageSummary toMessageSummary(Message message) {
-        return new MessageSummary(message.id, message.body, formatDate(message.date));
+        return new MessageSummary(message.id, message.body, formatDate(message.date), message.isPublic);
     }
 
     private Company determineCompany(Ticket ticket, Long companyId) {
@@ -207,7 +208,7 @@ public class TicketWorkbenchApiResource {
     public record VersionOption(Long id, String name) {
     }
 
-    public record MessageSummary(Long id, String body, String dateLabel) {
+    public record MessageSummary(Long id, String body, String dateLabel, boolean isPublic) {
     }
 
     public record TicketFormData(Long id, String title, String status, Long companyId, Long companyEntitlementId,

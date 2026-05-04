@@ -255,8 +255,8 @@ public class SupportResource {
         return Response.seeOther(URI.create("/support/tickets/" + id)).build();
     }
 
-    private List<Message> loadMessages(Ticket ticket) {
-        return SupportTicketViewSupport.loadMessages(ticket);
+    private List<Message> loadMessages(Ticket ticket, User viewer) {
+        return SupportTicketViewSupport.loadMessages(ticket, viewer);
     }
 
     @POST
@@ -275,11 +275,13 @@ public class SupportResource {
             throw new NotFoundException();
         }
         String previousStatus = ticketEmailService.computeEffectiveStatus(ticket, ticket.status);
+        boolean isPublic = AttachmentHelper.readFormBoolean(input, "isPublic", true);
         Message message = new Message();
         message.body = body;
         message.date = LocalDateTime.now();
         message.ticket = ticket;
         message.author = user;
+        message.isPublic = isPublic;
         List<Attachment> attachments = AttachmentHelper.readAttachments(input, "attachments");
         AttachmentHelper.attachToMessage(message, attachments);
         message.persistAndFlush();
@@ -350,11 +352,13 @@ public class SupportResource {
         ticket.category = categoryId != null ? Category.findById(categoryId) : Category.findDefault();
         ticket.persist();
         assignCompanyTams(ticket);
+        boolean isPublic = AttachmentHelper.readFormBoolean(input, "isPublic", true);
         Message message = new Message();
         message.body = messageBody;
         message.date = LocalDateTime.now();
         message.ticket = ticket;
         message.author = user;
+        message.isPublic = isPublic;
         List<Attachment> attachments = AttachmentHelper.readAttachments(input, "attachments");
         AttachmentHelper.attachToMessage(message, attachments);
         message.persistAndFlush();

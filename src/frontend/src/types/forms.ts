@@ -47,6 +47,7 @@ export interface SupportTicketCreateFormState {
   categoryId: string;
   affectsVersionId: string;
   message: string;
+  isPublic: boolean;
 }
 
 export interface SupportTicketDetailState {

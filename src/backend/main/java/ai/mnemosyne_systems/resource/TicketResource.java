@@ -318,15 +318,11 @@ public class TicketResource {
         if (ticket == null) {
             throw new NotFoundException();
         }
-        if ((AuthHelper.isTam(user) || AuthHelper.isSuperuser(user))
-                && ticket.company.users.stream().noneMatch(u -> u.id.equals(user.id))) {
+        if (!MessageVisibilitySupport.canAccessTicket(user, ticket)) {
             throw new WebApplicationException(Response.seeOther(URI.create("/")).build());
         }
-        if (User.TYPE_USER.equalsIgnoreCase(user.type)
-                && (ticket.requester == null || !ticket.requester.id.equals(user.id))) {
-            throw new WebApplicationException(Response.seeOther(URI.create("/")).build());
-        }
-        byte[] ticketPdf = pdfService.generateTicketPdf(ticket);
+        byte[] ticketPdf = pdfService.generateTicketPdf(ticket,
+                MessageVisibilitySupport.loadMessagesForViewer(ticket, user));
         return Response.ok(ticketPdf).header("Content-Disposition", "attachment; filename=\"" + ticket.name + ".pdf\"")
                 .build();
     }
@@ -394,7 +390,7 @@ public class TicketResource {
         if (tickets.isEmpty()) {
             return false;
         }
-        Map<Long, LocalDateTime> latestMessageDates = latestMessageDates(tickets);
+        Map<Long, LocalDateTime> latestMessageDates = latestMessageDates(tickets, user);
         LocalDateTime now = LocalDateTime.now();
         for (Ticket ticket : tickets) {
             if (ticket == null || ticket.id == null || ticket.companyEntitlement == null
@@ -463,7 +459,7 @@ public class TicketResource {
         return combined;
     }
 
-    private Map<Long, LocalDateTime> latestMessageDates(List<Ticket> tickets) {
+    private Map<Long, LocalDateTime> latestMessageDates(List<Ticket> tickets, User viewer) {
         Set<Long> ticketIds = new HashSet<>();
         for (Ticket ticket : tickets) {
             if (ticket != null && ticket.id != null) {
@@ -476,7 +472,8 @@ public class TicketResource {
         }
         List<Message> messages = Message.find("order by date desc").list();
         for (Message message : messages) {
-            if (message.ticket == null || message.ticket.id == null || !ticketIds.contains(message.ticket.id)) {
+            if (message.ticket == null || message.ticket.id == null || !message.isPublic
+                    || !ticketIds.contains(message.ticket.id)) {
                 continue;
             }
             result.putIfAbsent(message.ticket.id, message.date);

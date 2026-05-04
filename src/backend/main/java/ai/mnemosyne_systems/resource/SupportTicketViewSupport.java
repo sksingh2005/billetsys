@@ -26,14 +26,8 @@ final class SupportTicketViewSupport {
     private SupportTicketViewSupport() {
     }
 
-    static List<Message> loadMessages(Ticket ticket) {
-        List<Message> messages = Message.find(
-                "select distinct m from Message m left join fetch m.attachments where m.ticket = ?1 order by m.date desc",
-                ticket).list();
-        if (messages.isEmpty()) {
-            return messages;
-        }
-        return new ArrayList<>(new LinkedHashSet<>(messages));
+    static List<Message> loadMessages(Ticket ticket, User viewer) {
+        return MessageVisibilitySupport.loadMessagesForViewer(ticket, viewer);
     }
 
     static List<CompanyEntitlement> uniqueEntitlements(List<CompanyEntitlement> entries) {
@@ -109,10 +103,15 @@ final class SupportTicketViewSupport {
         Map<Long, LocalDateTime> messageDates = new LinkedHashMap<>();
         Map<Long, String> messageDateLabels = new LinkedHashMap<>();
         Map<Long, String> messageDirectionArrows = new LinkedHashMap<>();
-        List<Message> messages = Message.find("order by date desc").list();
-        for (Message message : messages) {
-            if (message.ticket != null && !messageDates.containsKey(message.ticket.id)) {
+        List<Message> allMessages = Message.find("order by date desc").list();
+        List<Message> visibleMessages = MessageVisibilitySupport.filterVisibleMessages(allMessages, user);
+        for (Message message : allMessages) {
+            if (message.ticket != null && message.isPublic && !messageDates.containsKey(message.ticket.id)) {
                 messageDates.put(message.ticket.id, message.date);
+            }
+        }
+        for (Message message : visibleMessages) {
+            if (message.ticket != null && !messageDateLabels.containsKey(message.ticket.id)) {
                 if (message.date != null) {
                     messageDateLabels.put(message.ticket.id, formatDate(message.date));
                 }

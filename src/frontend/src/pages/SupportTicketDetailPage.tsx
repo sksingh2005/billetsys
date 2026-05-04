@@ -14,6 +14,7 @@ import DataState from "../components/common/DataState";
 import PageHeader from "../components/layout/PageHeader";
 import MarkdownContent from "../components/markdown/MarkdownContent";
 import LexicalEditor from "../components/editor/LexicalEditor";
+import MessageVisibilityField from "../components/tickets/MessageVisibilityField";
 import {
   UserHoverLink,
   UserReferenceInlineList,
@@ -218,18 +219,21 @@ function TicketMessageCard({
     <article className="overflow-visible rounded-md border border-border/80 bg-card shadow-sm">
       <div className="flex items-center justify-between gap-4 bg-[var(--color-buttons-bg)] px-4 py-3 text-sm font-semibold text-[var(--color-buttons-text)]">
         <span>{message.dateLabel || "-"}</span>
-        <span className="text-right">
-          {author?.detailPath ? (
-            <UserHoverLink
-              user={author}
-              className="text-[var(--color-buttons-text)] hover:text-[var(--color-buttons-text)] hover:underline"
-            >
-              {authorLabel}
-            </UserHoverLink>
-          ) : (
-            authorLabel
-          )}
-        </span>
+        <div className="flex items-center justify-end gap-1 whitespace-nowrap text-right">
+          {message.isPublic === false && <span>(Private)</span>}
+          <span>
+            {author?.detailPath ? (
+              <UserHoverLink
+                user={author}
+                className="!text-[var(--color-buttons-text)] hover:!text-[var(--color-buttons-text)] hover:underline"
+              >
+                {authorLabel}
+              </UserHoverLink>
+            ) : (
+              authorLabel
+            )}
+          </span>
+        </div>
       </div>
 
       <div className="space-y-4 px-4 py-4">
@@ -290,6 +294,7 @@ export default function SupportTicketDetailPage({
   const submissionGuard = useSubmissionGuard();
   const [replyState, setReplyState] = useState({ saving: false, error: "" });
   const [replyBody, setReplyBody] = useState("");
+  const [replyIsPublic, setReplyIsPublic] = useState(true);
   const [files, setFiles] = useState<File[]>([]);
   const replyInputRef = useRef<HTMLTextAreaElement | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
@@ -462,6 +467,7 @@ export default function SupportTicketDetailPage({
         ticket.messageActionPath,
         [
           ["body", replyBody],
+          ["isPublic", replyIsPublic],
           ...files.map((file): [string, File] => ["attachments", file]),
         ],
         {
@@ -480,6 +486,7 @@ export default function SupportTicketDetailPage({
       } else {
         setRefreshNonce((current) => current + 1);
         setReplyBody("");
+        setReplyIsPublic(true);
         setFiles([]);
         if (fileInputRef.current) {
           fileInputRef.current.value = "";
@@ -846,9 +853,15 @@ export default function SupportTicketDetailPage({
             </div>
             {!isClosed ? (
               <div className="space-y-4">
-                <h2 className="px-1 text-3xl font-bold tracking-tight">
-                  Reply
-                </h2>
+                <div className="flex items-center justify-between gap-4 px-1">
+                  <h2 className="text-3xl font-bold tracking-tight">Reply</h2>
+                  <MessageVisibilityField
+                    role={sessionState.data?.role}
+                    checked={replyIsPublic}
+                    onCheckedChange={setReplyIsPublic}
+                    inline
+                  />
+                </div>
                 <form className="space-y-6" onSubmit={submitReply}>
                   <LexicalEditor
                     value={replyBody}

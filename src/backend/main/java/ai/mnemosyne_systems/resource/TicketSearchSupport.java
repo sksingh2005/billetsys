@@ -8,7 +8,9 @@
 
 package ai.mnemosyne_systems.resource;
 
+import ai.mnemosyne_systems.model.Message;
 import ai.mnemosyne_systems.model.Ticket;
+import ai.mnemosyne_systems.model.User;
 import io.quarkus.hibernate.orm.panache.Panache;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
@@ -29,14 +31,14 @@ final class TicketSearchSupport {
         return normalized.isEmpty() ? null : normalized;
     }
 
-    static List<Ticket> filterTicketsBySearch(List<Ticket> tickets, String searchTerm) {
+    static List<Ticket> filterTicketsBySearch(List<Ticket> tickets, String searchTerm, User viewer) {
         List<Ticket> scopedTickets = tickets == null ? List.of() : tickets;
         String normalizedSearchTerm = normalizeSearchTerm(searchTerm);
         if (normalizedSearchTerm == null || scopedTickets.isEmpty()) {
             return scopedTickets;
         }
         String normalizedQuery = normalizedSearchTerm.toLowerCase(Locale.ENGLISH);
-        Set<Long> messageTicketIds = findMessageMatchTicketIds(scopedTickets, normalizedQuery);
+        Set<Long> messageTicketIds = findMessageMatchTicketIds(scopedTickets, normalizedQuery, viewer);
         return scopedTickets.stream().filter(ticket -> matchesTicketNumber(ticket, normalizedQuery)
                 || (ticket != null && ticket.id != null && messageTicketIds.contains(ticket.id))).toList();
     }
@@ -90,16 +92,24 @@ final class TicketSearchSupport {
                 && ticket.title.toLowerCase(Locale.ENGLISH).contains(normalizedQuery);
     }
 
-    private static Set<Long> findMessageMatchTicketIds(List<Ticket> tickets, String normalizedQuery) {
+    private static Set<Long> findMessageMatchTicketIds(List<Ticket> tickets, String normalizedQuery, User viewer) {
         List<Long> ticketIds = tickets.stream().filter(ticket -> ticket != null && ticket.id != null)
                 .map(ticket -> ticket.id).toList();
         if (ticketIds.isEmpty()) {
             return Set.of();
         }
-        List<Long> matchingIds = Panache.getEntityManager().createQuery(
-                "select distinct m.ticket.id from Message m where m.ticket.id in :ticketIds and lower(coalesce(m.body, '')) like :search",
-                Long.class).setParameter("ticketIds", ticketIds).setParameter("search", "%" + normalizedQuery + "%")
+        List<Message> matchingMessages = Panache.getEntityManager().createQuery(
+                "select distinct m from Message m where m.ticket.id in :ticketIds and lower(coalesce(m.body, '')) like :search",
+                Message.class).setParameter("ticketIds", ticketIds).setParameter("search", "%" + normalizedQuery + "%")
                 .getResultList();
-        return new LinkedHashSet<>(matchingIds);
+        Set<Long> matchingIds = new LinkedHashSet<>();
+        for (Message message : matchingMessages) {
+            if (message == null || message.ticket == null || message.ticket.id == null
+                    || !MessageVisibilitySupport.canViewMessage(viewer, message)) {
+                continue;
+            }
+            matchingIds.add(message.ticket.id);
+        }
+        return matchingIds;
     }
 }

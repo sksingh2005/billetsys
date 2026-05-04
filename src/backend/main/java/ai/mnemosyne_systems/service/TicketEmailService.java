@@ -12,6 +12,7 @@ import ai.mnemosyne_systems.model.Attachment;
 import ai.mnemosyne_systems.model.Message;
 import ai.mnemosyne_systems.model.Ticket;
 import ai.mnemosyne_systems.model.User;
+import ai.mnemosyne_systems.util.MessageAudienceSupport;
 import io.quarkus.mailer.Mail;
 import io.quarkus.qute.RawString;
 import io.quarkus.mailer.Mailer;
@@ -58,7 +59,7 @@ public class TicketEmailService {
         if (ticket == null || ticket.id == null) {
             return;
         }
-        List<String> recipients = recipients(ticket);
+        List<String> recipients = recipients(ticket, message);
         if (recipients.isEmpty()) {
             return;
         }
@@ -90,7 +91,14 @@ public class TicketEmailService {
         mailer.send(mail);
     }
 
-    private List<String> recipients(Ticket ticket) {
+    private List<String> recipients(Ticket ticket, Message message) {
+        if (message != null && !message.isPublic) {
+            return privateMessageRecipients(ticket, message);
+        }
+        return standardRecipients(ticket);
+    }
+
+    private List<String> standardRecipients(Ticket ticket) {
         Set<String> emails = new LinkedHashSet<>();
         addEmail(emails, ticket.requester);
         if (ticket.tamUsers != null) {
@@ -101,6 +109,39 @@ public class TicketEmailService {
         if (ticket.supportUsers != null) {
             for (User user : ticket.supportUsers) {
                 addEmail(emails, user);
+            }
+        }
+        return new ArrayList<>(emails);
+    }
+
+    private List<String> privateMessageRecipients(Ticket ticket, Message message) {
+        Set<String> emails = new LinkedHashSet<>();
+        MessageAudienceSupport.Audience audience = MessageAudienceSupport.audienceFor(message.author);
+        if (audience == null) {
+            return List.of();
+        }
+        switch (audience) {
+            case SUPPORT_TAM -> {
+                if (ticket.tamUsers != null) {
+                    for (User user : ticket.tamUsers) {
+                        addEmail(emails, user);
+                    }
+                }
+                if (ticket.supportUsers != null) {
+                    for (User user : ticket.supportUsers) {
+                        addEmail(emails, user);
+                    }
+                }
+            }
+            case USER_SUPERUSER -> {
+                addEmail(emails, ticket.requester);
+                if (ticket.company != null && ticket.company.users != null) {
+                    for (User user : ticket.company.users) {
+                        if (MessageAudienceSupport.belongsToAudience(user, audience)) {
+                            addEmail(emails, user);
+                        }
+                    }
+                }
             }
         }
         return new ArrayList<>(emails);

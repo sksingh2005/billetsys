@@ -12,6 +12,7 @@ import { useNavigate } from "react-router-dom";
 import AttachmentPicker from "../components/common/AttachmentPicker";
 import DataState from "../components/common/DataState";
 import PageHeader from "../components/layout/PageHeader";
+import MessageVisibilityField from "../components/tickets/MessageVisibilityField";
 import { toast } from "sonner";
 import LexicalEditor from "../components/editor/LexicalEditor";
 import useJson from "../hooks/useJson";
@@ -109,6 +110,7 @@ export default function SupportTicketCreatePage({
             : "",
           affectsVersionId: initialAffectsVersionId,
           message: "",
+          isPublic: true,
         };
       }
       const validEntitlementIds = (bootstrap.companyEntitlements || []).map(
@@ -137,6 +139,7 @@ export default function SupportTicketCreatePage({
         affectsVersionId: validVersionIds.includes(current.affectsVersionId)
           ? current.affectsVersionId
           : initialAffectsVersionId,
+        isPublic: current.isPublic,
       };
     });
   }, [bootstrap]);
@@ -161,6 +164,7 @@ export default function SupportTicketCreatePage({
         ["status", "Open"],
         ["title", formState.title],
         ["message", formState.message],
+        ["isPublic", formState.isPublic],
         ["companyId", formState.companyId],
         ["companyEntitlementId", formState.companyEntitlementId],
         ["categoryId", formState.categoryId || null],
@@ -385,6 +389,13 @@ export default function SupportTicketCreatePage({
                         ticketSuggestApiBase={ticketSuggestApiBase}
                       />
                     </Field>
+                    <MessageVisibilityField
+                      role={sessionState.data?.role}
+                      checked={formState.isPublic}
+                      onCheckedChange={(checked) =>
+                        updateFormState("isPublic", checked)
+                      }
+                    />
                   </CardContent>
                 </Card>
               ) : (
@@ -561,6 +572,13 @@ export default function SupportTicketCreatePage({
                       ticketSuggestApiBase={ticketSuggestApiBase}
                     />
                   </Field>
+                  <MessageVisibilityField
+                    role={sessionState.data?.role}
+                    checked={formState.isPublic}
+                    onCheckedChange={(checked) =>
+                      updateFormState("isPublic", checked)
+                    }
+                  />
                 </>
               )}
             </div>
