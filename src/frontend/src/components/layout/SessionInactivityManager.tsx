@@ -25,7 +25,6 @@ interface SessionInactivityManagerProps {
 const DEFAULT_TIMEOUT_SECONDS = 60 * 60;
 const DEFAULT_WARNING_SECONDS = 5 * 60;
 const KEEP_ALIVE_INTERVAL_MS = 60 * 1000;
-const EXPIRED_MESSAGE = "Session expired due to inactivity.";
 
 function formatRemainingTime(totalSeconds: number): string {
   const minutes = Math.floor(totalSeconds / 60);
@@ -61,9 +60,7 @@ export default function SessionInactivityManager({
         cache: "no-store",
       });
     } finally {
-      window.location.replace(
-        `/login?error=${encodeURIComponent(EXPIRED_MESSAGE)}`,
-      );
+      window.location.replace("/login");
     }
   }, []);
 
