@@ -33,14 +33,18 @@ public class AdminUserApiResource {
             @QueryParam("companyId") Long companyId) {
         OwnerResource.requireAdmin(auth);
         List<Company> companies = Company.list("order by name");
-        Company selectedCompany = selectCompany(companies, companyId);
-        List<User> users = selectedCompany == null ? List.of()
-                : Company.<User> find("select u from Company c join c.users u where c = ?1 order by u.name",
-                        selectedCompany).list();
+        boolean unassignedSelected = companyId != null && companyId.longValue() == 0L;
+        Company selectedCompany = unassignedSelected ? null : selectCompany(companies, companyId);
+        List<User> users = unassignedSelected ? User.<User> find(
+                "select u from User u where not exists (select 1 from Company c join c.users cu where cu = u) order by u.name")
+                .list()
+                : selectedCompany == null ? List.of()
+                        : Company.<User> find("select u from Company c join c.users u where c = ?1 order by u.name",
+                                selectedCompany).list();
         String createPath = selectedCompany != null ? "/users/new?companyId=" + selectedCompany.id : "/users/new";
         return new UserDirectoryApiModels.DirectoryListResponse("Users", "",
-                selectedCompany == null ? null : selectedCompany.id, true, false, createPath,
-                companies.stream().map(UserDirectoryApiModels::companyOption).toList(),
+                unassignedSelected ? 0L : selectedCompany == null ? null : selectedCompany.id, true, false, createPath,
+                UserDirectoryApiModels.prependUnassignedCompanyOption(companies),
                 users.stream().map(user -> UserDirectoryApiModels.userReference(user, "/users/" + user.id,
                         "/users/" + user.id + "/edit")).toList());
     }

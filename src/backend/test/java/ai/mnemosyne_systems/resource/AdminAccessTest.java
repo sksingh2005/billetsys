@@ -53,6 +53,7 @@ class AdminAccessTest extends AccessTestSupport {
     @Test
     void adminCanAccessAdminUsers() {
         ensureUser("admin", "admin@mnemosyne-systems.ai", User.TYPE_ADMIN, "admin");
+        ensureUser("floating-user", "floating-user@mnemosyne-systems.ai", User.TYPE_USER, "password");
         ensureCompanyIfMissing("Test Co");
         String cookie = login("admin", "admin");
 
@@ -61,6 +62,10 @@ class AdminAccessTest extends AccessTestSupport {
         RestAssured.given().cookie(AuthHelper.AUTH_COOKIE, cookie).get("/api/admin/users").then().statusCode(200)
                 .body("title", Matchers.equalTo("Users")).body("showCompanySelector", Matchers.equalTo(true))
                 .body("selectedCompanyId", Matchers.notNullValue()).body("items", Matchers.not(Matchers.empty()));
+        RestAssured.given().cookie(AuthHelper.AUTH_COOKIE, cookie).queryParam("companyId", 0).get("/api/admin/users")
+                .then().statusCode(200).body("selectedCompanyId", Matchers.equalTo(0))
+                .body("companies.name", Matchers.hasItem("Unassigned"))
+                .body("items.email", Matchers.hasItem("floating-user@mnemosyne-systems.ai"));
 
         ai.mnemosyne_systems.model.User adminUser = ai.mnemosyne_systems.model.User
                 .find("email", "admin@mnemosyne-systems.ai").firstResult();
@@ -168,14 +173,14 @@ class AdminAccessTest extends AccessTestSupport {
         User coverageSuperuser = User.find("email", "coverage-superuser@mnemosyne-systems.ai").firstResult();
         RestAssured.given().redirects().follow(false).cookie(AuthHelper.AUTH_COOKIE, cookie)
                 .contentType(ContentType.URLENC).formParam("name", "Coverage Co")
-                .formParam("superuserId", coverageSuperuser.id).post("/companies").then().statusCode(303);
+                .formParam("userIds", coverageSuperuser.id).post("/companies").then().statusCode(303);
         Company company = Company.find("name", "Coverage Co").firstResult();
         Assertions.assertNotNull(company);
 
         RestAssured.given().redirects().follow(false).cookie(AuthHelper.AUTH_COOKIE, cookie)
                 .contentType(ContentType.URLENC).formParam("name", "Coverage Co Updated")
-                .formParam("country", "United States of America").formParam("superuserId", company.superuser.id)
-                .post("/companies/" + company.id).then().statusCode(303);
+                .formParam("country", "United States of America").post("/companies/" + company.id).then()
+                .statusCode(303);
         Company updatedCompany = refreshedCompany(company.id);
         Assertions.assertEquals("Coverage Co Updated", updatedCompany.name);
 
@@ -309,9 +314,15 @@ class AdminAccessTest extends AccessTestSupport {
         ensureUser("admin", "admin@mnemosyne-systems.ai", User.TYPE_ADMIN, "admin");
         ensureUser("tam1", "tam1@mnemosyne-systems.ai", User.TYPE_TAM, "tam1");
         ensureUser("user", "user@mnemosyne-systems.ai", User.TYPE_USER, "user");
+        ensureUser("assigned-user", "assigned-user@mnemosyne-systems.ai", User.TYPE_USER, "assigned-user");
+        ensureUser("assigned-superuser", "assigned-superuser@mnemosyne-systems.ai", User.TYPE_SUPERUSER,
+                "assigned-superuser");
         String cookie = login("admin", "admin");
         Long companyId = ensureCompany("React Company");
         ensureCompanyUsers(companyId, "user@mnemosyne-systems.ai", "tam1@mnemosyne-systems.ai");
+        Long assignedCompanyId = ensureCompany("Assigned Company");
+        ensureCompanyUsers(assignedCompanyId, "assigned-user@mnemosyne-systems.ai",
+                "assigned-superuser@mnemosyne-systems.ai");
         Company company = Company.findById(companyId);
         Entitlement entitlement = ensureEntitlement("React Entitlement", "React detail");
         Level level = ensureLevel("React Level", "React level detail", 60, "Blue");
@@ -327,6 +338,9 @@ class AdminAccessTest extends AccessTestSupport {
                 .statusCode(200).body("name", Matchers.equalTo("React Company"))
                 .body("selectedUsers.email", Matchers.hasItem("user@mnemosyne-systems.ai"))
                 .body("selectedTams.email", Matchers.hasItem("tam1@mnemosyne-systems.ai"))
+                .body("userOptions.email", Matchers.not(Matchers.hasItem("assigned-user@mnemosyne-systems.ai")))
+                .body("superuserOptions.email",
+                        Matchers.not(Matchers.hasItem("assigned-superuser@mnemosyne-systems.ai")))
                 .body("entitlementAssignments.entitlementName", Matchers.hasItem("React Entitlement"))
                 .body("countries.size()", Matchers.greaterThan(0)).body("timezones.size()", Matchers.greaterThan(0));
     }
@@ -344,8 +358,8 @@ class AdminAccessTest extends AccessTestSupport {
 
         RestAssured.given().redirects().follow(false).cookie(AuthHelper.AUTH_COOKIE, cookie)
                 .contentType(ContentType.URLENC).formParam("name", company.name)
-                .formParam("superuserId", company.superuser.id).formParam("entitlementIds", entitlement.id)
-                .formParam("levelIds", level.id).formParam("entitlementDates", "2026-03-27")
+                .formParam("entitlementIds", entitlement.id).formParam("levelIds", level.id)
+                .formParam("entitlementDates", "2026-03-27")
                 .formParam("entitlementDurations", CompanyEntitlement.DURATION_YEARLY).post("/companies/" + company.id)
                 .then().statusCode(303);
 
@@ -357,11 +371,11 @@ class AdminAccessTest extends AccessTestSupport {
         Assertions.assertEquals(CompanyEntitlement.DURATION_YEARLY, savedEntitlement.duration);
 
         Company updatedCompany = refreshedCompany(company.id);
-        Assertions.assertNotNull(updatedCompany.superuser);
-        Assertions.assertTrue(companyHasUser(updatedCompany.id, updatedCompany.superuser.email));
+        Assertions.assertTrue(companyHasUser(updatedCompany.id, "entitlement-update-co-superuser@testing.com"));
 
         RestAssured.given().cookie(AuthHelper.AUTH_COOKIE, cookie).get("/api/companies/" + company.id).then()
-                .statusCode(200).body("selectedSuperusers.email", Matchers.hasItem(updatedCompany.superuser.email));
+                .statusCode(200)
+                .body("selectedSuperusers.email", Matchers.hasItem("entitlement-update-co-superuser@testing.com"));
     }
 
     @Test
@@ -481,7 +495,7 @@ class AdminAccessTest extends AccessTestSupport {
     }
 
     @Test
-    void adminCannotDeleteCompanySuperuserWithoutReassignment() {
+    void adminCanDeleteReferencedUserAssignedToCompany() {
         ensureUser("admin-delete", "admin-delete@mnemosyne-systems.ai", User.TYPE_ADMIN, "admin-delete");
         ensureUser("delete-target", "delete-target@mnemosyne-systems.ai", User.TYPE_USER, "delete-target");
         String cookie = login("admin-delete", "admin-delete");
@@ -489,13 +503,13 @@ class AdminAccessTest extends AccessTestSupport {
         Long targetUserId = prepareReferencedUserForDelete(companyId, "delete-target@mnemosyne-systems.ai", true);
 
         RestAssured.given().redirects().follow(false).cookie(AuthHelper.AUTH_COOKIE, cookie)
-                .post("/user/" + targetUserId + "/delete").then().statusCode(400);
+                .post("/user/" + targetUserId + "/delete").then().statusCode(303)
+                .header("Location", Matchers.endsWith("/users"));
 
-        Assertions.assertNotNull(refreshedUser(targetUserId));
+        Assertions.assertNull(refreshedUser(targetUserId));
         Company company = refreshedCompany(companyId);
         Assertions.assertNotNull(company);
-        Assertions.assertNotNull(company.superuser);
-        Assertions.assertEquals(targetUserId, company.superuser.id);
+        Assertions.assertFalse(companyHasUser(companyId, "delete-target@mnemosyne-systems.ai"));
     }
 
     @Test
@@ -516,16 +530,14 @@ class AdminAccessTest extends AccessTestSupport {
     }
 
     @Transactional
-    Long prepareReferencedUserForDelete(Long companyId, String email, boolean assignAsSuperuser) {
+    Long prepareReferencedUserForDelete(Long companyId, String email, boolean assignToCompany) {
         Company company = Company.findById(companyId);
         User user = User.find("email", email).firstResult();
         Assertions.assertNotNull(company);
         Assertions.assertNotNull(user);
-        if (company.users.stream().noneMatch(existing -> existing.id != null && existing.id.equals(user.id))) {
+        if (assignToCompany
+                && company.users.stream().noneMatch(existing -> existing.id != null && existing.id.equals(user.id))) {
             company.users.add(user);
-        }
-        if (assignAsSuperuser) {
-            company.superuser = user;
         }
 
         Ticket ticket = new Ticket();

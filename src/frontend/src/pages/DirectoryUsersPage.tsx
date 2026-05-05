@@ -78,7 +78,8 @@ export default function DirectoryUsersPage({
               </label>
               <Select
                 value={
-                  directory.selectedCompanyId
+                  directory.selectedCompanyId !== null &&
+                  directory.selectedCompanyId !== undefined
                     ? String(directory.selectedCompanyId)
                     : undefined
                 }
@@ -91,7 +92,11 @@ export default function DirectoryUsersPage({
                   {(directory.companies || []).map((company: NamedEntity) => (
                     <SelectItem
                       key={company.id}
-                      value={company.id ? String(company.id) : "none"}
+                      value={
+                        company.id !== null && company.id !== undefined
+                          ? String(company.id)
+                          : "none"
+                      }
                     >
                       {company.name}
                     </SelectItem>

@@ -71,16 +71,6 @@ const EMPTY_COMPANY_FORM_STATE: CompanyFormState = {
   selectedUserIds: [],
   selectedTamIds: [],
   entitlements: [],
-  superuserId: "",
-  superuserUsername: "",
-  superuserFullName: "",
-  superuserEmail: "",
-  superuserSocial: "",
-  superuserPhoneNumber: "",
-  superuserPhoneExtension: "",
-  superuserCountryId: "",
-  superuserTimezoneId: "",
-  superuserPassword: "",
 };
 
 export default function CompanyFormPage({ mode }: CompanyFormPageProps) {
@@ -133,7 +123,6 @@ export default function CompanyFormPage({ mode }: CompanyFormPageProps) {
             date: entry.date || company.todayDate || "",
             duration: entry.duration ? String(entry.duration) : String(2),
           })) || [],
-        superuserId: company.superuserId ? String(company.superuserId) : "",
       });
       return;
     }
@@ -173,33 +162,12 @@ export default function CompanyFormPage({ mode }: CompanyFormPageProps) {
   ) => {
     setFormState((current) =>
       current
-        ? (() => {
-            const alreadySelected = current[field].includes(idToToggle);
-            const nextSelectedIds = alreadySelected
+        ? {
+            ...current,
+            [field]: current[field].includes(idToToggle)
               ? current[field].filter((existing) => existing !== idToToggle)
-              : [...current[field], idToToggle];
-
-            if (field !== "selectedSuperuserIds") {
-              return {
-                ...current,
-                [field]: nextSelectedIds,
-              };
-            }
-
-            const nextPrimarySuperuserId = alreadySelected
-              ? String(idToToggle) === current.superuserId
-                ? nextSelectedIds[0]
-                  ? String(nextSelectedIds[0])
-                  : ""
-                : current.superuserId
-              : current.superuserId || String(idToToggle);
-
-            return {
-              ...current,
-              selectedSuperuserIds: nextSelectedIds,
-              superuserId: nextPrimarySuperuserId,
-            };
-          })()
+              : [...current[field], idToToggle],
+          }
         : current,
     );
   };
@@ -289,14 +257,6 @@ export default function CompanyFormPage({ mode }: CompanyFormPageProps) {
     ];
     try {
       setSaveState({ saving: true, error: "" });
-      entries.push([
-        "superuserId",
-        formState.superuserId ||
-          (formState.selectedSuperuserIds[0]
-            ? String(formState.selectedSuperuserIds[0])
-            : ""),
-      ]);
-
       const response = await postForm(
         isEdit ? `/companies/${id}` : "/companies",
         entries,

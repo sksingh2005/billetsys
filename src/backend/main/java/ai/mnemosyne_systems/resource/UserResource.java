@@ -567,9 +567,6 @@ public class UserResource {
         if (deleteUser == null) {
             throw new NotFoundException();
         }
-        if (Company.count("superuser = ?1", deleteUser) > 0) {
-            throw new BadRequestException("Reassign this company superuser before deleting the user.");
-        }
         removeUserReferences(deleteUser);
         deleteUser.delete();
         return ReactRedirectSupport.redirect(client, "/users");

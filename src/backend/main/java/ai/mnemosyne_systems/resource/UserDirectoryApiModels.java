@@ -12,6 +12,7 @@ import ai.mnemosyne_systems.model.Company;
 import ai.mnemosyne_systems.model.Country;
 import ai.mnemosyne_systems.model.Timezone;
 import ai.mnemosyne_systems.model.User;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
@@ -64,6 +65,15 @@ public final class UserDirectoryApiModels {
 
     public static CompanyOption companyOption(Company company) {
         return new CompanyOption(company == null ? null : company.id, company == null ? null : company.name);
+    }
+
+    public static List<CompanyOption> prependUnassignedCompanyOption(List<Company> companies) {
+        List<CompanyOption> options = new ArrayList<>();
+        options.add(new CompanyOption(0L, "Unassigned"));
+        if (companies != null) {
+            options.addAll(companies.stream().map(UserDirectoryApiModels::companyOption).toList());
+        }
+        return options;
     }
 
     public static CountryOption countryOption(Country country) {

@@ -34,7 +34,6 @@ erDiagram
         STRING phone_number
         BIGINT country_id FK
         BIGINT timezone_id FK
-        BIGINT primary_contact_id FK
     }
 
     INSTALLATION {
@@ -172,7 +171,6 @@ erDiagram
     TIMEZONE ||--o{ LEVEL : assigns
     COMPANY ||--o{ TICKET : has
     COMPANY }o--o{ USER : associates
-    COMPANY }o--|| USER : "primary contact"
     COMPANY ||--o{ COMPANY_ENTITLEMENT : has
     USER ||--o{ TICKET : requests
     TICKET ||--o{ MESSAGE : has

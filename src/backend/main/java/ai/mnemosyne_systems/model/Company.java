@@ -63,10 +63,6 @@ public class Company extends PanacheEntityBase {
     @Column(name = "phone_number")
     public String phoneNumber;
 
-    @ManyToOne
-    @JoinColumn(name = "primary_contact_id")
-    public User superuser;
-
     @OneToMany(mappedBy = "company", cascade = CascadeType.ALL, orphanRemoval = true)
     public List<Ticket> tickets = new ArrayList<>();
 

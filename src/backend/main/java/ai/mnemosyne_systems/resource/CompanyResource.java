@@ -18,6 +18,7 @@ import ai.mnemosyne_systems.model.Timezone;
 import ai.mnemosyne_systems.model.User;
 import ai.mnemosyne_systems.util.AuthHelper;
 import io.smallrye.common.annotation.Blocking;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.BadRequestException;
 import jakarta.ws.rs.Consumes;
@@ -31,6 +32,7 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import java.net.URI;
@@ -90,15 +92,12 @@ public class CompanyResource {
             @FormParam("levelIds") java.util.List<Long> levelIds,
             @FormParam("entitlementDates") java.util.List<String> entitlementDates,
             @FormParam("entitlementDurations") java.util.List<Integer> entitlementDurations,
-            @FormParam("phoneNumber") String phoneNumber, @FormParam("superuserId") Long superuserId) {
+            @FormParam("phoneNumber") String phoneNumber) {
         requireAdmin(auth);
         if (name == null || name.isBlank()) {
             throw new BadRequestException("Name is required");
         }
         Company company = new Company();
-        User superuser = requireSuperuser(superuserId);
-        List<Long> userIdsModified = userIds == null ? new ArrayList<>() : new ArrayList<>(userIds);
-        userIdsModified.add(superuser.id);
         company.name = name;
         company.address1 = address1;
         company.address2 = address2;
@@ -107,9 +106,8 @@ public class CompanyResource {
         company.zip = zip;
         company.country = countryId != null ? Country.findById(countryId) : null;
         company.timezone = timezoneId != null ? Timezone.findById(timezoneId) : null;
-        company.users = resolveUsers(userIdsModified, tamIds);
+        company.users = resolveUsers(userIds, tamIds, null);
         company.phoneNumber = phoneNumber;
-        company.superuser = superuser;
         company.persist();
         applyEntitlements(company, entitlementIds, levelIds, entitlementDates, entitlementDurations,
                 java.util.List.of());
@@ -129,7 +127,7 @@ public class CompanyResource {
             @FormParam("levelIds") java.util.List<Long> levelIds,
             @FormParam("entitlementDates") java.util.List<String> entitlementDates,
             @FormParam("entitlementDurations") java.util.List<Integer> entitlementDurations,
-            @FormParam("phoneNumber") String phoneNumber, @FormParam("superuserId") Long superuserId) {
+            @FormParam("phoneNumber") String phoneNumber, @Context HttpServletRequest request) {
         requireAdmin(auth);
         Company company = Company.findById(id);
         if (company == null) {
@@ -138,25 +136,6 @@ public class CompanyResource {
         if (name == null || name.isBlank()) {
             throw new BadRequestException("Name is required");
         }
-        if (company.superuser == null) {
-            throw new NotFoundException();
-        }
-        List<Long> userIdsModified = userIds == null ? new ArrayList<>() : new ArrayList<>(userIds);
-        if (superuserId == null) {
-            throw new BadRequestException("Superuser id is required");
-        } else {
-            if (!superuserId.equals(company.superuser.id)) {
-                User updatedSuperuser = User.findById(superuserId);
-                if (updatedSuperuser == null) {
-                    throw new NotFoundException();
-                }
-                company.superuser = updatedSuperuser;
-            }
-        }
-        if (!userIdsModified.contains(company.superuser.id)) {
-            userIdsModified.add(company.superuser.id);
-        }
-
         company.name = name;
         company.address1 = address1;
         company.address2 = address2;
@@ -166,8 +145,10 @@ public class CompanyResource {
         company.country = countryId != null ? Country.findById(countryId) : null;
         company.timezone = timezoneId != null ? Timezone.findById(timezoneId) : null;
         company.phoneNumber = phoneNumber;
-        company.users.clear();
-        company.users.addAll(resolveUsers(userIdsModified, tamIds));
+        if (request.getParameterMap().containsKey("userIds") || request.getParameterMap().containsKey("tamIds")) {
+            company.users.clear();
+            company.users.addAll(resolveUsers(userIds, tamIds, company.id));
+        }
         java.util.List<CompanyEntitlement> existingEntitlements = CompanyEntitlement.find("company = ?1", company)
                 .list();
         java.util.Set<String> selectedEntitlementPairs = applyEntitlements(company, entitlementIds, levelIds,
@@ -210,8 +191,9 @@ public class CompanyResource {
         return user;
     }
 
-    private java.util.List<User> resolveUsers(java.util.List<Long> userIds, java.util.List<Long> tamIds) {
-        java.util.List<Long> ids = new java.util.ArrayList<>();
+    private java.util.List<User> resolveUsers(java.util.List<Long> userIds, java.util.List<Long> tamIds,
+            Long companyId) {
+        java.util.LinkedHashSet<Long> ids = new java.util.LinkedHashSet<>();
         if (userIds != null) {
             ids.addAll(userIds);
         }
@@ -221,19 +203,25 @@ public class CompanyResource {
         if (ids.isEmpty()) {
             return java.util.List.of();
         }
-        return User.list("id in ?1 and type in ?2", ids,
+        java.util.List<User> users = User.list("id in ?1 and type in ?2", ids,
                 java.util.List.of(User.TYPE_USER, User.TYPE_TAM, User.TYPE_SUPERUSER));
-    }
-
-    private User requireSuperuser(Long superuserId) {
-        if (superuserId == null) {
-            throw new BadRequestException("Superuser id is required");
+        for (User user : users) {
+            if (user == null || user.id == null) {
+                continue;
+            }
+            if (!User.TYPE_USER.equalsIgnoreCase(user.type) && !User.TYPE_SUPERUSER.equalsIgnoreCase(user.type)) {
+                continue;
+            }
+            long companyCount = companyId == null
+                    ? Company.find("select distinct c from Company c join c.users u where u = ?1", user).count()
+                    : Company.find("select distinct c from Company c join c.users u where u = ?1 and c.id <> ?2", user,
+                            companyId).count();
+            if (companyCount > 0) {
+                throw new BadRequestException(
+                        "Selected users and superusers must not already belong to another company.");
+            }
         }
-        User superuser = User.findById(superuserId);
-        if (superuser == null || !User.TYPE_SUPERUSER.equalsIgnoreCase(superuser.type)) {
-            throw new BadRequestException("Superuser does not exist");
-        }
-        return superuser;
+        return users;
     }
 
     private java.util.Set<String> applyEntitlements(Company company, java.util.List<Long> entitlementIds,

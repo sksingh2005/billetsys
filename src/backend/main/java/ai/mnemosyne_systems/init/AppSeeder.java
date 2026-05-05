@@ -161,7 +161,6 @@ public class AppSeeder {
             company.name = "A";
             company.country = findCountryByCode("US");
             company.timezone = findTimezoneByName("America/New_York");
-            company.superuser = user1;
             company.persist();
         }
         if (company.country == null) {
@@ -180,7 +179,6 @@ public class AppSeeder {
         addUserIfMissing(company, user2);
         addUserIfMissing(company, tam1);
         addUserIfMissing(company, superuser1);
-        company.superuser = superuser1;
 
         ensureCompanyEntitlement(company, "Enterprise", "Escalate");
         ensureCompanyEntitlement(company, "Enterprise", "Normal");
@@ -242,7 +240,6 @@ public class AppSeeder {
             companyB.name = "B";
             companyB.country = findCountryByCode("US");
             companyB.timezone = findTimezoneByName("America/New_York");
-            companyB.superuser = userB;
             companyB.persist();
         }
         if (companyB.country == null) {
@@ -260,7 +257,6 @@ public class AppSeeder {
         addUserIfMissing(companyB, userB);
         addUserIfMissing(companyB, tam2);
         addUserIfMissing(companyB, superuser2);
-        companyB.superuser = superuser2;
         CompanyEntitlement starterCritical = ensureCompanyEntitlement(companyB, "Starter", "Critical");
         if (starterCritical != null) {
             starterCritical.duration = CompanyEntitlement.DURATION_MONTHLY;
@@ -353,7 +349,6 @@ public class AppSeeder {
             ownerCompany.name = "mnemosyne systems";
             ownerCompany.country = findCountryByCode("US");
             ownerCompany.timezone = findTimezoneByName("America/New_York");
-            ownerCompany.superuser = superuser;
             ownerCompany.persist();
         }
         if (ownerCompany.country == null) {
@@ -361,9 +356,6 @@ public class AppSeeder {
         }
         if (ownerCompany.timezone == null) {
             ownerCompany.timezone = findTimezoneByName("America/New_York");
-        }
-        if (ownerCompany.superuser == null && superuser != null) {
-            ownerCompany.superuser = superuser;
         }
         User adminUser = User.find("email", "admin@mnemosyne-systems.ai").firstResult();
         if (adminUser != null) {

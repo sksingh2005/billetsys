@@ -526,11 +526,11 @@ abstract class AccessTestSupport {
             normalized = "company";
         }
         String superuserUsername = normalized + "-superuser";
-        String superuserEmail = normalized + "@testing.com";
+        String superuserEmail = normalized + "-superuser@testing.com";
         ensureUser(superuserUsername, superuserEmail, User.TYPE_SUPERUSER, "pass");
         User superuser = User.find("email", superuserEmail).firstResult();
         RestAssured.given().redirects().follow(false).cookie(AuthHelper.AUTH_COOKIE, cookie)
-                .contentType(ContentType.URLENC).formParam("name", name).formParam("superuserId", superuser.id)
+                .contentType(ContentType.URLENC).formParam("name", name).formParam("userIds", superuser.id)
                 .post("/companies").then().statusCode(303);
         ai.mnemosyne_systems.model.Company company = ai.mnemosyne_systems.model.Company.find("name", name)
                 .firstResult();

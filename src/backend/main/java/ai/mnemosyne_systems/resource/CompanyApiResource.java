@@ -48,8 +48,9 @@ public class CompanyApiResource {
     @Transactional
     public CompanyBootstrapResponse bootstrap(@CookieParam(AuthHelper.AUTH_COOKIE) String auth) {
         requireAdmin(auth);
-        return new CompanyBootstrapResponse(optionCountries(), optionTimezones(), optionUsers(User.TYPE_USER),
-                optionUsers(User.TYPE_TAM), optionEntitlements(), optionLevels(), defaultCountryId(),
+        return new CompanyBootstrapResponse(optionCountries(), optionTimezones(),
+                optionUsers(User.TYPE_SUPERUSER, null), optionUsers(User.TYPE_USER, null),
+                optionUsers(User.TYPE_TAM, null), optionEntitlements(), optionLevels(), defaultCountryId(),
                 defaultTimezoneId(), LocalDate.now().toString(),
                 List.of(new DurationOption(CompanyEntitlement.DURATION_MONTHLY, "Monthly"),
                         new DurationOption(CompanyEntitlement.DURATION_YEARLY, "Yearly")));
@@ -60,9 +61,8 @@ public class CompanyApiResource {
     @Transactional
     public CompanyDetailResponse detail(@CookieParam(AuthHelper.AUTH_COOKIE) String auth, @PathParam("id") Long id) {
         requireAdmin(auth);
-        Company company = Company.find(
-                "select distinct c from Company c left join fetch c.users left join fetch c.superuser where c.id = ?1",
-                id).firstResult();
+        Company company = Company.find("select distinct c from Company c left join fetch c.users where c.id = ?1", id)
+                .firstResult();
         if (company == null) {
             throw new NotFoundException();
         }
@@ -80,7 +80,8 @@ public class CompanyApiResource {
                 selectedUserOptions.stream().map(UserOption::id).toList());
         LinkedHashSet<Long> selectedTamIds = new LinkedHashSet<>(
                 selectedTamOptions.stream().map(UserOption::id).toList());
-        List<UserOption> superuserOptions = optionUsers(User.TYPE_SUPERUSER);
+        List<UserOption> superuserOptions = optionUsers(User.TYPE_SUPERUSER, company.id);
+        List<UserOption> userOptions = optionUsers(User.TYPE_USER, company.id);
         CompanyBootstrapResponse bootstrap = bootstrap(auth);
         return new CompanyDetailResponse(company.id, company.name, company.address1, company.address2, company.city,
                 company.state, company.zip, company.phoneNumber, company.country == null ? null : company.country.id,
@@ -88,22 +89,9 @@ public class CompanyApiResource {
                 company.timezone == null ? null : company.timezone.id,
                 company.timezone == null ? null : company.timezone.name, selectedUserIds.stream().toList(),
                 selectedTamIds.stream().toList(), selectedSuperuserOptions, selectedUserOptions, selectedTamOptions,
-                companyEntitlements.stream().map(this::toEntitlementAssignment).toList(),
-                company.superuser == null ? null : company.superuser.id,
-                company.superuser == null ? null : company.superuser.name,
-                company.superuser == null ? null : company.superuser.fullName,
-                company.superuser == null ? null : company.superuser.email,
-                company.superuser == null ? null : company.superuser.social,
-                company.superuser == null ? null : company.superuser.phoneNumber,
-                company.superuser == null ? null : company.superuser.phoneExtension,
-                company.superuser == null || company.superuser.country == null ? null : company.superuser.country.id,
-                company.superuser == null || company.superuser.country == null ? null : company.superuser.country.name,
-                company.superuser == null || company.superuser.timezone == null ? null : company.superuser.timezone.id,
-                company.superuser == null || company.superuser.timezone == null ? null
-                        : company.superuser.timezone.name,
-                company.superuser == null ? null : company.superuser.logoBase64, company.superuser != null,
-                superuserOptions, bootstrap.countries(), bootstrap.timezones(), bootstrap.userOptions(),
-                bootstrap.tamOptions(), bootstrap.entitlements(), bootstrap.levels(), bootstrap.defaultCountryId(),
+                companyEntitlements.stream().map(this::toEntitlementAssignment).toList(), superuserOptions,
+                bootstrap.countries(), bootstrap.timezones(), userOptions, bootstrap.tamOptions(),
+                bootstrap.entitlements(), bootstrap.levels(), bootstrap.defaultCountryId(),
                 bootstrap.defaultTimezoneId(), bootstrap.todayDate(), bootstrap.durations());
     }
 
@@ -114,10 +102,12 @@ public class CompanyApiResource {
                 : company.users.stream().filter(user -> User.TYPE_USER.equalsIgnoreCase(user.type)).count();
         long tamCount = company.users == null ? 0
                 : company.users.stream().filter(user -> User.TYPE_TAM.equalsIgnoreCase(user.type)).count();
+        String superuserName = company.users == null ? null
+                : company.users.stream().filter(user -> User.TYPE_SUPERUSER.equalsIgnoreCase(user.type)).findFirst()
+                        .map(User::getDisplayName).orElse(null);
         return new CompanySummary(company.id, company.name, company.country == null ? null : company.country.name,
-                company.timezone == null ? null : company.timezone.name, company.phoneNumber,
-                company.superuser == null ? null : company.superuser.getDisplayName(), superuserCount, userCount,
-                tamCount, "/companies/" + company.id, "/companies/" + company.id + "/edit");
+                company.timezone == null ? null : company.timezone.name, company.phoneNumber, superuserName,
+                superuserCount, userCount, tamCount, "/companies/" + company.id, "/companies/" + company.id + "/edit");
     }
 
     private EntitlementAssignment toEntitlementAssignment(CompanyEntitlement entry) {
@@ -138,8 +128,22 @@ public class CompanyApiResource {
                 timezone.name, timezone.country == null ? null : timezone.country.id)).toList();
     }
 
-    private List<UserOption> optionUsers(String type) {
-        return User.<User> list("type = ?1 order by name", type).stream().map(this::toUserOption).toList();
+    private List<UserOption> optionUsers(String type, Long companyId) {
+        List<User> assignedUsers;
+        if (type.equalsIgnoreCase(User.TYPE_USER) || type.equalsIgnoreCase(User.TYPE_SUPERUSER)) {
+            assignedUsers = companyId == null
+                    ? User.<User> find("select distinct u from Company c join c.users u where lower(u.type) = ?1",
+                            type.toLowerCase()).list()
+                    : User.<User> find(
+                            "select distinct u from Company c join c.users u where lower(u.type) = ?1 and c.id <> ?2",
+                            type.toLowerCase(), companyId).list();
+        } else {
+            assignedUsers = List.of();
+        }
+        LinkedHashSet<Long> assignedIdSet = assignedUsers.stream().map(user -> user.id)
+                .collect(java.util.stream.Collectors.toCollection(LinkedHashSet::new));
+        return User.<User> list("type = ?1 order by name", type).stream()
+                .filter(user -> user.id != null && !assignedIdSet.contains(user.id)).map(this::toUserOption).toList();
     }
 
     private UserOption toUserOption(User user) {
@@ -198,23 +202,19 @@ public class CompanyApiResource {
     }
 
     public record CompanyBootstrapResponse(List<CountryOption> countries, List<TimezoneOption> timezones,
-            List<UserOption> userOptions, List<UserOption> tamOptions, List<EntitlementOption> entitlements,
-            List<LevelOption> levels, Long defaultCountryId, Long defaultTimezoneId, String todayDate,
-            List<DurationOption> durations) {
+            List<UserOption> superuserOptions, List<UserOption> userOptions, List<UserOption> tamOptions,
+            List<EntitlementOption> entitlements, List<LevelOption> levels, Long defaultCountryId,
+            Long defaultTimezoneId, String todayDate, List<DurationOption> durations) {
     }
 
     public record CompanyDetailResponse(Long id, String name, String address1, String address2, String city,
             String state, String zip, String phoneNumber, Long countryId, String countryName, Long timezoneId,
             String timezoneName, List<Long> selectedUserIds, List<Long> selectedTamIds,
             List<UserOption> selectedSuperusers, List<UserOption> selectedUsers, List<UserOption> selectedTams,
-            List<EntitlementAssignment> entitlementAssignments, Long superuserId, String superuserUsername,
-            String superuserFullName, String superuserEmail, String superuserSocial, String superuserPhoneNumber,
-            String superuserPhoneExtension, Long superuserCountryId, String superuserCountryName,
-            Long superuserTimezoneId, String superuserTimezoneName, String superuserLogoBase64,
-            boolean existingSuperuser, List<UserOption> superuserOptions, List<CountryOption> countries,
-            List<TimezoneOption> timezones, List<UserOption> userOptions, List<UserOption> tamOptions,
-            List<EntitlementOption> entitlements, List<LevelOption> levels, Long defaultCountryId,
-            Long defaultTimezoneId, String todayDate, List<DurationOption> durations) {
+            List<EntitlementAssignment> entitlementAssignments, List<UserOption> superuserOptions,
+            List<CountryOption> countries, List<TimezoneOption> timezones, List<UserOption> userOptions,
+            List<UserOption> tamOptions, List<EntitlementOption> entitlements, List<LevelOption> levels,
+            Long defaultCountryId, Long defaultTimezoneId, String todayDate, List<DurationOption> durations) {
     }
 
     public record CountryOption(Long id, String name) {
