@@ -7,7 +7,11 @@
  */
 
 import {
+  Children,
+  cloneElement,
+  createElement,
   Fragment,
+  isValidElement,
   useMemo,
   useRef,
   useState,
@@ -20,6 +24,8 @@ import rehypeHighlight from "rehype-highlight";
 
 import { cn } from "@/lib/utils";
 import { buttonVariants } from "@/components/ui/button";
+import { splitStyledTextTokens } from "@/components/editor/styled-text-tokens";
+import type { SupportedStyledTextFormat } from "@/components/editor/styled-text-tokens";
 import type { CrossReferenceEntry } from "@/types/domain/tickets";
 import { TicketHoverPreview } from "@/components/tickets/TicketHoverPreview";
 
@@ -135,19 +141,106 @@ function buildLinkComponent(
   return MarkdownLink;
 }
 
-const markdownComponents: Components = {
-  a: buildLinkComponent(),
-  blockquote: ({
+function renderStyledText(text: string): ReactNode {
+  const parts = splitStyledTextTokens(text);
+
+  if (parts.length === 1 && parts[0]?.type === "text") {
+    return text;
+  }
+
+  return parts.map((part, index) =>
+    part.type === "styled" ? (
+      <mark
+        key={`styled-${index}`}
+        style={part.style}
+        className="rounded px-0.5 text-inherit"
+      >
+        {renderFormattedText(part.text, part.formats)}
+      </mark>
+    ) : (
+      <Fragment key={`text-${index}`}>{part.text}</Fragment>
+    ),
+  );
+}
+
+function renderFormattedText(
+  text: string,
+  formats: SupportedStyledTextFormat[],
+): ReactNode {
+  return formats.reduce<ReactNode>((content, format) => {
+    switch (format) {
+      case "bold":
+        return <strong>{content}</strong>;
+      case "code":
+        return (
+          <code className="whitespace-pre-wrap rounded bg-transparent px-0 py-0 font-mono text-[0.9em]">
+            {content}
+          </code>
+        );
+      case "italic":
+        return <em>{content}</em>;
+      case "strikethrough":
+        return <del>{content}</del>;
+      case "subscript":
+        return <sub>{content}</sub>;
+      case "superscript":
+        return <sup>{content}</sup>;
+      case "underline":
+        return <u>{content}</u>;
+      default:
+        return content;
+    }
+  }, text);
+}
+
+function renderStyledChildren(children: ReactNode): ReactNode {
+  return Children.map(children, (child) => {
+    if (typeof child === "string") {
+      return renderStyledText(child);
+    }
+
+    if (!isValidElement<{ children?: ReactNode }>(child)) {
+      return child;
+    }
+
+    if (!("children" in child.props) || child.props.children === undefined) {
+      return child;
+    }
+
+    return cloneElement(child, {
+      children: renderStyledChildren(child.props.children),
+    });
+  });
+}
+
+function withStyledChildren<T extends keyof HTMLElementTagNameMap>(
+  tagName: T,
+  baseClassName?: string,
+) {
+  function StyledChildrenComponent({
+    children,
     className,
     ...props
-  }: ComponentPropsWithoutRef<"blockquote">) => (
-    <blockquote
-      className={cn(
-        "my-4 border-l-4 border-border pl-4 italic text-muted-foreground",
-        className,
-      )}
-      {...props}
-    />
+  }: ComponentPropsWithoutRef<T>) {
+    return createElement(
+      tagName,
+      {
+        ...props,
+        className: baseClassName ? cn(baseClassName, className) : className,
+      },
+      renderStyledChildren(children),
+    );
+  }
+
+  StyledChildrenComponent.displayName = `StyledChildren(${tagName})`;
+  return StyledChildrenComponent;
+}
+
+const markdownComponents: Components = {
+  a: buildLinkComponent(),
+  blockquote: withStyledChildren(
+    "blockquote",
+    "my-4 border-l-4 border-border pl-4 italic text-muted-foreground",
   ),
   code: ({ className, ...props }: ComponentPropsWithoutRef<"code">) => (
     <code
@@ -158,53 +251,31 @@ const markdownComponents: Components = {
       {...props}
     />
   ),
-  h1: ({ className, ...props }: ComponentPropsWithoutRef<"h1">) => (
-    <h1
-      className={cn(
-        "mb-4 mt-6 text-3xl font-bold leading-tight text-foreground first:mt-0",
-        className,
-      )}
-      {...props}
-    />
+  h1: withStyledChildren(
+    "h1",
+    "mb-4 mt-6 text-3xl font-bold leading-tight text-foreground first:mt-0",
   ),
-  h2: ({ className, ...props }: ComponentPropsWithoutRef<"h2">) => (
-    <h2
-      className={cn(
-        "mb-3 mt-5 text-2xl font-semibold leading-tight text-foreground first:mt-0",
-        className,
-      )}
-      {...props}
-    />
+  h2: withStyledChildren(
+    "h2",
+    "mb-3 mt-5 text-2xl font-semibold leading-tight text-foreground first:mt-0",
   ),
-  h3: ({ className, ...props }: ComponentPropsWithoutRef<"h3">) => (
-    <h3
-      className={cn(
-        "mb-3 mt-4 text-xl font-semibold leading-snug text-foreground first:mt-0",
-        className,
-      )}
-      {...props}
-    />
+  h3: withStyledChildren(
+    "h3",
+    "mb-3 mt-4 text-xl font-semibold leading-snug text-foreground first:mt-0",
   ),
   hr: ({ className, ...props }: ComponentPropsWithoutRef<"hr">) => (
     <hr className={cn("my-6 border-border", className)} {...props} />
   ),
-  li: ({ className, ...props }: ComponentPropsWithoutRef<"li">) => (
-    <li className={cn("my-1 pl-1", className)} {...props} />
-  ),
+  li: withStyledChildren("li", "my-1 pl-1"),
   ol: ({ className, ...props }: ComponentPropsWithoutRef<"ol">) => (
     <ol
       className={cn("my-3 list-decimal space-y-1 pl-6", className)}
       {...props}
     />
   ),
-  p: ({ className, ...props }: ComponentPropsWithoutRef<"p">) => (
-    <p
-      className={cn(
-        "my-3 whitespace-pre-wrap leading-7 first:mt-0 last:mb-0",
-        className,
-      )}
-      {...props}
-    />
+  p: withStyledChildren(
+    "p",
+    "my-3 whitespace-pre-wrap leading-7 first:mt-0 last:mb-0",
   ),
   pre: ({ className, ...props }: ComponentPropsWithoutRef<"pre">) => (
     <MarkdownCodeBlock className={className} {...props} />
@@ -217,17 +288,10 @@ const markdownComponents: Components = {
       />
     </div>
   ),
-  td: ({ className, ...props }: ComponentPropsWithoutRef<"td">) => (
-    <td className={cn("border px-3 py-2 align-top", className)} {...props} />
-  ),
-  th: ({ className, ...props }: ComponentPropsWithoutRef<"th">) => (
-    <th
-      className={cn(
-        "border bg-muted px-3 py-2 text-left font-semibold",
-        className,
-      )}
-      {...props}
-    />
+  td: withStyledChildren("td", "border px-3 py-2 align-top"),
+  th: withStyledChildren(
+    "th",
+    "border bg-muted px-3 py-2 text-left font-semibold",
   ),
   ul: ({ className, ...props }: ComponentPropsWithoutRef<"ul">) => (
     <ul className={cn("my-3 list-disc space-y-1 pl-6", className)} {...props} />
@@ -236,7 +300,7 @@ const markdownComponents: Components = {
 
 const tableCellMarkdownComponents: Components = {
   ...markdownComponents,
-  p: ({ children }) => <>{children}</>,
+  p: ({ children }) => <>{renderStyledChildren(children)}</>,
 };
 
 function isTableDivider(line: string): boolean {
