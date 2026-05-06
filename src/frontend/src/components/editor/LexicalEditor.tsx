@@ -123,8 +123,10 @@ import { IMAGE } from "./markdown-image-transformer";
 import { TABLE } from "./markdown-table-transformer";
 import { TWEET } from "./markdown-tweet-transformer";
 import {
+  cleanupStyledTextTokens,
+  extractSupportedTextFormats,
   extractSupportedInlineStyles,
-  getStyledTextTokenStyle,
+  getStyledTextTokenData,
   serializeStyledTextToken,
   STYLE_TOKEN_IMPORT_REGEX,
 } from "./styled-text-tokens";
@@ -242,19 +244,36 @@ const STYLED_TEXT: TextMatchTransformer = {
     }
 
     const style = extractSupportedInlineStyles(node.getStyle());
-    return serializeStyledTextToken(node.getTextContent(), style);
+    return serializeStyledTextToken(
+      node.getTextContent(),
+      style,
+      extractSupportedTextFormats(node),
+    );
   },
   importRegExp: STYLE_TOKEN_IMPORT_REGEX,
   regExp: /\[\[style(?:\s+([^\]]+))?\]\]([\s\S]*?)\[\[\/style\]\]$/,
   replace: (textNode, match) => {
     const newNode = $createTextNode(match[2] ?? "");
-    const tokenStyle = getStyledTextTokenStyle(match[1]);
-    const inlineStyles = Object.entries(tokenStyle).map(
-      ([property, value]) => `${property}: ${value}`,
-    );
+    newNode.setFormat(textNode.getFormat());
+    newNode.setDetail(textNode.getDetail());
+    newNode.setMode(textNode.getMode());
+
+    const { formats, style: tokenStyle } = getStyledTextTokenData(match[1]);
+    const inlineStyles = [
+      textNode.getStyle().trim().replace(/;$/, ""),
+      ...Object.entries(tokenStyle).map(
+        ([property, value]) => `${property}: ${value}`,
+      ),
+    ].filter(Boolean);
 
     if (inlineStyles.length > 0) {
       newNode.setStyle(`${inlineStyles.join("; ")};`);
+    }
+
+    for (const format of formats) {
+      if (!newNode.hasFormat(format)) {
+        newNode.toggleFormat(format);
+      }
     }
 
     textNode.replace(newNode);
@@ -263,7 +282,7 @@ const STYLED_TEXT: TextMatchTransformer = {
   type: "text-match",
 };
 
-const ALL_TRANSFORMERS = [
+const STORAGE_TRANSFORMERS = [
   TABLE,
   HR,
   IMAGE,
@@ -271,6 +290,22 @@ const ALL_TRANSFORMERS = [
   TWEET,
   TICKET_MENTION,
   STYLED_TEXT,
+  CHECK_LIST,
+  ...ELEMENT_TRANSFORMERS,
+  ...MULTILINE_ELEMENT_TRANSFORMERS,
+  ...TEXT_FORMAT_TRANSFORMERS,
+  SUPERSCRIPT,
+  SUBSCRIPT,
+  ...TEXT_MATCH_TRANSFORMERS,
+];
+
+const SHORTCUT_TRANSFORMERS = [
+  TABLE,
+  HR,
+  IMAGE,
+  EMOJI,
+  TWEET,
+  TICKET_MENTION,
   CHECK_LIST,
   ...ELEMENT_TRANSFORMERS,
   ...MULTILINE_ELEMENT_TRANSFORMERS,
@@ -301,8 +336,8 @@ function MarkdownExportPlugin({
       if (initialValue) {
         editor.update(() => {
           $convertFromMarkdownString(
-            initialValue,
-            ALL_TRANSFORMERS,
+            cleanupStyledTextTokens(initialValue),
+            STORAGE_TRANSFORMERS,
             undefined,
             true,
           );
@@ -321,11 +356,11 @@ function MarkdownExportPlugin({
       }
       editor.read(() => {
         const markdown = $convertToMarkdownString(
-          ALL_TRANSFORMERS,
+          STORAGE_TRANSFORMERS,
           undefined,
           true,
         );
-        onChangeRef.current(markdown);
+        onChangeRef.current(cleanupStyledTextTokens(markdown));
       });
     });
   }, [editor]);
@@ -368,7 +403,7 @@ export default function LexicalEditor({
           ClickableLinkExtension,
           configExtension(MaxLengthExtension, { disabled: false, maxLength }),
           configExtension(MarkdownShortcutsExtension, {
-            transformers: ALL_TRANSFORMERS,
+            transformers: SHORTCUT_TRANSFORMERS,
           }),
           ClearEditorExtension,
           EmojisExtension,
@@ -512,7 +547,7 @@ export default function LexicalEditor({
                   <ImportExportPlugin />
                   <MarkdownTogglePlugin
                     shouldPreserveNewLinesInMarkdown={true}
-                    transformers={ALL_TRANSFORMERS}
+                    transformers={STORAGE_TRANSFORMERS}
                   />
                   <EditModeTogglePlugin />
                   <ClearEditorActionPlugin />

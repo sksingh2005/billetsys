@@ -25,6 +25,7 @@ import rehypeHighlight from "rehype-highlight";
 import { cn } from "@/lib/utils";
 import { buttonVariants } from "@/components/ui/button";
 import { splitStyledTextTokens } from "@/components/editor/styled-text-tokens";
+import type { SupportedStyledTextFormat } from "@/components/editor/styled-text-tokens";
 import type { CrossReferenceEntry } from "@/types/domain/tickets";
 import { TicketHoverPreview } from "@/components/tickets/TicketHoverPreview";
 
@@ -154,12 +155,42 @@ function renderStyledText(text: string): ReactNode {
         style={part.style}
         className="rounded px-0.5 text-inherit"
       >
-        {part.text}
+        {renderFormattedText(part.text, part.formats)}
       </mark>
     ) : (
       <Fragment key={`text-${index}`}>{part.text}</Fragment>
     ),
   );
+}
+
+function renderFormattedText(
+  text: string,
+  formats: SupportedStyledTextFormat[],
+): ReactNode {
+  return formats.reduce<ReactNode>((content, format) => {
+    switch (format) {
+      case "bold":
+        return <strong>{content}</strong>;
+      case "code":
+        return (
+          <code className="whitespace-pre-wrap rounded bg-transparent px-0 py-0 font-mono text-[0.9em]">
+            {content}
+          </code>
+        );
+      case "italic":
+        return <em>{content}</em>;
+      case "strikethrough":
+        return <del>{content}</del>;
+      case "subscript":
+        return <sub>{content}</sub>;
+      case "superscript":
+        return <sup>{content}</sup>;
+      case "underline":
+        return <u>{content}</u>;
+      default:
+        return content;
+    }
+  }, text);
 }
 
 function renderStyledChildren(children: ReactNode): ReactNode {
