@@ -18,12 +18,19 @@ The profile feature is where a user can manage the personal details that shape d
 * Full name
 * Email address
 * Preferred email format for outbound notifications
+* Default rows per page for list views
 * Social or contact details
 * Phone information
 * Country and timezone
 * Password-related account maintenance
 
 This helps billetsys function not only as a workflow tool, but also as a practical communication environment.
+
+## Display preferences
+
+Users can set a **default rows per page** value that applies to all paginated list views (tickets, articles, companies, etc.). The available options are 10, 25, and 50 rows per page. This preference is stored in the user profile and applied automatically across sessions.
+
+Individual list views can still override this default using the rows-per-page selector at the bottom of any paginated list.
 
 ## Notification preferences
 
