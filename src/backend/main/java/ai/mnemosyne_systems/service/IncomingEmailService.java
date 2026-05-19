@@ -67,9 +67,27 @@ public class IncomingEmailService {
             }
         }
         if (ticket == null) {
-            ticket = createTicketForIncoming(sender, subject, body);
+            List<String> incomingTraces = new ArrayList<>();
+            incomingTraces.addAll(StackTraceExtractor.extractStackTraces(body));
+            incomingTraces.addAll(StackTraceExtractor.extractStackTracesFromAttachments(attachments));
+
+            if (!incomingTraces.isEmpty()) {
+                Ticket duplicateTicket = findExistingTicketWithSameStackTrace(sender, incomingTraces);
+                if (duplicateTicket != null) {
+                    ticket = duplicateTicket;
+                    escalateTicket(ticket);
+                    if ("Closed".equalsIgnoreCase(ticket.status) || "Resolved".equalsIgnoreCase(ticket.status)) {
+                        ticket.status = "Open";
+                        ticket.persist();
+                    }
+                }
+            }
+
             if (ticket == null) {
-                return IncomingEmailResult.ignored();
+                ticket = createTicketForIncoming(sender, subject, body);
+                if (ticket == null) {
+                    return IncomingEmailResult.ignored();
+                }
             }
         }
         Message message = new Message();
@@ -189,6 +207,66 @@ public class IncomingEmailService {
             if (tam.id != null && !existingIds.contains(tam.id)) {
                 ticket.tamUsers.add(tam);
             }
+        }
+    }
+
+    private Ticket findExistingTicketWithSameStackTrace(User sender, List<String> incomingTraces) {
+        if (incomingTraces.isEmpty()) {
+            return null;
+        }
+        Company company = companyForSender(sender);
+        if (company == null) {
+            return null;
+        }
+
+        Set<String> normalizedIncoming = new HashSet<>();
+        for (String trace : incomingTraces) {
+            normalizedIncoming.add(StackTraceExtractor.normalizeStackTrace(trace));
+        }
+
+        List<Message> companyMessages = Message
+                .list("select m from Message m join m.ticket t where t.company = ?1 order by t.id desc", company);
+        for (Message m : companyMessages) {
+            if (m.body != null) {
+                List<String> traces = StackTraceExtractor.extractStackTraces(m.body);
+                for (String trace : traces) {
+                    if (normalizedIncoming.contains(StackTraceExtractor.normalizeStackTrace(trace))) {
+                        return m.ticket;
+                    }
+                }
+            }
+        }
+
+        List<Attachment> companyAttachments = Attachment.list(
+                "select a from Attachment a join a.message m join m.ticket t where t.company = ?1 order by t.id desc",
+                company);
+        for (Attachment a : companyAttachments) {
+            if (a.data != null) {
+                String text = new String(a.data, java.nio.charset.StandardCharsets.UTF_8);
+                List<String> traces = StackTraceExtractor.extractStackTraces(text);
+                for (String trace : traces) {
+                    if (normalizedIncoming.contains(StackTraceExtractor.normalizeStackTrace(trace))) {
+                        return a.message.ticket;
+                    }
+                }
+            }
+        }
+
+        return null;
+    }
+
+    private void escalateTicket(Ticket ticket) {
+        if (ticket == null || ticket.companyEntitlement == null) {
+            return;
+        }
+        CompanyEntitlement escalatedEntitlement = CompanyEntitlement
+                .find("company = ?1 and entitlement = ?2 and supportLevel.name = ?3", ticket.company,
+                        ticket.companyEntitlement.entitlement, "Escalate")
+                .firstResult();
+        if (escalatedEntitlement != null) {
+            ticket.companyEntitlement = escalatedEntitlement;
+            ticket.persist();
+            LOGGER.infof("Ticket '%s' escalated to Escalate level due to duplicate stack trace", ticket.name);
         }
     }
 

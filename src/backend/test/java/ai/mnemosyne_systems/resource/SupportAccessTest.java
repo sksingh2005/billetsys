@@ -731,6 +731,58 @@ class SupportAccessTest extends AccessTestSupport {
     }
 
     @Test
+    void incomingEmailWithDuplicateStackTraceUpdatesExistingTicketAndEscalates() {
+        mailbox.clear();
+        ensureUser("user", "user@mnemosyne-systems.ai", User.TYPE_USER, "user");
+        Long companyId = ensureCompany("Incoming Deduplication Co");
+        ensureCompanyUsers(companyId, "user@mnemosyne-systems.ai");
+
+        ensureEscalateEntitlementSupport(companyId);
+
+        String stackTrace = "java.lang.NullPointerException: test exception\n"
+                + "    at com.example.TestService.execute(TestService.java:23)\n"
+                + "    at com.example.TestService.run(TestService.java:10)";
+
+        String body1 = "We hit this error:\n" + stackTrace;
+
+        RestAssured.given().contentType("multipart/form-data").multiPart("from", "user@mnemosyne-systems.ai")
+                .multiPart("subject", "Crash report").multiPart("body", body1).post("/mail/incoming").then()
+                .statusCode(200);
+
+        Message saved1 = findMessageByBody(body1);
+        Assertions.assertNotNull(saved1);
+        Ticket ticket = saved1.ticket;
+        Assertions.assertNotNull(ticket);
+
+        Assertions.assertEquals("Normal", ticket.companyEntitlement.supportLevel.name);
+
+        setTicketStatus(ticket.id, "Closed");
+
+        String body2 = "Help, it happened again!\n" + stackTrace;
+        RestAssured.given().contentType("multipart/form-data").multiPart("from", "user@mnemosyne-systems.ai")
+                .multiPart("subject", "Second crash report").multiPart("body", body2).post("/mail/incoming").then()
+                .statusCode(200);
+
+        Message saved2 = findMessageByBody(body2);
+        Assertions.assertNotNull(saved2);
+        Assertions.assertEquals(ticket.id, saved2.ticket.id);
+
+        Ticket refreshed = refreshedTicket(ticket.id);
+        Assertions.assertEquals("Open", refreshed.status);
+        Assertions.assertEquals("Escalate", refreshed.companyEntitlement.supportLevel.name);
+    }
+
+    @Transactional
+    void ensureEscalateEntitlementSupport(Long companyId) {
+        Company company = Company.findById(companyId);
+        Entitlement entitlement = ensureEntitlement("Starter", "Email support");
+        Level normal = ensureLevel("Normal", "Normal response", 1440, "White");
+        Level escalate = ensureLevel("Escalate", "Escalate response", 120, "Yellow");
+        ensureCompanyEntitlement(company, entitlement, normal);
+        ensureCompanyEntitlement(company, entitlement, escalate);
+    }
+
+    @Test
     void incomingEmailIgnoresUnknownOrMismatchedFrom() {
         mailbox.clear();
         ensureUser("user", "user@mnemosyne-systems.ai", User.TYPE_USER, "user");
